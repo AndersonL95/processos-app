@@ -21,7 +21,7 @@ void main() async {
       initialRoute: '/login',
       routes: <String, WidgetBuilder>{
         '/home': (context) => const HomePage(),
-        '/login': (context) => const LoginPage(),
+        '/login': (context) => LoginPage(),
       },
     )));
   });
