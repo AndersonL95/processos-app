@@ -13,6 +13,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations: 
+    sdk: flutter
+  localization: ^2.1.1
   cupertino_icons: ^1.0.2
   http: 1.1.0
   shared_preferences: 2.2.1
@@ -29,5 +32,6 @@ flutter:
 
   
   uses-material-design: true
-
+  assets:
+  - Assets/logo/
   
