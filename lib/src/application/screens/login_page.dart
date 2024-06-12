@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/home_page.dart';
+import 'package:processos_app/src/application/screens/menuItem.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:toastification/toastification.dart';
 
@@ -39,10 +39,11 @@ class _LoginPageState extends State<LoginPage> {
             .login(_emailController.text, _passwordController.text)
             .then((value) {
           id = value['id'];
-          print("ITEMS: $id");
         });
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomePage()));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => MenuItem(
+                  userId: id,
+                )));
       } catch (e) {
         toastification.show(
           type: ToastificationType.error,

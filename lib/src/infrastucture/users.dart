@@ -59,25 +59,23 @@ class ApiService implements RepositoryInterface<Users> {
     }
   }
 
-  Future<List<Users>> findById(int id) async {
+  Future<Map<String, dynamic>> findUser(int id) async {
     List<Users> users = [];
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
     try {
       final response = await http.get(
-          Uri.parse("http://localhost:3000/api/users/$id"),
+          Uri.parse("http://10.0.0.125:3000/api/users/$id"),
           headers: <String, String>{
             'Authorization': 'Bearer $accessToken',
           });
       if (response.statusCode == 200) {
-        List<dynamic> body = json.decode(response.body);
-        users = body.map((dynamic item) => Users.froJson(item)).toList();
-        return users;
+        return json.decode(response.body);
       } else if (response.statusCode == 401) {
         await refreshToken();
-        return findById(id);
+        return findUser(id);
       }
-      return users;
+      return json.decode(response.body);
     } catch (e) {
       throw Exception("$e");
     }
@@ -98,6 +96,12 @@ class ApiService implements RepositoryInterface<Users> {
   @override
   Future<List<Users>> findAll() {
     // TODO: implement findAll
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Users>> findById(int id) {
+    // TODO: implement findById
     throw UnimplementedError();
   }
 }

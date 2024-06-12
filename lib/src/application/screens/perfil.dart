@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/domain/entities/users.dart';
+import 'package:processos_app/src/infrastucture/users.dart';
 
-class HomePage extends StatefulWidget {
-  //const HomePage({Key? key}) : super(key: key);
-  final int id = 0;
+class PerfilPage extends StatefulWidget {
+  late final int userId;
+  PerfilPage({required this.userId});
   @override
-  _HomePageState createState() => _HomePageState();
+  _PerfilPageState createState() => _PerfilPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _PerfilPageState extends State<PerfilPage> {
+  final ApiService apiService = ApiService();
+  late int id;
+  Map<String, dynamic>? dataUser;
+
+  @override
+  void initState() {
+    id = widget.userId;
+    super.initState();
+    getData();
+  }
+
+  Future<void> getData() async {
+    try {
+      print("MEUS DADOS: $id");
+
+      final userData = await apiService.findUser(id);
+      setState(() {
+        dataUser = userData;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +64,17 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.only(top: 10, right: 10, left: 10),
+        child: Column(
+          children: [
+            /* Text(
+              "Nome: ${dataUser!['name']}",
+              style: TextStyle(fontSize: 24),
+            )*/
+          ],
+        ),
       ),
     );
   }
