@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/menuItem.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,6 +25,8 @@ class _LoginPageState extends State<LoginPage> {
   final ApiService apiService = ApiService();
 
   void _login() async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+
     setState(() {
       isLoading = true;
     });
@@ -40,6 +45,8 @@ class _LoginPageState extends State<LoginPage> {
             .then((value) {
           id = value['id'];
         });
+        String idJson = json.encode(id);
+        await data.setString('id', idJson);
         Navigator.of(context).pushReplacement(MaterialPageRoute(
             builder: (context) => MenuItem(
                   userId: id,

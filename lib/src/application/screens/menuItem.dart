@@ -3,6 +3,7 @@ import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/contratos.dart';
 import 'package:processos_app/src/application/screens/home_page.dart';
 import 'package:processos_app/src/application/screens/perfil.dart';
+import 'package:processos_app/src/infrastucture/users.dart';
 
 class MenuItem extends StatefulWidget {
   late final int userId;
@@ -12,6 +13,8 @@ class MenuItem extends StatefulWidget {
 }
 
 class _MenuItemState extends State<MenuItem> {
+  final ApiService apiService = ApiService();
+
   void initSate() {
     super.initState();
   }
