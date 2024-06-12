@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/domain/entities/users.dart';
+import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiService {
+class ApiService implements RepositoryInterface<Users> {
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse("http://localhost:3000/api/login"),
+        Uri.parse("http://10.0.0.125:3000/api/login"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -53,30 +54,54 @@ class ApiService {
       } else {
         throw Exception("Erro ao recarregar o token.");
       }
-    } catch (e) {}
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
-  Future<List<Users>> getUser(int id) async {
+  Future<Map<String, dynamic>> findUser(int id) async {
     List<Users> users = [];
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
     try {
       final response = await http.get(
-          Uri.parse("http://localhost:3000/api/users/$id"),
+          Uri.parse("http://10.0.0.125:3000/api/users/$id"),
           headers: <String, String>{
             'Authorization': 'Bearer $accessToken',
           });
       if (response.statusCode == 200) {
-        List<dynamic> body = json.decode(response.body);
-        users = body.map((dynamic item) => Users.froJson(item)).toList();
-        return users;
+        return json.decode(response.body);
       } else if (response.statusCode == 401) {
         await refreshToken();
-        return getUser(id);
+        return findUser(id);
       }
-      return users;
+      return json.decode(response.body);
     } catch (e) {
       throw Exception("$e");
     }
+  }
+
+  @override
+  Future<int> create(Users entity) {
+    // TODO: implement create
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> delet(int id) {
+    // TODO: implement delet
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Users>> findAll() {
+    // TODO: implement findAll
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Users>> findById(int id) {
+    // TODO: implement findById
+    throw UnimplementedError();
   }
 }

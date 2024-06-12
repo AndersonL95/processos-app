@@ -6,5 +6,6 @@ const customColors = {
   'beige': Color.fromRGBO(255, 250, 240, 1),
   'yellow': Color.fromRGBO(255, 255, 0, 1),
   'white': Color.fromRGBO(255, 255, 255, 1),
-  'black': Color.fromRGBO(0, 0, 0, 1)
+  'black': Color.fromRGBO(0, 0, 0, 1),
+  'grey': Color.fromRGBO(189, 195, 199, 1)
 };

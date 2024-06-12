@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/menuItem.dart';
+import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -14,8 +15,51 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
+  bool isLoading = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  int id = 0;
+  final ApiService apiService = ApiService();
+
+  void _login() async {
+    setState(() {
+      isLoading = true;
+    });
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      toastification.show(
+        type: ToastificationType.warning,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Campos vazios."),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+    } else {
+      try {
+        await apiService
+            .login(_emailController.text, _passwordController.text)
+            .then((value) {
+          id = value['id'];
+        });
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => MenuItem(
+                  userId: id,
+                )));
+      } catch (e) {
+        toastification.show(
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("E-mail ou Senha incorretos."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -24,14 +68,14 @@ class _LoginPageState extends State<LoginPage> {
         body: SingleChildScrollView(
           child: Column(children: [
             Padding(
-              padding: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.only(top: 70),
               child: Image.asset(
                 "Assets/logo/DocInHand.png",
                 scale: 3.0,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
+              padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
               child: TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -77,7 +121,9 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     minimumSize: const Size(220, 55)),
-                onPressed: () {},
+                onPressed: () {
+                  _login();
+                },
                 child: const Text(
                   "Login",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),

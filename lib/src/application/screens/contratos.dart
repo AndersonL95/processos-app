@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/domain/entities/users.dart';
 
-class HomePage extends StatefulWidget {
-  //const HomePage({Key? key}) : super(key: key);
-  final int id = 0;
+class ContractPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _ContractPageState createState() => _ContractPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ContractPageState extends State<ContractPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
