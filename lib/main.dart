@@ -10,13 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  int? id;
-
-  final SharedPreferences pref = await SharedPreferences.getInstance();
-  String? idJson = pref.getString('id');
-  if (idJson != null) {
-    id = json.decode(idJson);
-  }
 
   Future<bool> _checkLogin() async {
     SharedPreferences datas = await SharedPreferences.getInstance();
@@ -37,7 +30,7 @@ void main() async {
               ),
             );
           } else if (snapshot.hasData && snapshot.data!) {
-            return MenuItem(userId: id! ?? 0);
+            return MenuItem();
           } else {
             return LoginPage();
           }

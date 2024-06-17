@@ -17,6 +17,7 @@ class _PerfilPageState extends State<PerfilPage> {
   static Map<String, dynamic>? dataUser;
   bool _loading = true;
   String? _error;
+  var selecttem = "";
 
   @override
   void initState() {
@@ -29,7 +30,9 @@ class _PerfilPageState extends State<PerfilPage> {
   Future<void> getData() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     try {
-      await GetUserInfoApi().execute(id);
+      if (dataUser.toString().isEmpty) {
+        await GetUserInfoApi().execute(id);
+      }
 
       String? userInfoJson = data.getString('userInfo');
       if (userInfoJson != null) {
@@ -49,6 +52,7 @@ class _PerfilPageState extends State<PerfilPage> {
     }
   }
 
+  Future<void> logout() async {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +60,7 @@ class _PerfilPageState extends State<PerfilPage> {
           title: const Padding(
             padding: EdgeInsets.only(top: 10),
             child: Text(
-              "DocInHand",
+              "Perfil",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
@@ -67,16 +71,37 @@ class _PerfilPageState extends State<PerfilPage> {
           automaticallyImplyLeading: false,
           actions: [
             Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: IconButton(
-                icon: Icon(
-                  Icons.notification_important,
-                  size: 30,
-                  color: customColors['white'],
-                ),
-                onPressed: () {},
-              ),
-            ),
+                padding: const EdgeInsets.only(top: 10, right: 20),
+                child: PopupMenuButton(
+                  onSelected: (value) {
+                    setState(() {});
+                  },
+                  icon: const Icon(
+                    Icons.settings,
+                    size: 40,
+                  ),
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                          child: InkWell(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(
+                              Icons.logout,
+                              color: customColors['green'],
+                            ),
+                            Text(
+                              "Sair",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                        onTap: () => {},
+                      )),
+                    ];
+                  },
+                )),
           ],
         ),
         body: _loading
