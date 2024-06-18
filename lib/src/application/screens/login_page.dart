@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/menuItem.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,6 +25,8 @@ class _LoginPageState extends State<LoginPage> {
   final ApiService apiService = ApiService();
 
   void _login() async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+
     setState(() {
       isLoading = true;
     });
@@ -40,10 +45,10 @@ class _LoginPageState extends State<LoginPage> {
             .then((value) {
           id = value['id'];
         });
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => MenuItem(
-                  userId: id,
-                )));
+        String idJson = json.encode(id);
+        await data.setString('id', idJson);
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MenuItem()));
       } catch (e) {
         toastification.show(
           type: ToastificationType.error,
@@ -62,76 +67,74 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        backgroundColor: customColors["beige"],
-        body: SingleChildScrollView(
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 70),
-              child: Image.asset(
-                "Assets/logo/DocInHand.png",
-                scale: 3.0,
+    return Scaffold(
+      backgroundColor: customColors["beige"],
+      body: SingleChildScrollView(
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 70),
+            child: Image.asset(
+              "Assets/logo/DocInHand.png",
+              scale: 3.0,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
+            child: TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.email,
+                    color: customColors["green"],
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: customColors["green"]!),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  labelText: "E-mail",
+                  hintText: "Digite o seu e-mail"),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
+            child: TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.key,
+                    color: customColors["green"],
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: customColors["green"]!),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  labelText: "Senha",
+                  hintText: "Digite a sua senha"),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 70),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: customColors["green"],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  minimumSize: const Size(220, 55)),
+              onPressed: () {
+                _login();
+              },
+              child: const Text(
+                "Login",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
-              child: TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.email,
-                      color: customColors["green"],
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: customColors["green"]!),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
-                    labelText: "E-mail",
-                    hintText: "Digite o seu e-mail"),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
-              child: TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.key,
-                      color: customColors["green"],
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: customColors["green"]!),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
-                    labelText: "Senha",
-                    hintText: "Digite a sua senha"),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 70),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: customColors["green"],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    minimumSize: const Size(220, 55)),
-                onPressed: () {
-                  _login();
-                },
-                child: const Text(
-                  "Login",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ),
-            )
-          ]),
-        ),
+          )
+        ]),
       ),
     );
   }

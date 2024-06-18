@@ -81,6 +81,14 @@ class ApiService implements RepositoryInterface<Users> {
     }
   }
 
+  Future<void> logout() async {
+    final data = await SharedPreferences.getInstance();
+    await data.remove('accessToken');
+    await data.remove('refreshToken');
+    await data.remove('id');
+    await data.remove('userInfo');
+  }
+
   @override
   Future<int> create(Users entity) {
     // TODO: implement create
