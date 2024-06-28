@@ -66,10 +66,10 @@ class ApiService implements RepositoryInterface<Contracts> {
   }
 
   @override
-  Future<List<dynamic>> findAllContracts() async {
+  Future<dynamic> findAllContracts() async {
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
-    List<dynamic> bodyList = [];
+    var bodyList;
     try {
       final response = await http.get(Uri.parse("$baseUrl/contract"), headers: {
         'Authorization': 'Bearer $accessToken',

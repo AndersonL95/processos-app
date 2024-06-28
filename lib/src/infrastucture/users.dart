@@ -46,12 +46,14 @@ class ApiService implements RepositoryInterface<Users> {
           'Content-type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'refreshToken': refreshToken,
+          'token': refreshToken,
         }),
       );
+
       if (response.statusCode == 200) {
         Map<String, dynamic> responseBody = json.decode(response.body);
-        await data.setString('accessToken', responseBody['accesstoken']);
+        print("REFRESH: ${responseBody['refreshToken']}");
+        await data.setString('accessToken', responseBody['accessToken']);
         await data.setString('refreshToken', responseBody['refreshToken']);
       } else {
         throw Exception("Erro ao recarregar o token.");
@@ -62,22 +64,24 @@ class ApiService implements RepositoryInterface<Users> {
   }
 
   Future<Map<String, dynamic>> findUser(int id) async {
-    List<Users> users = [];
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
     try {
+      print("TOKEN: $accessToken");
       final response = await http
           .get(Uri.parse("$baseUrl/users/$id"), headers: <String, String>{
         'Authorization': 'Bearer $accessToken',
       });
+      print("STATUS: ${response.statusCode}");
       if (response.statusCode == 200) {
         return json.decode(response.body);
-      } else if (response.statusCode == 401) {
+      } else if (response.statusCode == 400) {
         await refreshToken();
         return findUser(id);
       }
       return json.decode(response.body);
     } catch (e) {
+      print("ERROR: $e");
       throw Exception("$e");
     }
   }

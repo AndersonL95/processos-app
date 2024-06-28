@@ -9,11 +9,12 @@ class ContractPage extends StatefulWidget {
 
 class _ContractPageState extends State<ContractPage> {
   String? contracts;
+  List item = [];
+  List data = [];
 
   Future<void> getContracts() async {
-    await GetContractsInfoApi().execute().then((value) => setState(() {
-          contracts = value;
-        }));
+    data = await GetContractsInfoApi().execute();
+    print("LIST: $data");
   }
 
   @override
@@ -51,6 +52,38 @@ class _ContractPageState extends State<ContractPage> {
             ),
           ),
         ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Expanded(
+                  child: data.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                                height: 225,
+                                child: Expanded(
+                                  flex: 1,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Card(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                              data[index].numProcess.toString())
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ));
+                          })
+                      : const Text("Nenhum arquivo encontrado"))
+            ],
+          ),
+        ),
       ),
     );
   }
