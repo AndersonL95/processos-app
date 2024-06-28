@@ -5,10 +5,12 @@ import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService implements RepositoryInterface<Users> {
+  final baseUrl = "http://10.0.0.125:3000/api";
+
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse("http://10.0.0.125:3000/api/login"),
+        Uri.parse("$baseUrl/login"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -39,7 +41,7 @@ class ApiService implements RepositoryInterface<Users> {
     }
     try {
       final response = await http.post(
-        Uri.parse("http://localhost:3000/api/refresh_token"),
+        Uri.parse("$baseUrl/refresh_token"),
         headers: <String, String>{
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -64,11 +66,10 @@ class ApiService implements RepositoryInterface<Users> {
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
     try {
-      final response = await http.get(
-          Uri.parse("http://10.0.0.125:3000/api/users/$id"),
-          headers: <String, String>{
-            'Authorization': 'Bearer $accessToken',
-          });
+      final response = await http
+          .get(Uri.parse("$baseUrl/users/$id"), headers: <String, String>{
+        'Authorization': 'Bearer $accessToken',
+      });
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else if (response.statusCode == 401) {
@@ -96,7 +97,7 @@ class ApiService implements RepositoryInterface<Users> {
   }
 
   @override
-  Future<void> delet(int id) {
+  Future<void> delete(int id) {
     // TODO: implement delet
     throw UnimplementedError();
   }

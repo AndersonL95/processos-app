@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
+import 'package:processos_app/src/application/use-case/getContract_api.dart';
 
 class ContractPage extends StatefulWidget {
   @override
@@ -8,6 +8,20 @@ class ContractPage extends StatefulWidget {
 }
 
 class _ContractPageState extends State<ContractPage> {
+  String? contracts;
+
+  Future<void> getContracts() async {
+    await GetContractsInfoApi().execute().then((value) => setState(() {
+          contracts = value;
+        }));
+  }
+
+  @override
+  void initState() {
+    getContracts();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

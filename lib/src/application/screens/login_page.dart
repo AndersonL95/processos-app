@@ -50,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MenuItem()));
       } catch (e) {
+        print("ERRO LOGIN: $e");
         toastification.show(
           type: ToastificationType.error,
           style: ToastificationStyle.fillColored,
