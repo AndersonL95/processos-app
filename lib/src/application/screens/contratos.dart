@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
+import 'package:processos_app/src/application/use-case/getContract_api.dart';
 
 class ContractPage extends StatefulWidget {
   @override
@@ -8,8 +8,29 @@ class ContractPage extends StatefulWidget {
 }
 
 class _ContractPageState extends State<ContractPage> {
+  String? contracts;
+  List item = [];
+  List<dynamic> data = [];
+
+  Future<void> getContracts() async {
+    await GetContractsInfoApi().execute().then((value) {
+      if (this.mounted) {
+        setState(() {
+          data = value;
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    getContracts();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("DATA: $data");
     return Scaffold(
       appBar: AppBar(
         title: Padding(
@@ -38,6 +59,26 @@ class _ContractPageState extends State<ContractPage> {
           ),
         ],
       ),
+      body: SingleChildScrollView(
+          child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+              child: data.isEmpty
+                  ? Text("Vazio")
+                  : SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              child: Text(data[index]['manager']),
+                            );
+                          }),
+                    ))
+        ],
+      )),
     );
   }
 }
