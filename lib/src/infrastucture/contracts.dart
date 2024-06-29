@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
+import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiService implements RepositoryInterface<Contracts> {
+class ApiContractService implements RepositoryInterface<Contracts> {
   final String baseUrl = 'http://10.0.0.125:3000/api';
+  final ApiService apiService = ApiService();
 
   @override
   Future<Contracts> createContract(Contracts contracts, File file) async {
@@ -76,6 +78,10 @@ class ApiService implements RepositoryInterface<Contracts> {
       });
       if (response.statusCode == 200) {
         bodyList = json.decode(response.body);
+      } else if (response.statusCode == 400) {
+        await data.getString('accessToken');
+        await data.getString('refreshToken');
+        return findAllContracts();
       }
     } catch (e) {
       throw Exception("Não foi possivel buscar os dados, $e");

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:processos_app/src/infrastucture/contracts.dart';
 
 class GetContractsInfoApi {
-  final ApiService apiService = ApiService();
+  final ApiContractService apiService = ApiContractService();
 
   Future execute() async {
     try {

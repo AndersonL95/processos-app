@@ -52,7 +52,6 @@ class ApiService implements RepositoryInterface<Users> {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> responseBody = json.decode(response.body);
-        print("REFRESH: ${responseBody['refreshToken']}");
         await data.setString('accessToken', responseBody['accessToken']);
         await data.setString('refreshToken', responseBody['refreshToken']);
       } else {
@@ -67,12 +66,11 @@ class ApiService implements RepositoryInterface<Users> {
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
     try {
-      print("TOKEN: $accessToken");
       final response = await http
           .get(Uri.parse("$baseUrl/users/$id"), headers: <String, String>{
         'Authorization': 'Bearer $accessToken',
       });
-      print("STATUS: ${response.statusCode}");
+
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else if (response.statusCode == 400) {
@@ -81,7 +79,6 @@ class ApiService implements RepositoryInterface<Users> {
       }
       return json.decode(response.body);
     } catch (e) {
-      print("ERROR: $e");
       throw Exception("$e");
     }
   }

@@ -10,11 +10,16 @@ class ContractPage extends StatefulWidget {
 class _ContractPageState extends State<ContractPage> {
   String? contracts;
   List item = [];
-  List data = [];
+  List<dynamic> data = [];
 
   Future<void> getContracts() async {
-    data = await GetContractsInfoApi().execute();
-    print("LIST: $data");
+    await GetContractsInfoApi().execute().then((value) {
+      if (this.mounted) {
+        setState(() {
+          data = value;
+        });
+      }
+    });
   }
 
   @override
@@ -25,6 +30,7 @@ class _ContractPageState extends State<ContractPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("DATA: $data");
     return Scaffold(
       appBar: AppBar(
         title: Padding(
@@ -54,37 +60,25 @@ class _ContractPageState extends State<ContractPage> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Expanded(
-                  child: data.isNotEmpty
-                      ? ListView.builder(
+          child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+              child: data.isEmpty
+                  ? Text("Vazio")
+                  : SizedBox(
+                      height: 200,
+                      child: ListView.builder(
                           itemCount: data.length,
-                          itemBuilder: (BuildContext context, int index) {
+                          itemBuilder: (context, index) {
                             return Container(
-                                height: 225,
-                                child: Expanded(
-                                  flex: 1,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Card(
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                              data[index].numProcess.toString())
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ));
-                          })
-                      : const Text("Nenhum arquivo encontrado"))
-            ],
-          ),
-        ),
-      ),
+                              child: Text(data[index]['manager']),
+                            );
+                          }),
+                    ))
+        ],
+      )),
     );
   }
 }
