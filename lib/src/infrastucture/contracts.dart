@@ -8,9 +8,9 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
-  final String baseUrl = 'http://10.0.0.125:3000/api';
-  final AuthManager refreshManager;
-  ApiContractService(this.refreshManager);
+  final String baseUrl = 'http://10.0.0.126:3000/api';
+  final AuthManager authManager;
+  ApiContractService(this.authManager);
 
   Future<Contracts> createContract(Contracts contracts, File file) async {
     SharedPreferences data = await SharedPreferences.getInstance();
@@ -67,19 +67,18 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     throw UnimplementedError();
   }
 
-  @override
   Future<dynamic> findAllContracts() async {
     SharedPreferences data = await SharedPreferences.getInstance();
-    String? accessToken = data.getString('accessToken');
     var bodyList;
     try {
-      final response = await http.get(Uri.parse("$baseUrl/contract"),
-          headers: refreshManager.token != null
-              ? {
-                  'Authorization': 'Bearer ${refreshManager.refreshToken()}',
-                }
-              : {});
-      print("TOKEN: ${refreshManager.token}");
+      final response = await authManager.sendAuthenticate(() async {
+        return http.get(Uri.parse("$baseUrl/contract"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                  }
+                : {});
+      });
       if (response.statusCode == 200) {
         bodyList = json.decode(response.body);
       }
