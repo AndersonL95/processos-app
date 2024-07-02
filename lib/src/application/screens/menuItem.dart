@@ -5,7 +5,6 @@ import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/contratos.dart';
 import 'package:processos_app/src/application/screens/home_page.dart';
 import 'package:processos_app/src/application/screens/perfil.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuItem extends StatefulWidget {
@@ -14,8 +13,6 @@ class MenuItem extends StatefulWidget {
 }
 
 class _MenuItemState extends State<MenuItem> {
-  final ApiService apiService = ApiService();
-
   void initSate() {
     // getId();
     super.initState();
@@ -38,7 +35,6 @@ class _MenuItemState extends State<MenuItem> {
     String? idJson = pref.getString('id');
     if (idJson != null) {
       id = json.decode(idJson);
-      print("ID: $idJson");
     }
   }
 

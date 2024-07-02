@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
   final String baseUrl = 'http://10.0.0.125:3000/api';
-  final ApiService apiService = ApiService();
+  final AuthManager refreshManager;
+  ApiContractService(this.refreshManager);
 
-  @override
   Future<Contracts> createContract(Contracts contracts, File file) async {
     SharedPreferences data = await SharedPreferences.getInstance();
     String? accessToken = data.getString('accessToken');
@@ -73,15 +73,15 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     String? accessToken = data.getString('accessToken');
     var bodyList;
     try {
-      final response = await http.get(Uri.parse("$baseUrl/contract"), headers: {
-        'Authorization': 'Bearer $accessToken',
-      });
+      final response = await http.get(Uri.parse("$baseUrl/contract"),
+          headers: refreshManager.token != null
+              ? {
+                  'Authorization': 'Bearer ${refreshManager.refreshToken()}',
+                }
+              : {});
+      print("TOKEN: ${refreshManager.token}");
       if (response.statusCode == 200) {
         bodyList = json.decode(response.body);
-      } else if (response.statusCode == 400) {
-        await data.getString('accessToken');
-        await data.getString('refreshToken');
-        return findAllContracts();
       }
     } catch (e) {
       throw Exception("Não foi possivel buscar os dados, $e");

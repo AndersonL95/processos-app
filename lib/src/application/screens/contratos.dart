@@ -8,12 +8,14 @@ class ContractPage extends StatefulWidget {
 }
 
 class _ContractPageState extends State<ContractPage> {
+  late GetContractsInfoApi getContractsInfoApi;
+
   String? contracts;
   List item = [];
   List<dynamic> data = [];
 
   Future<void> getContracts() async {
-    await GetContractsInfoApi().execute().then((value) {
+    await getContractsInfoApi.execute().then((value) {
       if (this.mounted) {
         setState(() {
           data = value;
