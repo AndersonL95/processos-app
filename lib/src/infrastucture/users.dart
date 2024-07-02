@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
@@ -20,7 +19,6 @@ class ApiService implements RepositoryInterface<Users> {
                   }
                 : {});
       });
-      print("TOKEN: ${authManager.token}");
       if (response.statusCode == 200) {
         return json.decode(response.body);
       }

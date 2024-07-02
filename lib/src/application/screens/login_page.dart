@@ -42,7 +42,10 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       try {
         await Provider.of<AuthManager>(context, listen: false)
-            .login(_emailController.text, _passwordController.text);
+            .login(_emailController.text, _passwordController.text)
+            .then((value) {
+          id = value['id'];
+        });
         String idJson = json.encode(id);
         await data.setString('id', idJson);
         Navigator.of(context).pushReplacement(

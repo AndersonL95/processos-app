@@ -28,7 +28,6 @@ class _PerfilPageState extends State<PerfilPage> {
   void initState() {
     id = widget.userId;
     getData();
-    print("ID: $id");
     super.initState();
     apiService = ApiService(authManager);
     getUserInfoApi = GetUserInfoApi(apiService);
@@ -37,10 +36,9 @@ class _PerfilPageState extends State<PerfilPage> {
   Future<void> getData() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     try {
-      getUserInfoApi.execute(id);
+      await getUserInfoApi.execute(id);
 
       String? userInfoJson = data.getString('userInfo');
-      print("JSON: $userInfoJson");
       if (userInfoJson != null) {
         setState(() {
           dataUser = json.decode(userInfoJson);
