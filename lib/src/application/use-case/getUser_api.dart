@@ -4,7 +4,8 @@ import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetUserInfoApi {
-  final ApiService apiService = ApiService();
+  final ApiService apiService;
+  GetUserInfoApi(this.apiService);
 
   Future<void> execute(id) async {
     final SharedPreferences data = await SharedPreferences.getInstance();

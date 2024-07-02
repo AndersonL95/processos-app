@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/menuItem.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:processos_app/src/infrastucture/authManager.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -22,9 +23,9 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   int id = 0;
-  final ApiService apiService = ApiService();
+  final AuthManager authManager = AuthManager();
 
-  void _login() async {
+  Future<void> _login() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
 
     setState(() {
@@ -40,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     } else {
       try {
-        await apiService
+        await Provider.of<AuthManager>(context, listen: false)
             .login(_emailController.text, _passwordController.text)
             .then((value) {
           id = value['id'];

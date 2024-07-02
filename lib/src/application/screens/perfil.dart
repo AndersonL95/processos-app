@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/login_page.dart';
 import 'package:processos_app/src/application/use-case/getUser_api.dart';
+import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,20 +20,23 @@ class _PerfilPageState extends State<PerfilPage> {
   bool _loading = true;
   String? _error;
   var selecttem = "";
-  final ApiService apiService = ApiService();
+  AuthManager authManager = AuthManager();
+  late GetUserInfoApi getUserInfoApi;
+  late ApiService apiService;
 
   @override
   void initState() {
     id = widget.userId;
     getData();
-
     super.initState();
+    apiService = ApiService(authManager);
+    getUserInfoApi = GetUserInfoApi(apiService);
   }
 
   Future<void> getData() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     try {
-      await GetUserInfoApi().execute(id);
+      await getUserInfoApi.execute(id);
 
       String? userInfoJson = data.getString('userInfo');
       if (userInfoJson != null) {
@@ -54,7 +57,7 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Future<void> logout() async {
-    await apiService.logout();
+    await authManager.logout();
     Navigator.pushNamedAndRemoveUntil(
         context, '/login', (Route<dynamic> route) => false);
   }
