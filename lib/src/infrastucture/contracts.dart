@@ -68,7 +68,6 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   }
 
   Future<dynamic> findAllContracts() async {
-    SharedPreferences data = await SharedPreferences.getInstance();
     var bodyList;
     try {
       final response = await authManager.sendAuthenticate(() async {
@@ -94,21 +93,22 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     throw UnimplementedError();
   }
 
-  @override
-  Future<List<Contracts>> findByLast3() async {
-    SharedPreferences data = await SharedPreferences.getInstance();
-    String? accessToken = data.getString('accessToken');
-    List<Contracts> bodyList = [];
+  Future<dynamic> findByLast3() async {
+    var bodyList = [];
     try {
-      final response = await http.get(
-          Uri.parse("$baseUrl/contract?limit=3&sort=desc"),
-          headers: <String, String>{
-            'Authorization': 'Bearer $accessToken',
-          });
-      dynamic body = json.decode(response.body);
-      bodyList.addAll(body['data']);
+      final response = await authManager.sendAuthenticate(() async {
+        return http.get(Uri.parse("$baseUrl/contract?limit=3&sort=desc"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                  }
+                : {});
+      });
+      if (response.statusCode == 200) {
+        bodyList = json.decode(response.body);
+      }
     } catch (e) {
-      throw Exception("Erro ao listar, $e");
+      throw Exception("Não foi possivel buscar os dados, $e");
     }
     return bodyList;
   }
