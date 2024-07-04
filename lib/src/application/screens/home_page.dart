@@ -81,6 +81,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+      backgroundColor: customColors['white'],
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(
@@ -104,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                               Text(
                                 "Adicionados recentes",
                                 style: TextStyle(
-                                    fontSize: 22, fontWeight: FontWeight.bold),
+                                    fontSize: 26, fontWeight: FontWeight.bold),
                               )
                             ],
                           ),
@@ -157,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                                                                             15),
                                                                 child:
                                                                     Image.asset(
-                                                                  'Assets/images/pdf.png',
+                                                                  'Assets/images/pdf2.png',
                                                                   scale: 5.0,
                                                                 ),
                                                               ),
@@ -172,10 +173,12 @@ class _HomePageState extends State<HomePage> {
                                                                         right:
                                                                             15),
                                                                     child: Text(
-                                                                      "Contrato Nº: ${data[index]['numContract']}",
+                                                                      "Contrato Nº: ${data[index]['numContract'].toString().substring(0, min(data[index]['numContract'].toString().length, 10))}",
                                                                       style: TextStyle(
                                                                           fontSize:
-                                                                              16),
+                                                                              18,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
                                                                     ),
                                                                   ),
                                                                   Padding(
