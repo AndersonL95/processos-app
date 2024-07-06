@@ -130,7 +130,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
               ),
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(
-                    context, '/home', (route) => false);
+                    context, '/menuItem', (route) => false);
               },
             ),
           ),
