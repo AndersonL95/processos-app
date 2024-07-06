@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getLast3.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
@@ -27,6 +28,18 @@ class _HomePageState extends State<HomePage> {
     getContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
     getContracts();
     super.initState();
+  }
+
+  String breakLinesEvery10Characters(String input) {
+    List<String> lines = [];
+    for (int i = 0; i < input.length; i += 25) {
+      int endIndex = i + 25;
+      if (endIndex > input.length) {
+        endIndex = input.length;
+      }
+      lines.add(input.substring(i, endIndex));
+    }
+    return lines.join('\n');
   }
 
   Future<void> getContracts() async {
@@ -97,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                   ? SingleChildScrollView(
                       child: Column(
                       children: [
-                        Padding(
+                        const Padding(
                           padding:
                               EdgeInsets.only(top: 40, left: 20, right: 20),
                           child: Row(
@@ -128,12 +141,13 @@ class _HomePageState extends State<HomePage> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 70,
-                                                        left: 5,
-                                                        right: 5),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 70,
+                                                            left: 5,
+                                                            right: 5),
                                                     child: Card(
-                                                        shape: RoundedRectangleBorder(
+                                                        shape: const RoundedRectangleBorder(
                                                             borderRadius:
                                                                 BorderRadius.all(
                                                                     Radius.circular(
@@ -143,137 +157,167 @@ class _HomePageState extends State<HomePage> {
                                                         elevation: 10,
                                                         shadowColor:
                                                             Colors.black,
-                                                        child: SizedBox(
-                                                          width: 350,
-                                                          height: 220,
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            15),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'Assets/images/pdf2.png',
-                                                                  scale: 5.0,
+                                                        child: InkWell(
+                                                          onTap: () => {
+                                                            Navigator.of(context).push(
+                                                                MaterialPageRoute(
+                                                                    builder: (_) =>
+                                                                        ContractDetailPage(
+                                                                          contractDetail:
+                                                                              data[index],
+                                                                        )))
+                                                          },
+                                                          child: SizedBox(
+                                                            width: 350,
+                                                            height: 220,
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          15),
+                                                                  child: Image
+                                                                      .asset(
+                                                                    'Assets/images/pdf2.png',
+                                                                    scale: 5.0,
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                              Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Padding(
-                                                                    padding: EdgeInsets.only(
-                                                                        top: 40,
-                                                                        right:
-                                                                            15),
-                                                                    child: Text(
-                                                                      "Contrato Nº: ${data[index]['numContract'].toString().substring(0, min(data[index]['numContract'].toString().length, 10))}",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              18,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ),
-                                                                  Padding(
-                                                                    padding: EdgeInsets.only(
-                                                                        top: 5,
-                                                                        right:
-                                                                            15),
-                                                                    child: Text(
-                                                                      "Processo Nº: ${data[index]['numProcess']}",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              16),
-                                                                    ),
-                                                                  ),
-                                                                  Padding(
-                                                                    padding: EdgeInsets.only(
-                                                                        top: 5,
-                                                                        right:
-                                                                            15),
-                                                                    child: Text(
-                                                                      "Gestor: ${data[index]['manager'].toString().substring(0, min(data[index]['manager'].toString().length, 10))}",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ),
-                                                                  Padding(
-                                                                    padding: EdgeInsets.only(
-                                                                        top: 5,
-                                                                        right:
-                                                                            15),
-                                                                    child: Text(
-                                                                      "Fiscal: ${data[index]['supervisor'].toString().substring(0, min(data[index]['supervisor'].toString().length, 10))}",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ),
-                                                                  if (data[index]
-                                                                          [
-                                                                          'contractStatus'] ==
-                                                                      'ok')
+                                                                Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
                                                                     Padding(
-                                                                      padding: EdgeInsets
+                                                                      padding: const EdgeInsets
                                                                           .only(
-                                                                              top: 60),
+                                                                          top:
+                                                                              40,
+                                                                          right:
+                                                                              15),
                                                                       child:
-                                                                          Container(
-                                                                        width:
-                                                                            185,
-                                                                        height:
-                                                                            5,
-                                                                        color: customColors[
-                                                                            'green'],
+                                                                          Text(
+                                                                        breakLinesEvery10Characters(data[index]
+                                                                            [
+                                                                            'name']),
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
                                                                       ),
                                                                     ),
-                                                                  if (data[index]
-                                                                          [
-                                                                          'contractStatus'] ==
-                                                                      'pedent')
                                                                     Padding(
-                                                                      padding: EdgeInsets
+                                                                      padding: const EdgeInsets
                                                                           .only(
-                                                                              top: 60),
+                                                                          top:
+                                                                              10,
+                                                                          right:
+                                                                              15),
                                                                       child:
-                                                                          Container(
-                                                                        width:
-                                                                            185,
-                                                                        height:
-                                                                            5,
-                                                                        color: customColors[
-                                                                            'crismon'],
+                                                                          Text(
+                                                                        "Contrato Nº: ${data[index]['numContract'].toString().substring(0, min(data[index]['numContract'].toString().length, 10))}",
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          fontSize:
+                                                                              16,
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                  if (data[index]
-                                                                          [
-                                                                          'contractStatus'] ==
-                                                                      'review')
                                                                     Padding(
-                                                                      padding: EdgeInsets
+                                                                      padding: const EdgeInsets
                                                                           .only(
-                                                                              top: 60),
+                                                                          top:
+                                                                              5,
+                                                                          right:
+                                                                              15),
                                                                       child:
-                                                                          Container(
-                                                                        width:
-                                                                            185,
-                                                                        height:
-                                                                            5,
-                                                                        color: customColors[
-                                                                            'yellow'],
+                                                                          Text(
+                                                                        "Processo Nº: ${data[index]['numProcess']}",
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                16),
                                                                       ),
                                                                     ),
-                                                                ],
-                                                              )
-                                                            ],
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          top:
+                                                                              5,
+                                                                          right:
+                                                                              15),
+                                                                      child:
+                                                                          Text(
+                                                                        "Gestor: ${data[index]['manager'].toString().substring(0, min(data[index]['manager'].toString().length, 10))}",
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                16),
+                                                                      ),
+                                                                    ),
+                                                                    if (data[index]
+                                                                            [
+                                                                            'contractStatus'] ==
+                                                                        'ok')
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                35),
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              185,
+                                                                          height:
+                                                                              5,
+                                                                          color:
+                                                                              customColors['green'],
+                                                                        ),
+                                                                      ),
+                                                                    if (data[index]
+                                                                            [
+                                                                            'contractStatus'] ==
+                                                                        'pendent')
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                35),
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              195,
+                                                                          height:
+                                                                              5,
+                                                                          color:
+                                                                              customColors['crismon'],
+                                                                        ),
+                                                                      ),
+                                                                    if (data[index]
+                                                                            [
+                                                                            'contractStatus'] ==
+                                                                        'review')
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                35),
+                                                                        child:
+                                                                            Container(
+                                                                          width:
+                                                                              185,
+                                                                          height:
+                                                                              5,
+                                                                          color:
+                                                                              customColors['yellow'],
+                                                                        ),
+                                                                      ),
+                                                                  ],
+                                                                )
+                                                              ],
+                                                            ),
                                                           ),
                                                         )),
                                                   ),
