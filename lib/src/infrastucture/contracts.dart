@@ -97,7 +97,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     var bodyList = [];
     try {
       final response = await authManager.sendAuthenticate(() async {
-        return http.get(Uri.parse("$baseUrl/contract?limit=3&sort=desc"),
+        return http.get(Uri.parse("$baseUrl/contract/recent"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',

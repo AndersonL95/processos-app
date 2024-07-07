@@ -191,6 +191,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                             ),
                                           ),
                                           Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Padding(
                                                 padding: EdgeInsets.only(
@@ -220,7 +222,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                 children: [
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 5, left: 10),
+                                                        top: 5, right: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -246,7 +248,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, left: 10),
+                                                        top: 10, right: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -272,7 +274,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, left: 10),
+                                                        top: 10, right: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -301,7 +303,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, left: 10),
+                                                        top: 10, right: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -330,7 +332,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, left: 10),
+                                                        top: 10, right: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -356,7 +358,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, left: 10),
+                                                        top: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -380,7 +382,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, left: 10),
+                                                        top: 10),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
