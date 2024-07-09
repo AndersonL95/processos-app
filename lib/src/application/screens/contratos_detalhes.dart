@@ -35,7 +35,6 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     pathFile().then((v) {
       pathPDF = v.path;
     });
-    print(widget.contractDetail);
     super.initState();
   }
 
@@ -43,11 +42,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     Completer<File> completer = Completer();
     try {
       var url = widget.contractDetail['id'];
-      var bytes = base64Decode(
-          widget.contractDetail['file'].toString().replaceAll('\n', ''));
       final dir = await getApplicationDocumentsDirectory();
       File file = File("${dir.path}/${url.toString()}.pdf");
-      await file.writeAsBytes(bytes.buffer.asUint8List());
 
       completer.complete(file);
     } catch (e) {
@@ -204,10 +200,14 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                         Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    PdfViewPage(
-                                                                        pdfPath:
-                                                                            pathPDF)))
+                                                                builder:
+                                                                    (context) =>
+                                                                        PdfViewPage(
+                                                                          pdfPath:
+                                                                              pathPDF,
+                                                                          pdfBytes:
+                                                                              widget.contractDetail,
+                                                                        )))
                                                       }
                                                   },
                                                   child: Image.asset(

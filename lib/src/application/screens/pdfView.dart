@@ -1,12 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
+import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:toastification/toastification.dart';
 
 class PdfViewPage extends StatefulWidget {
   String? pdfPath;
+  final pdfBytes;
 
-  PdfViewPage({required this.pdfPath});
+  PdfViewPage({required this.pdfPath, required this.pdfBytes});
 
   @override
   _PdfViewPageState createState() => _PdfViewPageState();
@@ -27,12 +34,117 @@ class _PdfViewPageState extends State<PdfViewPage> {
   bool isReady = false;
   String erroMsg = "";
 
+  Future<File> savePdf() async {
+    Completer<File> completer = Completer();
+    try {
+      var url = widget.pdfBytes['id'];
+      var bytes =
+          base64Decode(widget.pdfBytes['file'].toString().replaceAll('\n', ''));
+      final dir = await getDownloadsDirectory();
+      File file = File("${dir?.path}/${url.toString()}.pdf");
+      await file.writeAsBytes(bytes.buffer.asUint8List());
+
+      completer.complete(file);
+
+      toastification.show(
+        type: ToastificationType.success,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("PDF salvo."),
+        autoCloseDuration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      print("Erro: $e");
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Erro ao salvar PDF."),
+        autoCloseDuration: const Duration(seconds: 5),
+      );
+    }
+    return completer.future;
+  }
+
+  Future<void> printPdf() async {
+    var bytes =
+        base64Decode(widget.pdfBytes['file'].toString().replaceAll('\n', ''));
+
+    try {
+      await Printing.layoutPdf(onLayout: (format) async => bytes);
+    } catch (e) {
+      print("ERRO: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: Text("PDF"),
+          title: Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Text(
+                  "DocInHand",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              )),
+          toolbarHeight: 120,
+          centerTitle: false,
+          backgroundColor: customColors['green'],
+          elevation: 0,
+          automaticallyImplyLeading: true,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: PopupMenuButton(
+                iconSize: 45,
+                onSelected: (value) {
+                  setState(() {});
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem(
+                        child: InkWell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(
+                            Icons.download,
+                            color: customColors['green'],
+                          ),
+                          Text(
+                            "Download",
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      onTap: () => {savePdf()},
+                    )),
+                    PopupMenuItem(
+                        child: InkWell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(
+                            Icons.print,
+                            color: customColors['green'],
+                          ),
+                          Text(
+                            "Imprimir",
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      onTap: () => {printPdf()},
+                    )),
+                  ];
+                },
+              ),
+            ),
+          ],
         ),
         body: Stack(
           children: [
