@@ -32,8 +32,8 @@ class _HomePageState extends State<HomePage> {
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 25) {
-      int endIndex = i + 25;
+    for (int i = 0; i < input.length; i += 20) {
+      int endIndex = i + 20;
       if (endIndex > input.length) {
         endIndex = input.length;
       }

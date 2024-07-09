@@ -151,7 +151,7 @@ class _PdfViewPageState extends State<PdfViewPage> {
             PDFView(
               filePath: widget.pdfPath,
               enableSwipe: true,
-              swipeHorizontal: true,
+              swipeHorizontal: false,
               autoSpacing: false,
               pageFling: true,
               pageSnap: true,

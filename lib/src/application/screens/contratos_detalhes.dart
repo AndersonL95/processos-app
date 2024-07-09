@@ -42,8 +42,11 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     Completer<File> completer = Completer();
     try {
       var url = widget.contractDetail['id'];
+      var bytes = base64Decode(
+          widget.contractDetail['file'].toString().replaceAll('\n', ''));
       final dir = await getApplicationDocumentsDirectory();
       File file = File("${dir.path}/${url.toString()}.pdf");
+      await file.writeAsBytes(bytes.buffer.asUint8List());
 
       completer.complete(file);
     } catch (e) {
@@ -66,8 +69,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
 
   String breakLines(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 15) {
-      int endIndex = i + 15;
+    for (int i = 0; i < input.length; i += 10) {
+      int endIndex = i + 10;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
