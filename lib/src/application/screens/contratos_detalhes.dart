@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/pdfView.dart';
@@ -26,16 +27,35 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   String? _error;
   List<dynamic> data = [];
   String pathPDF = "";
+  String status = "";
+  final dateFormat = DateFormat('yyyy-MM-dd');
 
   @override
   void initState() {
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getContracts();
+    statusResul();
     pathFile().then((v) {
       pathPDF = v.path;
     });
     super.initState();
+  }
+
+  void statusResul() {
+    switch (widget.contractDetail['contractStatus']) {
+      case 'ok':
+        status = "Aprovado";
+        break;
+      case 'review':
+        status = "Revisando";
+        break;
+      case 'pendent':
+        status = "Reprovado";
+        break;
+      default:
+        status = "Nenhum";
+    }
   }
 
   Future<File> pathFile() async {
@@ -174,18 +194,50 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Padding(
-                                                  padding:
-                                                      EdgeInsets.only(top: 20),
-                                                  child: Text(
-                                                    breakLinesEvery10Characters(
-                                                        widget.contractDetail[
-                                                            'name']),
-                                                    style: TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
+                                                    padding: EdgeInsets.only(
+                                                        top: 10, bottom: 20),
+                                                    child: Card(
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      clipBehavior:
+                                                          Clip.antiAlias,
+                                                      elevation: 10,
+                                                      color:
+                                                          customColors['green'],
+                                                      shadowColor: Colors.black,
+                                                      child: SizedBox(
+                                                          width: 350,
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                            10),
+                                                                child: Text(
+                                                                  breakLinesEvery10Characters(
+                                                                      widget.contractDetail[
+                                                                          'name']),
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          20,
+                                                                      color: customColors[
+                                                                          'white'],
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              )
+                                                            ],
+                                                          )),
+                                                    ))
                                               ],
                                             ),
                                           ),
@@ -194,331 +246,510 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: 20, left: 20),
-                                                child: InkWell(
-                                                  onTap: () => {
-                                                    if (pathPDF.isNotEmpty)
-                                                      {
-                                                        Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        PdfViewPage(
-                                                                          pdfPath:
-                                                                              pathPDF,
-                                                                          pdfBytes:
-                                                                              widget.contractDetail,
-                                                                        )))
-                                                      }
-                                                  },
-                                                  child: Image.asset(
-                                                    'Assets/images/pdf.png',
-                                                    scale: 5.0,
-                                                  ),
-                                                ),
-                                              ),
+                                                  padding: EdgeInsets.only(
+                                                      top: 10, left: 10),
+                                                  child: Card(
+                                                    shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10))),
+                                                    clipBehavior:
+                                                        Clip.antiAlias,
+                                                    color:
+                                                        customColors['white'],
+                                                    elevation: 10,
+                                                    shadowColor: Colors.black,
+                                                    child: SizedBox(
+                                                        width: 150,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(20),
+                                                              child: InkWell(
+                                                                onTap: () => {
+                                                                  if (pathPDF
+                                                                      .isNotEmpty)
+                                                                    {
+                                                                      Navigator.push(
+                                                                          context,
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) => PdfViewPage(
+                                                                                    pdfPath: pathPDF,
+                                                                                    pdfBytes: widget.contractDetail,
+                                                                                  )))
+                                                                    }
+                                                                },
+                                                                child:
+                                                                    Image.asset(
+                                                                  'Assets/images/pdf.png',
+                                                                  scale: 5.0,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )),
+                                                  )),
                                               Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5, right: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "N° Contrato: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          breakLines(widget
-                                                                  .contractDetail[
-                                                              'numContract']),
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10, right: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "N° Processo: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          breakLines(widget
-                                                                  .contractDetail[
-                                                              'numProcess']),
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10, right: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Data inicial: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          breakLines(widget
-                                                              .contractDetail[
-                                                                  'initDate']
-                                                              .toString()
-                                                              .substring(
-                                                                  0, 10)),
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10, right: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Data final: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          breakLines(widget
-                                                              .contractDetail[
-                                                                  'finalDate']
-                                                              .toString()
-                                                              .substring(
-                                                                  0, 10)),
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10, right: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Lei do contrato: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          breakLines(widget
-                                                                  .contractDetail[
-                                                              'contractLaw']),
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Saldo: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          "${breakLines(widget.contractDetail['balance'])} R\$",
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "A fazer: ",
-                                                          style: TextStyle(
-                                                              fontSize: 18),
-                                                        ),
-                                                        Text(
-                                                          "${breakLines(widget.contractDetail['todo'])}",
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
+                                                      padding: EdgeInsets.only(
+                                                          top: 10, right: 10),
+                                                      child: Card(
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            10))),
+                                                        clipBehavior:
+                                                            Clip.antiAlias,
+                                                        color: customColors[
+                                                            'white'],
+                                                        elevation: 10,
+                                                        shadowColor:
+                                                            Colors.black,
+                                                        child: SizedBox(
+                                                            width: 195,
+                                                            child: Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(15),
+                                                              child: Column(
+                                                                children: [
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: 5),
+                                                                        child:
+                                                                            Text(
+                                                                          "Data Inicial: ",
+                                                                          style:
+                                                                              TextStyle(fontSize: 15),
+                                                                        ),
+                                                                      ),
+                                                                      Text(
+                                                                        DateFormat('dd-MM-yyyy')
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(widget.contractDetail['initDate'])),
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: 5),
+                                                                        child: Text(
+                                                                            "Data final: "),
+                                                                      ),
+                                                                      Text(
+                                                                        DateFormat('dd-MM-yyyy')
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(widget.contractDetail['finalDate'])),
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: 5),
+                                                                        child: Text(
+                                                                            "Saldo: "),
+                                                                      ),
+                                                                      Text(
+                                                                        "${widget.contractDetail['balance']} R\$",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: 5),
+                                                                        child: Text(
+                                                                            "Add. de Quantitativo: "),
+                                                                      ),
+                                                                      Text(
+                                                                        widget.contractDetail[
+                                                                            'addQuant'],
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: 5),
+                                                                        child: Text(
+                                                                            "Add. Prazo: "),
+                                                                      ),
+                                                                      Text(
+                                                                        widget.contractDetail[
+                                                                            'addTerm'],
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      )
+                                                                    ],
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            )),
+                                                      )),
                                                 ],
                                               )
                                             ],
                                           ),
                                           Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 10, left: 20),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Gestor: ",
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                ),
-                                                Text(
-                                                  "${breakLinesEvery10Characters(widget.contractDetail['manager'])}",
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
+                                              padding: EdgeInsets.only(top: 20),
+                                              child: Card(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
+                                                clipBehavior: Clip.antiAlias,
+                                                color: customColors['white'],
+                                                elevation: 10,
+                                                shadowColor: Colors.black,
+                                                child: SizedBox(
+                                                    width: 350,
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(20),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                  "N° Contrato: ",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          17),
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'numContract'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "N° Processo: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'numProcess'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Lei do contrato: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'contractLaw'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Fiscal: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'supervisor'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Gestor: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'manager'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Status do contrato: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                status,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Aditivo de prazo: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'addTerm'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Aditivo de quantitativo: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'addQuant'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top: 5),
+                                                                child: Text(
+                                                                    "Situação da empresa: ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17)),
+                                                              ),
+                                                              Text(
+                                                                widget.contractDetail[
+                                                                    'companySituation'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                    )),
+                                              )),
+                                          if (widget.contractDetail[
+                                                  'contractStatus'] ==
+                                              'ok')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 35),
+                                              child: Container(
+                                                width: 385,
+                                                height: 15,
+                                                color: customColors['green'],
+                                              ),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 10, left: 20),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Fiscal: ",
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                ),
-                                                Text(
-                                                  breakLinesEvery10Characters(
-                                                      widget.contractDetail[
-                                                          'supervisor']),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
+                                          if (widget.contractDetail[
+                                                  'contractStatus'] ==
+                                              'pendent')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 35),
+                                              child: Container(
+                                                width: 385,
+                                                height: 15,
+                                                color: customColors['crismon'],
+                                              ),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 10, left: 20),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Aditivo de prazo: ",
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                ),
-                                                Text(
-                                                  breakLines(
-                                                      widget.contractDetail[
-                                                          'addTerm']),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 10, left: 20),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Aditivo de quantitativo: ",
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                ),
-                                                Text(
-                                                  breakLines(
-                                                      widget.contractDetail[
-                                                          'addQuant']),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: 10, left: 20, bottom: 20),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Situação da empresa: ",
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                ),
-                                                Text(
-                                                  breakLines(
-                                                      widget.contractDetail[
-                                                          'companySituation']),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                          if (widget.contractDetail[
+                                                  'contractStatus'] ==
+                                              'review')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 35),
+                                              child: Container(
+                                                width: 385,
+                                                height: 15,
+                                                color: customColors['yellow'],
+                                              ),
+                                            )
                                         ],
                                       )),
                                 ),
