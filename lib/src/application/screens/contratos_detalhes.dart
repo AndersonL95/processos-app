@@ -148,8 +148,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                 color: customColors['white'],
               ),
               onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/menuItem', (route) => false);
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
           ),
