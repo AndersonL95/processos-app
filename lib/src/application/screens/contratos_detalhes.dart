@@ -77,8 +77,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 38) {
-      int endIndex = i + 38;
+    for (int i = 0; i < input.length; i += 35) {
+      int endIndex = i + 35;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
