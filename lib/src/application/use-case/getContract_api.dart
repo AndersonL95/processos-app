@@ -7,6 +7,7 @@ class GetContractsInfoApi {
   Future execute() async {
     try {
       var contractData = await apiService.findAllContracts();
+
       return contractData;
     } catch (e) {
       throw Exception(e);

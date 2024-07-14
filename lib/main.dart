@@ -52,6 +52,7 @@ void main() async {
           //'/menuItem': (context) => MenuItem(),
           '/home': (context) => const HomePage(),
           '/login': (context) => LoginPage(),
+          '/menuItem': (context) => MenuItem()
         },
       ),
     )));
