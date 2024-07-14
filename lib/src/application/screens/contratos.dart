@@ -162,6 +162,24 @@ class _ContractPageState extends State<ContractPage> {
                               )),
                         ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 20, right: 30),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      shape: CircleBorder(),
+                                      backgroundColor: customColors['green'],
+                                      minimumSize: Size(85, 60)),
+                                  onPressed: () {},
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 30,
+                                    color: customColors['white'],
+                                  ))
+                            ]),
+                      ),
                       Expanded(
                         flex: 1,
                         child: ListView.builder(
@@ -191,115 +209,210 @@ class _ContractPageState extends State<ContractPage> {
                                         );
                                       },
                                       child: SizedBox(
-                                        width: 350,
-                                        height: 220,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(15),
-                                              child: Image.asset(
-                                                'Assets/images/pdf2.png',
-                                                scale: 5.0,
-                                              ),
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 40, right: 15),
-                                                  child: Text(
-                                                    breakLinesEvery10Characters(
-                                                        filtereData[index]
-                                                            ['name']),
-                                                    style: const TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 10, right: 15),
-                                                  child: Text(
-                                                    "Contrato Nº: ${filtereData[index]['numContract'].toString().substring(0, min(filtereData[index]['numContract'].toString().length, 10))}",
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 5, right: 15),
-                                                  child: Text(
-                                                    "Processo Nº: ${filtereData[index]['numProcess']}",
-                                                    style: const TextStyle(
-                                                        fontSize: 16),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 5, right: 15),
-                                                  child: Text(
-                                                    "Gestor: ${filtereData[index]['manager'].toString().substring(0, min(filtereData[index]['manager'].toString().length, 10))}",
-                                                    style: const TextStyle(
-                                                        fontSize: 16),
-                                                  ),
-                                                ),
-                                                if (filtereData[index]
-                                                        ['contractStatus'] ==
-                                                    'ok')
+                                          width: 350,
+                                          height: 240,
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
                                                   Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 35),
-                                                    child: Container(
-                                                      width: 185,
-                                                      height: 5,
+                                                    padding: EdgeInsets.only(
+                                                        top: 10, right: 10),
+                                                    child: PopupMenuButton(
                                                       color:
-                                                          customColors['green'],
+                                                          customColors['gray'],
+                                                      iconSize: 40,
+                                                      onSelected: (value) {},
+                                                      itemBuilder: (BuildContext
+                                                          context) {
+                                                        return [
+                                                          PopupMenuItem(
+                                                            child: InkWell(
+                                                              onTap: () {},
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons.edit,
+                                                                    color: customColors[
+                                                                        'green'],
+                                                                  ),
+                                                                  Text(
+                                                                    "Editar Contrato",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          PopupMenuItem(
+                                                            child: InkWell(
+                                                              onTap: () {},
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .delete,
+                                                                    color: customColors[
+                                                                        'green'],
+                                                                  ),
+                                                                  Text(
+                                                                    "Excluir Contrato",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            17,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          )
+                                                        ];
+                                                      },
                                                     ),
                                                   ),
-                                                if (filtereData[index]
-                                                        ['contractStatus'] ==
-                                                    'pendent')
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
-                                                            top: 35),
-                                                    child: Container(
-                                                      width: 195,
-                                                      height: 5,
-                                                      color: customColors[
-                                                          'crismon'],
+                                                            left: 15,
+                                                            bottom: 40),
+                                                    child: Image.asset(
+                                                      'Assets/images/pdf2.png',
+                                                      scale: 5.0,
                                                     ),
                                                   ),
-                                                if (filtereData[index]
-                                                        ['contractStatus'] ==
-                                                    'review')
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 35),
-                                                    child: Container(
-                                                      width: 185,
-                                                      height: 5,
-                                                      color: customColors[
-                                                          'yellow'],
-                                                    ),
-                                                  ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 10,
+                                                                right: 15),
+                                                        child: Text(
+                                                          breakLinesEvery10Characters(
+                                                              filtereData[index]
+                                                                  ['name']),
+                                                          style: const TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 10,
+                                                                right: 15),
+                                                        child: Text(
+                                                          "Contrato Nº: ${filtereData[index]['numContract'].toString().substring(0, min(filtereData[index]['numContract'].toString().length, 10))}",
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 5,
+                                                                right: 15),
+                                                        child: Text(
+                                                          "Processo Nº: ${filtereData[index]['numProcess']}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 16),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 5,
+                                                                right: 15),
+                                                        child: Text(
+                                                          "Gestor: ${filtereData[index]['manager'].toString().substring(0, min(filtereData[index]['manager'].toString().length, 10))}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 16),
+                                                        ),
+                                                      ),
+                                                      if (filtereData[index][
+                                                              'contractStatus'] ==
+                                                          'ok')
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 35),
+                                                          child: Container(
+                                                            width: 185,
+                                                            height: 5,
+                                                            color: customColors[
+                                                                'green'],
+                                                          ),
+                                                        ),
+                                                      if (filtereData[index][
+                                                              'contractStatus'] ==
+                                                          'pendent')
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 35),
+                                                          child: Container(
+                                                            width: 195,
+                                                            height: 5,
+                                                            color: customColors[
+                                                                'crismon'],
+                                                          ),
+                                                        ),
+                                                      if (filtereData[index][
+                                                              'contractStatus'] ==
+                                                          'review')
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 35),
+                                                          child: Container(
+                                                            width: 185,
+                                                            height: 5,
+                                                            color: customColors[
+                                                                'yellow'],
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ],
+                                          )),
                                     ),
                                   ),
                                 ),
