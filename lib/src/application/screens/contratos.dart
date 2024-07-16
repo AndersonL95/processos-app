@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/add_contract.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
@@ -172,7 +173,13 @@ class _ContractPageState extends State<ContractPage> {
                                       shape: CircleBorder(),
                                       backgroundColor: customColors['green'],
                                       minimumSize: Size(85, 60)),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => AddContractPage(),
+                                      ),
+                                    );
+                                  },
                                   child: Icon(
                                     Icons.add,
                                     size: 30,

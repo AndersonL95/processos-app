@@ -115,10 +115,31 @@ class _HomePageState extends State<HomePage> {
                               EdgeInsets.only(top: 40, left: 20, right: 20),
                           child: Row(
                             children: [
-                              Text(
-                                "Adicionados recentes",
-                                style: TextStyle(
-                                    fontSize: 26, fontWeight: FontWeight.bold),
+                              Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                clipBehavior: Clip.antiAlias,
+                                elevation: 10,
+                                color: Colors.white,
+                                shadowColor: Colors.black,
+                                child: SizedBox(
+                                    width: 270,
+                                    height: 60,
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Text(
+                                            "Adicionados recentens",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        )
+                                      ],
+                                    )),
                               )
                             ],
                           ),
