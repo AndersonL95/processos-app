@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:input_quantity/input_quantity.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
@@ -32,6 +33,8 @@ class AddContractPageState extends State<AddContractPage> {
   TextEditingController statusContract = TextEditingController();
   TextEditingController managerController = TextEditingController();
   TextEditingController supervisorController = TextEditingController();
+  TextEditingController companySituationController = TextEditingController();
+  List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
 
   var maskFormatter = MaskTextInputFormatter(
       mask: 'R\$ ###.###.###,##',
@@ -412,6 +415,30 @@ class AddContractPageState extends State<AddContractPage> {
                                 ]),
                               ),
                               Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                      iconColor: customColors['green'],
+                                      prefixIconColor: customColors['green'],
+                                      fillColor: customColors['white'],
+                                      hoverColor: customColors['green'],
+                                      filled: true,
+                                      focusColor: customColors['green'],
+                                      labelText: "Precisa ser feito algo?",
+                                      hintText: "A fazer",
+                                      prefixIcon:
+                                          const Icon(Icons.edit_attributes),
+                                      enabledBorder: new OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Color.fromRGBO(1, 76, 45, 1),
+                                            width: 2),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(10),
+                                        ),
+                                      )),
+                                ),
+                              ),
+                              Padding(
                                 padding: EdgeInsets.all(10),
                                 child: Row(
                                   children: [
@@ -653,6 +680,169 @@ class AddContractPageState extends State<AddContractPage> {
                                     ],
                                   ),
                                 ),
+                              Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Aditivo de prazo",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: customColors['green']),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(10),
+                                              child: InputQty(
+                                                maxVal: 100,
+                                                initVal: 0,
+                                                decoration: QtyDecorationProps(
+                                                    border: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Color.fromRGBO(
+                                                          1, 76, 45, 1),
+                                                      width: 2),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(5),
+                                                  ),
+                                                )),
+                                                onQtyChanged: (val) {
+                                                  print("VALOR: $val");
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            Text("Aumentar quantitativo",
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        customColors['green'])),
+                                            Padding(
+                                              padding: EdgeInsets.all(10),
+                                              child: InputQty(
+                                                maxVal: 100,
+                                                initVal: 0,
+                                                decoration: QtyDecorationProps(
+                                                    border: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Color.fromRGBO(
+                                                          1, 76, 45, 1),
+                                                      width: 2),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(5),
+                                                  ),
+                                                )),
+                                                onQtyChanged: (val) {
+                                                  print("VALOR: $val");
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: ElevatedButton(
+                                          child: Icon(
+                                            Icons.picture_as_pdf,
+                                            size: 35,
+                                            color: customColors['white'],
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  customColors["crismon"],
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              minimumSize: const Size(100, 65)),
+                                          onPressed: () {},
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Padding(
+                                            padding: EdgeInsets.all(10),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                DropdownMenu(
+                                                    inputDecorationTheme:
+                                                        InputDecorationTheme(
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: Color.fromRGBO(
+                                                              1, 76, 45, 1),
+                                                          width: 2),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(5),
+                                                      ),
+                                                    )),
+                                                    label: Text(
+                                                        "Situação da empresa"),
+                                                    initialSelection:
+                                                        situationCompanyList
+                                                            .first,
+                                                    onSelected:
+                                                        (String? value) {
+                                                      setState(() {
+                                                        companySituationController
+                                                            .text = value!;
+                                                      });
+                                                    },
+                                                    dropdownMenuEntries:
+                                                        situationCompanyList.map<
+                                                            DropdownMenuEntry<
+                                                                String>>((String
+                                                            value) {
+                                                      return DropdownMenuEntry(
+                                                          value: value,
+                                                          label: value);
+                                                    }).toList()),
+                                              ],
+                                            )),
+                                      )
+                                    ],
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.all(10),
+                                child: ElevatedButton(
+                                  child: Icon(
+                                    Icons.save_as_rounded,
+                                    size: 35,
+                                    color: customColors['white'],
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: customColors["green"],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      minimumSize: const Size(250, 65)),
+                                  onPressed: () {},
+                                ),
+                              )
                             ],
                           )),
                     )
