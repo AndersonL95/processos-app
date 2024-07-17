@@ -17,8 +17,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    passwordVisible = false;
   }
 
+  bool passwordVisible = false;
   bool isLoading = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -102,11 +104,19 @@ class _LoginPageState extends State<LoginPage> {
           Padding(
             padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
             child: TextField(
+              obscureText: !passwordVisible,
               controller: _passwordController,
               decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.key,
-                    color: customColors["green"],
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: customColors['green'],
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        passwordVisible = !passwordVisible;
+                      });
+                    },
                   ),
                   filled: true,
                   fillColor: Colors.white,
