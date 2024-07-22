@@ -5,54 +5,39 @@ import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
   final String baseUrl = 'http://10.0.0.126:3000/api';
   final AuthManager authManager;
   ApiContractService(this.authManager);
 
-  Future<Contracts> createContract(Contracts contracts, File file) async {
-    SharedPreferences data = await SharedPreferences.getInstance();
-    String? accessToken = data.getString('accessToken');
-
+  Future<int> createContract(Contracts contracts) async {
     try {
-      var header = {"Authorization": "Bearer $accessToken"};
-      var request =
-          http.MultipartRequest('POST', Uri.parse("$baseUrl/contract"));
-      request.headers.addAll(header);
-      request.fields['numProcess'] = contracts.numProcess;
-      request.fields['numContract'] = contracts.numContract;
-      request.fields['manager'] = contracts.manager;
-      request.fields['supervisor'] = contracts.supervisor;
-      request.fields['initDate'] = contracts.initDate;
-      request.fields['finalDate'] = contracts.finalDate;
-      request.fields['contractLaw'] = contracts.contractLaw;
-      request.fields['contractStatus'] = contracts.contractStatus;
-      request.fields['balance'] = contracts.balance;
-      request.fields['todo'] = contracts.todo;
-      request.fields['addTerm'] = contracts.addTerm;
-      request.fields['addQuant'] = contracts.addQuant;
-      request.fields['companySituation'] = contracts.companySituation;
-      request.fields['userId'] = contracts.userId;
-      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+      var bytes = File(contracts.file).readAsBytesSync();
+      contracts.file = base64Encode(bytes);
 
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        var resBody = await response.stream.toBytes();
-        var bodyString = String.fromCharCodes(resBody);
-        var jsonBody = json.decode(bodyString);
-        print(jsonBody);
+      String body = jsonEncode(contracts.toJson());
+
+      final response = await authManager.sendAuthenticate(() async {
+        return http.post(Uri.parse("$baseUrl/contract"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'Content-Type': 'application/json'
+                  }
+                : {'Content-type': 'application/json'},
+            body: body);
+      });
+
+      if (response.statusCode == 201) {
+        var responseBody = jsonDecode(response.body);
+        return responseBody['id'];
       } else {
-        var resBody = await response.stream.toBytes();
-        var bodyString = String.fromCharCodes(resBody);
-
-        print("Erro ao cadastrar ${json.decode(bodyString)}");
+        throw Exception("Erro ao cadastrar: ${response.body}");
       }
     } catch (e) {
-      throw Exception("Não foi possivel cadastrar, $e");
+      throw Exception("Não foi possível cadastrar, $e");
     }
-    throw UnimplementedError();
   }
 
   @override

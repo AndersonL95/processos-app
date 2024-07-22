@@ -1,5 +1,8 @@
+import 'dart:io';
+
 class Contracts {
   late int? id;
+  String name = "";
   String numProcess = "";
   String numContract = "";
   String manager = "";
@@ -13,11 +16,12 @@ class Contracts {
   String addTerm = "";
   String addQuant = "";
   String companySituation = "";
-  String userId = "";
+  late int userId;
   String file = "";
 
   Contracts(
       {this.id,
+      required name,
       required numProcess,
       required numContract,
       required manager,
@@ -32,7 +36,8 @@ class Contracts {
       required addQuant,
       required companySituation,
       required userId,
-      required file}) {
+      required this.file}) {
+    setName(name);
     setNumProcess(numProcess);
     setNumContract(numContract);
     setManager(manager);
@@ -49,106 +54,113 @@ class Contracts {
     setUserId(userId);
     setFile(file);
   }
-  setNumProcess(numProcess) {
-    if (this.numProcess.isEmpty) {
+  void setName(name) {
+    if (name == "") {
+      throw Exception("Nome está vazio ou é invalido.");
+    }
+    this.name = name;
+  }
+
+  void setNumProcess(numProcess) {
+    if (numProcess == "") {
       throw Exception("numProcess está vazio ou é invalido.");
     }
     this.numProcess = numProcess;
   }
 
-  setNumContract(numContract) {
-    if (this.numContract.isEmpty) {
+  void setNumContract(numContract) {
+    if (numContract == "") {
       throw Exception("numContract está vazio ou é invalido.");
     }
     this.numContract = numContract;
   }
 
-  setManager(manager) {
-    if (this.manager.isEmpty) {
+  void setManager(manager) {
+    if (manager == "") {
       throw Exception("manager está vazio ou é invalido.");
     }
     this.manager = manager;
   }
 
-  setSupervisor(supervisor) {
-    if (this.supervisor.isEmpty) {
+  void setSupervisor(supervisor) {
+    if (supervisor == "") {
       throw Exception("supervisor está vazio ou é invalido.");
     }
     this.supervisor = supervisor;
   }
 
-  setInitDate(initDate) {
-    if (this.initDate.isEmpty) {
+  void setInitDate(initDate) {
+    if (initDate == "") {
       throw Exception("initDate está vazio ou é invalido.");
     }
     this.initDate = initDate;
   }
 
-  setFinalDate(finalDate) {
-    if (this.finalDate.isEmpty) {
+  void setFinalDate(finalDate) {
+    if (finalDate == "") {
       throw Exception("finalDate está vazio ou é invalido.");
     }
     this.finalDate = finalDate;
   }
 
-  setContractLaw(contractLaw) {
-    if (this.contractLaw.isEmpty) {
+  void setContractLaw(contractLaw) {
+    if (contractLaw == "") {
       throw Exception("contractLaw está vazio ou é invalido.");
     }
     this.contractLaw = contractLaw;
   }
 
-  setContractStatus(contractStatus) {
-    if (this.contractStatus.isEmpty) {
+  void setContractStatus(contractStatus) {
+    if (contractStatus == "") {
       throw Exception("contractStatus está vazio ou é invalido.");
     }
     this.contractStatus = contractStatus;
   }
 
-  setBalance(balance) {
-    if (this.balance.isEmpty) {
+  void setBalance(balance) {
+    if (balance == "") {
       throw Exception("balance está vazio ou é invalido.");
     }
     this.balance = balance;
   }
 
-  setTodo(todo) {
-    if (this.todo.isEmpty) {
+  void setTodo(todo) {
+    if (todo == "") {
       throw Exception("todo está vazio ou é invalido.");
     }
     this.todo = todo;
   }
 
-  setAddTerm(addTerm) {
-    if (this.addTerm.isEmpty) {
+  void setAddTerm(addTerm) {
+    if (addTerm == "") {
       throw Exception("addTerm está vazio ou é invalido.");
     }
     this.addTerm = addTerm;
   }
 
-  setAddQuant(addQuant) {
-    if (this.addQuant.isEmpty) {
+  void setAddQuant(addQuant) {
+    if (addQuant == "") {
       throw Exception("addQuant está vazio ou é invalido.");
     }
     this.addQuant = addQuant;
   }
 
-  setCompanySituation(companySituation) {
-    if (this.companySituation.isEmpty) {
+  void setCompanySituation(companySituation) {
+    if (companySituation == "") {
       throw Exception("companySituation está vazio ou é invalido.");
     }
     this.companySituation = companySituation;
   }
 
-  setUserId(userId) {
-    if (this.userId.isEmpty) {
+  void setUserId(userId) {
+    if (userId == null) {
       throw Exception("userId está vazio ou é invalido.");
     }
     this.userId = userId;
   }
 
-  setFile(file) {
-    if (this.file.isEmpty) {
+  void setFile(file) {
+    if (file == "") {
       throw Exception("file está vazio ou é invalido.");
     }
     this.file = file;
@@ -156,26 +168,28 @@ class Contracts {
 
   Map<String, dynamic> toJson() {
     return {
-      numProcess: numProcess,
-      numContract: numContract,
-      manager: manager,
-      supervisor: supervisor,
-      initDate: initDate,
-      finalDate: finalDate,
-      contractLaw: contractLaw,
-      contractStatus: contractStatus,
-      balance: balance,
-      todo: todo,
-      addTerm: addTerm,
-      addQuant: addQuant,
-      companySituation: companySituation,
-      userId: userId,
-      file: file
+      'name': name,
+      'numProcess': numProcess,
+      'numContract': numContract,
+      'manager': manager,
+      'supervisor': supervisor,
+      'initDate': initDate,
+      'finalDate': finalDate,
+      'contractLaw': contractLaw,
+      'contractStatus': contractStatus,
+      'balance': balance,
+      'todo': todo,
+      'addTerm': addTerm,
+      'addQuant': addQuant,
+      'companySituation': companySituation,
+      'userId': userId,
+      'file': file
     };
   }
 
   factory Contracts.froJson(Map<String, dynamic> json) {
     return Contracts(
+        name: json['name'],
         numProcess: json['numProcess'],
         numContract: json['numContract'],
         manager: json['manager'],
