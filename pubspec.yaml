@@ -26,6 +26,9 @@ dependencies:
   printing: 5.11.1
   flutter_localization: ^0.2.0
   intl: ^0.18.1
+  mask_text_input_formatter: ^2.9.0
+  input_quantity: 2.3.2
+  file_picker: 8.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
