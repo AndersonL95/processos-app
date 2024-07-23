@@ -47,9 +47,20 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   }
 
   @override
-  Future<void> delete(int id) {
-    // TODO: implement delete
-    throw UnimplementedError();
+  Future<bool> delete(int id) async {
+    final response = await authManager.sendAuthenticate(() async {
+      return http.delete(Uri.parse("$baseUrl/contract/$id"),
+          headers: authManager.token != null
+              ? {
+                  'Authorization': 'Bearer ${authManager.token}',
+                }
+              : {});
+    });
+    if (response != null && response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<dynamic> findAllContracts() async {

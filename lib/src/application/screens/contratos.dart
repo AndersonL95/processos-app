@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/add_contract.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
+import 'package:processos_app/src/application/use-case/delet_contract.api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:toastification/toastification.dart';
 
 class ContractPage extends StatefulWidget {
   @override
@@ -17,6 +19,7 @@ class _ContractPageState extends State<ContractPage> {
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late ApiContractService apiContractService;
+  late DeleteContractsInfoApi deleteContractsInfoApi;
   bool _loading = true;
 
   String? _error;
@@ -28,6 +31,7 @@ class _ContractPageState extends State<ContractPage> {
   void initState() {
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
+    deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
     getContracts();
 
     super.initState();
@@ -94,6 +98,29 @@ class _ContractPageState extends State<ContractPage> {
     setState(() {
       filtereData = temp;
     });
+  }
+
+  void deleteContract(id) async {
+    try {
+      print("ID: $id");
+      await deleteContractsInfoApi.execute(id);
+      toastification.show(
+        type: ToastificationType.success,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Contrato apagado."),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+      getContracts();
+    } catch (e) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Não foi possivel apagar."),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+    }
   }
 
   @override
@@ -262,7 +289,14 @@ class _ContractPageState extends State<ContractPage> {
                                                           ),
                                                           PopupMenuItem(
                                                             child: InkWell(
-                                                              onTap: () {},
+                                                              onTap: () => {
+                                                                deleteContract(
+                                                                    filtereData[
+                                                                            index]
+                                                                        ['id']),
+                                                                Navigator.pop(
+                                                                    context)
+                                                              },
                                                               child: Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
