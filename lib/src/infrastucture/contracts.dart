@@ -109,6 +109,37 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     return bodyList;
   }
 
+  Future<int> updateContract(Contracts contracts) async {
+    try {
+      if (contracts.file != "") {
+        var bytes = File(contracts.file).readAsBytesSync();
+        contracts.file = base64Encode(bytes);
+      } else {
+        contracts.file = "";
+      }
+      String body = jsonEncode(contracts.toJson());
+      final response = await authManager.sendAuthenticate(() async {
+        return http.post(Uri.parse("$baseUrl/${contracts.id}"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'Content-Type': 'application/json'
+                  }
+                : {'Content-type': 'application/json'},
+            body: body);
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = jsonDecode(response.body);
+        return responseBody['id'];
+      } else {
+        throw Exception("Erro ao modificar: ${response.body}");
+      }
+    } catch (e) {
+      throw Exception("Erro ao modificar contrato: $e");
+    }
+  }
+
   @override
   Future<List<Contracts>> findAll() {
     // TODO: implement findAll

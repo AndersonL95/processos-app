@@ -15,12 +15,15 @@ import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
-class AddContractPage extends StatefulWidget {
+class UpdateContractPage extends StatefulWidget {
+  final contractData;
+  UpdateContractPage({required this.contractData});
+
   @override
-  AddContractPageState createState() => AddContractPageState();
+  UpdateContractPageState createState() => UpdateContractPageState();
 }
 
-class AddContractPageState extends State<AddContractPage> {
+class UpdateContractPageState extends State<UpdateContractPage> {
   static Map<String, dynamic>? dataUser;
   var selecttem = "";
   AuthManager authManager = AuthManager();
@@ -120,21 +123,6 @@ class AddContractPageState extends State<AddContractPage> {
     return false;
   }
 
-/*  void _addManager(String name) {
-    if (!_managerExists(name)) {
-      setState(() {
-        data.add({'manager': name});
-        dataS.add({'supervisor': name});
-        selecttem = name;
-        showTextField = false;
-      });
-    } else {
-      setState(() {
-        _error = "O gerente já existe.";
-      });
-    }
-  }*/
-
   Future<void> _pickPDF() async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
@@ -197,6 +185,18 @@ class AddContractPageState extends State<AddContractPage> {
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     createContract = CreateContract(apiContractService);
     getContracts();
+    nameController.text = widget.contractData['name'];
+    numContractController.text = widget.contractData['numContract'];
+    numProcessController.text = widget.contractData['numProcess'];
+    contractLawController.text = widget.contractData['contractLaw'];
+    balanceController.text = widget.contractData['balance'];
+    initDate = DateTime.parse(widget.contractData['initDate']);
+    finalDate = DateTime.parse(widget.contractData['finalDate']);
+    todoController.text = widget.contractData['todo'];
+    managerController.text = widget.contractData['manager'];
+    supervisorController.text = widget.contractData['supervisor'];
+    companySituationController.text = widget.contractData['companySituation'];
+
     super.initState();
   }
 
@@ -426,7 +426,15 @@ class AddContractPageState extends State<AddContractPage> {
                                       child: Padding(
                                         padding: EdgeInsets.all(10),
                                         child: DropdownButton<DropdownItem>(
-                                          hint: Text("Status do contrato"),
+                                          hint: Text(widget.contractData[
+                                                      'contractStatus'] ==
+                                                  "review"
+                                              ? "Revisando"
+                                              : widget.contractData[
+                                                          'contractStatus'] ==
+                                                      "pendent"
+                                                  ? "Pendente"
+                                                  : "Ok"),
                                           value: statusContractController,
                                           onChanged: (DropdownItem? value) {
                                             setState(() {
@@ -760,7 +768,8 @@ class AddContractPageState extends State<AddContractPage> {
                                               padding: EdgeInsets.all(10),
                                               child: InputQty(
                                                 maxVal: 100,
-                                                initVal: 0,
+                                                initVal: int.parse(widget
+                                                    .contractData['addTerm']),
                                                 decoration: QtyDecorationProps(
                                                     border: OutlineInputBorder(
                                                   borderSide: BorderSide(
@@ -796,7 +805,8 @@ class AddContractPageState extends State<AddContractPage> {
                                               padding: EdgeInsets.all(10),
                                               child: InputQty(
                                                 maxVal: 100,
-                                                initVal: 0,
+                                                initVal: int.parse(widget
+                                                    .contractData['addQuant']),
                                                 decoration: QtyDecorationProps(
                                                     border: OutlineInputBorder(
                                                   borderSide: BorderSide(
