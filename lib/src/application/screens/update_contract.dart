@@ -195,7 +195,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     todoController.text = widget.contractData['todo'];
     managerController.text = widget.contractData['manager'];
     supervisorController.text = widget.contractData['supervisor'];
-    companySituationController.text = widget.contractData['companySituation'];
 
     super.initState();
   }
@@ -897,7 +896,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                                       ),
                                                     )),
                                                     label: Text(
-                                                        "Situação da empresa"),
+                                                        "${widget.contractData['companySituation']}"),
                                                     onSelected:
                                                         (String? value) {
                                                       setState(() {
