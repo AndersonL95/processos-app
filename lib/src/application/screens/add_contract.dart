@@ -63,6 +63,7 @@ class AddContractPageState extends State<AddContractPage> {
   List<dynamic> manager = [];
   List<dynamic> supervisor = [];
   bool showTextField = false;
+  bool showTextFieldF = false;
   File? _selectPDF;
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
@@ -656,7 +657,7 @@ class AddContractPageState extends State<AddContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText: "Gerente",
+                                          labelText: "Fiscal",
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
@@ -679,7 +680,7 @@ class AddContractPageState extends State<AddContractPage> {
                                           setState(() {
                                             supervisorController.text =
                                                 newValue;
-                                            showTextField = false;
+                                            showTextFieldF = false;
                                           });
                                         },
                                         value: supervisorController.text.isEmpty
@@ -692,14 +693,14 @@ class AddContractPageState extends State<AddContractPage> {
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
                                         setState(() {
-                                          showTextField = !showTextField;
+                                          showTextFieldF = !showTextFieldF;
                                         });
                                       },
                                     )
                                   ],
                                 ),
                               ),
-                              if (showTextField)
+                              if (showTextFieldF)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -714,7 +715,7 @@ class AddContractPageState extends State<AddContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText: "Novo Gerente",
+                                          labelText: "Novo Fiscal",
                                           hintText: "Digite o nome do Fiscal",
                                           prefixIcon:
                                               const Icon(Icons.person_add),

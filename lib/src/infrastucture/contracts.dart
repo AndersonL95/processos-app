@@ -83,6 +83,26 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     return bodyList;
   }
 
+  Future<dynamic> findContractId(int id) async {
+    var bodyList;
+    try {
+      final response = await authManager.sendAuthenticate(() async {
+        return http.get(Uri.parse("$baseUrl/contract/$id"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                  }
+                : {});
+      });
+      if (response.statusCode == 200) {
+        bodyList = json.decode(response.body);
+      }
+    } catch (e) {
+      throw Exception("Não foi possivel buscar o contrto, $e");
+    }
+    return bodyList;
+  }
+
   @override
   Future<List<Contracts>> findById(int id) {
     // TODO: implement findById
@@ -109,17 +129,17 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     return bodyList;
   }
 
-  Future<int> updateContract(Contracts contracts) async {
+  Future<dynamic> updateContract(Contracts contracts) async {
     try {
       if (contracts.file != "") {
         var bytes = File(contracts.file).readAsBytesSync();
         contracts.file = base64Encode(bytes);
       } else {
-        contracts.file = "";
+        contracts.file = contracts.file;
       }
       String body = jsonEncode(contracts.toJson());
       final response = await authManager.sendAuthenticate(() async {
-        return http.post(Uri.parse("$baseUrl/${contracts.id}"),
+        return http.put(Uri.parse("$baseUrl/contract/${contracts.id}"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -133,7 +153,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
         var responseBody = jsonDecode(response.body);
         return responseBody['id'];
       } else {
-        throw Exception("Erro ao modificar: ${response.body}");
+        throw Exception("Não encontrado: ${response.body}");
       }
     } catch (e) {
       throw Exception("Erro ao modificar contrato: $e");
