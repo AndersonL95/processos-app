@@ -6,8 +6,8 @@ import 'package:input_quantity/input_quantity.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/use-case/createContract_api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/update_contract_api.dart';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
@@ -15,34 +15,40 @@ import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
-class AddContractPage extends StatefulWidget {
+class UpdateContractPage extends StatefulWidget {
+  final contractData;
+
+  UpdateContractPage({required this.contractData});
+
   @override
-  AddContractPageState createState() => AddContractPageState();
+  UpdateContractPageState createState() => UpdateContractPageState();
 }
 
-class AddContractPageState extends State<AddContractPage> {
-  static Map<String, dynamic>? dataUser;
+class UpdateContractPageState extends State<UpdateContractPage> {
+  Contracts? contractEdit;
   var selecttem = "";
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late ApiContractService apiContractService;
   late ApiService apiService;
-  late CreateContract createContract;
-  TextEditingController nameController = TextEditingController();
-  TextEditingController numContractController = TextEditingController();
-  TextEditingController numProcessController = TextEditingController();
-  TextEditingController contractLawController = TextEditingController();
-  TextEditingController addQuantController = TextEditingController();
-  TextEditingController addTermController = TextEditingController();
-  TextEditingController balanceController = TextEditingController();
-  TextEditingController initDateController = TextEditingController();
-  TextEditingController finalDateController = TextEditingController();
-  TextEditingController todoController = TextEditingController();
-  TextEditingController managerController = TextEditingController();
-  TextEditingController companySituationController = TextEditingController();
+  late UpdateContract updateContract;
+  late TextEditingController nameController;
+  late TextEditingController numContractController;
+  late TextEditingController numProcessController;
+  late TextEditingController contractLawController;
+  late TextEditingController addQuantController;
+  late TextEditingController addTermController;
+  late TextEditingController balanceController;
+  late TextEditingController initDateController;
+  late TextEditingController finalDateController;
+  late TextEditingController todoController3;
+  late TextEditingController managerController;
+  late TextEditingController companySituationController;
+  late TextEditingController supervisorController;
+  late TextEditingController todoController;
+
   List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
   DropdownItem? statusContractController;
-  TextEditingController supervisorController = TextEditingController();
   var maskFormatter = MaskTextInputFormatter(
       mask: 'R\$ ###.###.###,##',
       filter: {"#": RegExp(r'[0-9]')},
@@ -63,10 +69,50 @@ class AddContractPageState extends State<AddContractPage> {
   List<dynamic> manager = [];
   List<dynamic> supervisor = [];
   bool showTextField = false;
-  bool showTextFieldF = false;
   File? _selectPDF;
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    apiContractService = ApiContractService(authManager);
+    getContractsInfoApi = GetContractsInfoApi(apiContractService);
+    updateContract = UpdateContract(apiContractService);
+    getContracts();
+    nameController = TextEditingController(text: widget.contractData['name']);
+    numContractController =
+        TextEditingController(text: widget.contractData['numContract']);
+    numProcessController =
+        TextEditingController(text: widget.contractData['numProcess']);
+    contractLawController =
+        TextEditingController(text: widget.contractData['contractLaw']);
+    String? statuscontracts = widget.contractData['contractStatus'];
+    if (statuscontracts != null) {
+      statusContractController = statusItem.firstWhere(
+        (item) => item.statusValue == statuscontracts,
+        orElse: () => statusItem[0],
+      );
+      addTermController =
+          TextEditingController(text: widget.contractData['addTerm']);
+      addQuantController =
+          TextEditingController(text: widget.contractData['addQuant']);
+    }
+    balanceController =
+        TextEditingController(text: widget.contractData['balance']);
+    initDate = DateTime.parse(widget.contractData['initDate']);
+    finalDate = DateTime.parse(widget.contractData['finalDate']);
+    todoController = TextEditingController(text: widget.contractData['todo']);
+    managerController =
+        TextEditingController(text: widget.contractData['manager']);
+    supervisorController =
+        TextEditingController(text: widget.contractData['supervisor']);
+    todoController = TextEditingController(text: widget.contractData['todo']);
+    companySituationController =
+        TextEditingController(text: widget.contractData['companySituation']);
+    contractEdit = Contracts.froJson(widget.contractData);
+    print("CONTRACT: ${contractEdit?.id}");
+    super.initState();
+  }
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final DateTime? data = await showDatePicker(
@@ -121,21 +167,6 @@ class AddContractPageState extends State<AddContractPage> {
     return false;
   }
 
-/*  void _addManager(String name) {
-    if (!_managerExists(name)) {
-      setState(() {
-        data.add({'manager': name});
-        dataS.add({'supervisor': name});
-        selecttem = name;
-        showTextField = false;
-      });
-    } else {
-      setState(() {
-        _error = "O gerente já existe.";
-      });
-    }
-  }*/
-
   Future<void> _pickPDF() async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
@@ -151,25 +182,30 @@ class AddContractPageState extends State<AddContractPage> {
 
     String? idJson = datas.getString('id');
     try {
-      Contracts contract = Contracts(
-          name: nameController.text,
-          numProcess: numProcessController.text,
-          numContract: numContractController.text,
-          manager: managerController.text.toString(),
-          supervisor: supervisorController.text.toString(),
-          initDate: initDate.toString(),
-          finalDate: finalDate.toString(),
-          contractLaw: contractLawController.text,
-          contractStatus: statusContractController?.statusValue.toString(),
-          balance: balanceController.text,
-          todo: todoController.text,
-          addTerm: addTermController.text,
-          addQuant: addQuantController.text,
-          companySituation: companySituationController.text.toString(),
-          userId: int.parse(idJson!),
-          file: _selectPDF?.path ?? "");
+      contractEdit?.name = nameController.text;
+      contractEdit?.numProcess = numProcessController.text;
+      contractEdit?.numContract = numContractController.text;
+      contractEdit?.manager = managerController.text.toString();
+      contractEdit?.supervisor = supervisorController.text.toString();
+      contractEdit?.initDate = initDate.toString();
+      contractEdit?.finalDate = finalDate.toString();
+      contractEdit?.contractLaw = contractLawController.text;
+      contractEdit?.contractStatus =
+          statusContractController!.statusValue.toString();
+      contractEdit?.balance = balanceController.text;
+      contractEdit?.todo = todoController.text;
+      contractEdit?.addTerm = addTermController.text;
+      contractEdit?.addQuant = addQuantController.text;
+      contractEdit?.companySituation =
+          companySituationController.text.toString();
+      contractEdit?.userId = int.parse(idJson!);
 
-      await createContract.execute(contract);
+      if (_selectPDF != null && _selectPDF!.path.isNotEmpty) {
+        contractEdit?.file = _selectPDF!.path;
+      } else {
+        contractEdit?.file = "";
+      }
+      await updateContract.execute(contractEdit!);
       toastification.show(
         type: ToastificationType.success,
         style: ToastificationStyle.fillColored,
@@ -180,7 +216,7 @@ class AddContractPageState extends State<AddContractPage> {
       setState(() {
         _loading = false;
       });
-      Navigator.pushNamed(context, 'home');
+      Navigator.pushNamed(context, '/menuItem');
     } catch (e) {
       toastification.show(
         type: ToastificationType.error,
@@ -193,14 +229,6 @@ class AddContractPageState extends State<AddContractPage> {
   }
 
   @override
-  void initState() {
-    apiContractService = ApiContractService(authManager);
-    getContractsInfoApi = GetContractsInfoApi(apiContractService);
-    createContract = CreateContract(apiContractService);
-    getContracts();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     Set<String> managerUnique = {};
@@ -427,7 +455,15 @@ class AddContractPageState extends State<AddContractPage> {
                                       child: Padding(
                                         padding: EdgeInsets.all(10),
                                         child: DropdownButton<DropdownItem>(
-                                          hint: Text("Status do contrato"),
+                                          hint: Text(widget.contractData[
+                                                      'contractStatus'] ==
+                                                  "review"
+                                              ? "Revisando"
+                                              : widget.contractData[
+                                                          'contractStatus'] ==
+                                                      "pendent"
+                                                  ? "Pendente"
+                                                  : "Ok"),
                                           value: statusContractController,
                                           onChanged: (DropdownItem? value) {
                                             setState(() {
@@ -559,7 +595,8 @@ class AddContractPageState extends State<AddContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText: "Gerente",
+                                          labelText:
+                                              widget.contractData['manager'],
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
@@ -657,7 +694,8 @@ class AddContractPageState extends State<AddContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText: "Fiscal",
+                                          labelText:
+                                              widget.contractData['supervisor'],
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
@@ -680,7 +718,7 @@ class AddContractPageState extends State<AddContractPage> {
                                           setState(() {
                                             supervisorController.text =
                                                 newValue;
-                                            showTextFieldF = false;
+                                            showTextField = false;
                                           });
                                         },
                                         value: supervisorController.text.isEmpty
@@ -693,14 +731,14 @@ class AddContractPageState extends State<AddContractPage> {
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
                                         setState(() {
-                                          showTextFieldF = !showTextFieldF;
+                                          showTextField = !showTextField;
                                         });
                                       },
                                     )
                                   ],
                                 ),
                               ),
-                              if (showTextFieldF)
+                              if (showTextField)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -715,7 +753,7 @@ class AddContractPageState extends State<AddContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText: "Novo Fiscal",
+                                          labelText: "Novo Gerente",
                                           hintText: "Digite o nome do Fiscal",
                                           prefixIcon:
                                               const Icon(Icons.person_add),
@@ -761,7 +799,8 @@ class AddContractPageState extends State<AddContractPage> {
                                               padding: EdgeInsets.all(10),
                                               child: InputQty(
                                                 maxVal: 100,
-                                                initVal: 0,
+                                                initVal: double.parse(widget
+                                                    .contractData['addTerm']),
                                                 decoration: QtyDecorationProps(
                                                     border: OutlineInputBorder(
                                                   borderSide: BorderSide(
@@ -797,7 +836,8 @@ class AddContractPageState extends State<AddContractPage> {
                                               padding: EdgeInsets.all(10),
                                               child: InputQty(
                                                 maxVal: 100,
-                                                initVal: 0,
+                                                initVal: double.parse(widget
+                                                    .contractData['addQuant']),
                                                 decoration: QtyDecorationProps(
                                                     border: OutlineInputBorder(
                                                   borderSide: BorderSide(
@@ -888,7 +928,7 @@ class AddContractPageState extends State<AddContractPage> {
                                                       ),
                                                     )),
                                                     label: Text(
-                                                        "Situação da empresa"),
+                                                        "${widget.contractData['companySituation']}"),
                                                     onSelected:
                                                         (String? value) {
                                                       setState(() {

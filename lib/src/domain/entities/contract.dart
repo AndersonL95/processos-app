@@ -1,5 +1,3 @@
-import 'dart:io';
-
 class Contracts {
   late int? id;
   String name = "";
@@ -168,6 +166,7 @@ class Contracts {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'numProcess': numProcess,
       'numContract': numContract,
@@ -189,6 +188,7 @@ class Contracts {
 
   factory Contracts.froJson(Map<String, dynamic> json) {
     return Contracts(
+        id: json['id'],
         name: json['name'],
         numProcess: json['numProcess'],
         numContract: json['numContract'],

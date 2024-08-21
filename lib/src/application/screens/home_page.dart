@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> getContracts() async {
     try {
       await getContractsInfoApi.execute().then((value) {
-        if (this.mounted) {
+        if (mounted) {
           setState(() {
             data = value;
             _loading = false;
@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> {
               ? Center(
                   child: Text("ERROR: $_error"),
                 )
+              // ignore: unnecessary_null_comparison
               : data != null
                   ? SingleChildScrollView(
                       child: Column(

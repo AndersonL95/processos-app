@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/add_contract.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
+import 'package:processos_app/src/application/screens/update_contract.dart';
 import 'package:processos_app/src/application/use-case/delet_contract.api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
@@ -40,7 +41,7 @@ class _ContractPageState extends State<ContractPage> {
   Future<void> getContracts() async {
     try {
       await getContractsInfoApi.execute().then((value) {
-        if (this.mounted) {
+        if (mounted) {
           setState(() {
             data = value;
             filtereData = value;
@@ -264,7 +265,18 @@ class _ContractPageState extends State<ContractPage> {
                                                         return [
                                                           PopupMenuItem(
                                                             child: InkWell(
-                                                              onTap: () {},
+                                                              onTap: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .push(
+                                                                  MaterialPageRoute(
+                                                                    builder: (_) =>
+                                                                        UpdateContractPage(
+                                                                            contractData:
+                                                                                filtereData[index]),
+                                                                  ),
+                                                                );
+                                                              },
                                                               child: Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
