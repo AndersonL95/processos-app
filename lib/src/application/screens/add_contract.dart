@@ -180,7 +180,7 @@ class AddContractPageState extends State<AddContractPage> {
       setState(() {
         _loading = false;
       });
-      Navigator.pushNamed(context, 'home');
+      Navigator.pushNamed(context, '/home');
     } catch (e) {
       toastification.show(
         type: ToastificationType.error,
