@@ -9,6 +9,7 @@ class Users {
   String cpf = "";
   String cargo = "";
   String phone = "";
+  String photo = "";
 
   Users(
       {id,
@@ -18,7 +19,8 @@ class Users {
       required name,
       cpf,
       cargo,
-      phone}) {
+      phone,
+      photo}) {
     setEmail(email);
     setUsername(username);
     setPassword(password);
@@ -59,7 +61,8 @@ class Users {
       name: name,
       cpf: cpf,
       cargo: cargo,
-      phone: phone
+      phone: phone,
+      photo: photo
     };
   }
 
@@ -70,6 +73,7 @@ class Users {
         password: json['password'],
         name: json['name'],
         cpf: json['cpg'],
-        cargo: json['cargo']);
+        cargo: json['cargo'],
+        photo: json['photo']);
   }
 }
