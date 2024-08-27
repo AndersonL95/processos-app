@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/update_user.dart';
 import 'package:processos_app/src/application/use-case/getUser_api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
@@ -140,7 +141,14 @@ class _PerfilPageState extends State<PerfilPage> {
                             ),
                           ],
                         ),
-                        onTap: () => {logout()},
+                        onTap: () => {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UpdateUserPage(
+                                        userData: dataUser,
+                                      )))
+                        },
                       )),
                     ];
                   },
