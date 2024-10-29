@@ -7,7 +7,7 @@ class GetUserInfoApi {
   final ApiService apiService;
   GetUserInfoApi(this.apiService);
 
-  Future<void> execute(id) async {
+  Future execute(id) async {
     final SharedPreferences data = await SharedPreferences.getInstance();
 
     try {

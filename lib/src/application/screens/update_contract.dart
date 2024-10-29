@@ -78,7 +78,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     updateContract = UpdateContract(apiContractService);
-    getContracts();
     nameController = TextEditingController(text: widget.contractData['name']);
     numContractController =
         TextEditingController(text: widget.contractData['numContract']);
@@ -110,7 +109,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     companySituationController =
         TextEditingController(text: widget.contractData['companySituation']);
     contractEdit = Contracts.froJson(widget.contractData);
-    print("CONTRACT: ${contractEdit?.id}");
     super.initState();
   }
 
@@ -133,28 +131,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
           finalDate = data;
         }
       });
-    }
-  }
-
-  Future<void> getContracts() async {
-    try {
-      await getContractsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            data = value;
-
-            _loading = false;
-          });
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
-        }
-      });
-    } catch (e) {
-      _loading = false;
-      throw Exception(e);
     }
   }
 
