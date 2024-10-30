@@ -1,75 +1,79 @@
-import 'dart:convert';
-
 class Users {
-  int id = 0;
-  String username = "";
-  String email = "";
-  String password = "";
-  String name = "";
-  String cpf = "";
-  String cargo = "";
-  String phone = "";
+  int id;
+  String username;
+  String email;
+  String password;
+  String name;
+  String cpf;
+  String cargo;
+  String phone;
+  String photo;
 
-  Users(
-      {id,
-      required username,
-      required email,
-      required password,
-      required name,
-      cpf,
-      cargo,
-      phone}) {
-    setEmail(email);
-    setUsername(username);
-    setPassword(password);
-    setName(name);
-  }
-  setUsername(username) {
-    if (this.username.isEmpty) {
+  Users({
+    required this.id,
+    required this.username,
+    required this.email,
+    required this.password,
+    required this.name,
+    this.cpf = "",
+    this.cargo = "",
+    this.phone = "",
+    this.photo = "",
+  });
+
+  void setUsername(String username) {
+    if (username.isEmpty) {
       throw Exception("Username está vazio ou é invalido.");
     }
     this.username = username;
   }
 
-  setEmail(email) {
-    if (this.email.isEmpty) {
+  void setEmail(String email) {
+    if (email.isEmpty) {
       throw Exception("E-mail está vazio ou é invalido.");
     }
     this.email = email;
   }
 
-  setPassword(password) {
-    if (this.password.isEmpty) {
-      throw Exception("Senha está vazio ou é invalido.");
+  void setPassword(String password) {
+    if (password.isEmpty) {
+      throw Exception("Senha está vazia ou é inválida.");
     }
     this.password = password;
   }
 
-  setName(name) {
-    if (this.name.isEmpty) {
+  void setName(String name) {
+    if (name.isEmpty) {
       throw Exception("Nome está vazio ou é invalido.");
     }
+    this.name = name;
   }
 
   Map<String, dynamic> toJson() {
     return {
-      username: username,
-      email: email,
-      password: password,
-      name: name,
-      cpf: cpf,
-      cargo: cargo,
-      phone: phone
+      "id": id,
+      "username": username,
+      "email": email,
+      "password": password,
+      "name": name,
+      "cpf": cpf,
+      "cargo": cargo,
+      "phone": phone,
+      "photo": photo,
     };
   }
 
-  factory Users.froJson(Map<String, dynamic> json) {
+  factory Users.fromJson(Map<String, dynamic> json) {
     return Users(
-        username: json['username'],
-        email: json['email'],
-        password: json['password'],
-        name: json['name'],
-        cpf: json['cpg'],
-        cargo: json['cargo']);
+      id: json['id'] ?? 0,
+      username: json['username'] ?? "",
+      email: json['email'] ?? "",
+      password: json['password'] ?? "",
+      name: json['name'] ?? "",
+      cpf: json['cpf'] ?? "",
+      cargo: json['cargo'] ?? "",
+      phone: json['phone'] ?? "",
+      photo: json['photo'] ?? "",
+    );
   }
 }

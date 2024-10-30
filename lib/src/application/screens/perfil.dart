@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/update_user.dart';
 import 'package:processos_app/src/application/use-case/getUser_api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
@@ -16,14 +20,14 @@ class PerfilPage extends StatefulWidget {
 
 class _PerfilPageState extends State<PerfilPage> {
   late int id;
-  static Map<String, dynamic>? dataUser;
+  List<dynamic> dataUser = [];
+  File? image;
   bool _loading = true;
   String? _error;
   var selecttem = "";
   AuthManager authManager = AuthManager();
   late GetUserInfoApi getUserInfoApi;
   late ApiService apiService;
-
   @override
   void initState() {
     id = widget.userId;
@@ -33,6 +37,8 @@ class _PerfilPageState extends State<PerfilPage> {
     getUserInfoApi = GetUserInfoApi(apiService);
   }
 
+  ImageProvider? userImage;
+
   Future<void> getData() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     try {
@@ -41,7 +47,16 @@ class _PerfilPageState extends State<PerfilPage> {
       String? userInfoJson = data.getString('userInfo');
       if (userInfoJson != null) {
         setState(() {
-          dataUser = json.decode(userInfoJson);
+          dataUser.add(json.decode(userInfoJson));
+        });
+
+        if (dataUser.isNotEmpty) {
+          String photoBase64 = dataUser[0]['photo'];
+          List<int> imageBytes = await _base64StringToBytes(photoBase64);
+          userImage = MemoryImage(Uint8List.fromList(imageBytes));
+        }
+
+        setState(() {
           _loading = false;
         });
       } else {
@@ -56,10 +71,26 @@ class _PerfilPageState extends State<PerfilPage> {
     }
   }
 
+  Future<List<int>> _base64StringToBytes(String base64String) async {
+    return base64Decode(base64String);
+  }
+
   Future<void> logout() async {
     await authManager.logout();
     Navigator.pushNamedAndRemoveUntil(
         context, '/login', (Route<dynamic> route) => false);
+  }
+
+  String breakLinesEvery10Characters(String input) {
+    List<String> lines = [];
+    for (int i = 0; i < input.length; i += 35) {
+      int endIndex = i + 35;
+      if (endIndex > input.length) {
+        endIndex = input.length;
+      }
+      lines.add(input.substring(i, endIndex));
+    }
+    return lines.join('\n');
   }
 
   @override
@@ -73,7 +104,7 @@ class _PerfilPageState extends State<PerfilPage> {
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
-          toolbarHeight: 120,
+          toolbarHeight: 80,
           centerTitle: false,
           backgroundColor: customColors['green'],
           elevation: 0,
@@ -100,13 +131,40 @@ class _PerfilPageState extends State<PerfilPage> {
                               Icons.logout,
                               color: customColors['green'],
                             ),
-                            Text(
+                            const Text(
                               "Sair",
-                              style: TextStyle(fontSize: 15),
+                              style: TextStyle(
+                                  fontSize: 17, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
                         onTap: () => {logout()},
+                      )),
+                      PopupMenuItem(
+                          child: InkWell(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 30,
+                              color: customColors['green'],
+                            ),
+                            const Text(
+                              "Usuario",
+                              style: TextStyle(
+                                  fontSize: 17, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        onTap: () => {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UpdateUserPage(
+                                        userData: dataUser,
+                                      )))
+                        },
                       )),
                     ];
                   },
@@ -124,18 +182,265 @@ class _PerfilPageState extends State<PerfilPage> {
                 ? Center(
                     child: Text("ERROR: $_error"),
                   )
-                : dataUser != null
-                    ? Padding(
-                        padding:
-                            const EdgeInsets.only(top: 20, left: 10, right: 10),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Nome: ${dataUser!['name']}",
-                              style: const TextStyle(fontSize: 24),
-                            )
-                          ],
-                        ),
+                : dataUser.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: dataUser.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(0),
+                            child: Column(
+                              children: [
+                                Container(
+                                    height: 260,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      color: customColors['green'],
+                                      borderRadius: const BorderRadius.only(
+                                        bottomLeft: Radius.circular(20),
+                                        bottomRight: Radius.circular(20),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(60),
+                                          child: Container(
+                                              height: 130,
+                                              width: 130,
+                                              decoration: const BoxDecoration(),
+                                              child: dataUser[index]['photo'] ==
+                                                      ""
+                                                  ? Image.asset(
+                                                      'Assets/images/user.png')
+                                                  : Image(
+                                                      image: userImage!,
+                                                      fit: BoxFit.cover,
+                                                    )),
+                                        ),
+                                        /* IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.camera_alt_sharp,
+                                        size: 30,
+                                        color: Colors.white,
+                                      ),
+                                    ),*/
+                                        Padding(
+                                            padding: EdgeInsets.only(top: 20),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.person_2,
+                                                  size: 30,
+                                                  color: customColors['white'],
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      EdgeInsets.only(left: 10),
+                                                  child: Text(
+                                                    breakLinesEvery10Characters(
+                                                        dataUser[index]
+                                                            ['username']),
+                                                    style: TextStyle(
+                                                        fontSize: 22,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: customColors[
+                                                            'white']),
+                                                  ),
+                                                ),
+                                              ],
+                                            )),
+                                        Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.email_outlined,
+                                                  size: 30,
+                                                  color: customColors['white'],
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 10),
+                                                  child: Text(
+                                                    breakLinesEvery10Characters(
+                                                        dataUser[index]
+                                                            ['email']),
+                                                    style: const TextStyle(
+                                                        fontSize: 22,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ],
+                                            )),
+                                      ],
+                                    )),
+                                Padding(
+                                    padding: EdgeInsets.only(top: 40),
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10))),
+                                      clipBehavior: Clip.antiAlias,
+                                      color: customColors['white'],
+                                      elevation: 10,
+                                      shadowColor: Colors.black,
+                                      child: SizedBox(
+                                          width: 350,
+                                          child: Padding(
+                                            padding: EdgeInsets.all(20),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Padding(
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Icon(
+                                                          Icons.work,
+                                                          size: 30,
+                                                          color: customColors[
+                                                              'green'],
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                            breakLinesEvery10Characters(
+                                                                dataUser[index]
+                                                                    ['cargo']),
+                                                            style: TextStyle(
+                                                              fontSize: 22,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )),
+                                                Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Icon(
+                                                          Icons.person,
+                                                          size: 30,
+                                                          color: customColors[
+                                                              'green'],
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                            breakLinesEvery10Characters(
+                                                                dataUser[index]
+                                                                    ['name']),
+                                                            style: const TextStyle(
+                                                                fontSize: 22,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )),
+                                                Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Icon(
+                                                          Icons
+                                                              .featured_play_list_rounded,
+                                                          size: 30,
+                                                          color: customColors[
+                                                              'green'],
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                            breakLinesEvery10Characters(
+                                                                dataUser[index]
+                                                                    ['cpf']),
+                                                            style: const TextStyle(
+                                                                fontSize: 22,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )),
+                                                Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Icon(
+                                                          Icons.phone,
+                                                          size: 30,
+                                                          color: customColors[
+                                                              'green'],
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 10),
+                                                          child: Text(
+                                                            breakLinesEvery10Characters(
+                                                                dataUser[index]
+                                                                    ['phone']),
+                                                            style: const TextStyle(
+                                                                fontSize: 22,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )),
+                                              ],
+                                            ),
+                                          )),
+                                    )),
+                              ],
+                            ),
+                          );
+                        },
                       )
                     : const Center(
                         child:
