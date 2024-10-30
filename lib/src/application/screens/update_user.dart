@@ -50,8 +50,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       id: widget.userData[0]['id'] ?? 0,
       username: widget.userData[0]['username'] ?? '',
       email: widget.userData[0]['email'] ?? '',
-      password: widget.userData[0]
-          ['password'], // Preencha com um valor, ou remova se não necessário
+      password: widget.userData[0]['password'] ?? '',
       name: widget.userData[0]['name'] ?? '',
       cpf: widget.userData[0]['cpf'] ?? '',
       cargo: widget.userData[0]['cargo'] ?? '',
@@ -69,6 +68,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
     cargoController = TextEditingController(text: widget.userData[0]['cargo']);
     phoneController = TextEditingController(text: widget.userData[0]['phone']);
     bytes = base64Decode(widget.userData[0]['photo']);
+
     super.initState();
   }
 
@@ -95,10 +95,8 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       userToEdit?.cargo = cargoController.text;
       userToEdit?.phone = phoneController.text;
       userToEdit?.id = int.parse(idJson!);
-      if (_selectImage != null || _selectImage!.path.isNotEmpty) {
+      if (_selectImage != null && _selectImage!.path.isNotEmpty) {
         userToEdit?.photo = _selectImage!.path;
-      } else {
-        userToEdit?.photo = "";
       }
 
       var response = await updateUser.execute(userToEdit!);
@@ -309,7 +307,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                                   top: 10, left: 10, right: 10, bottom: 10),
                               child: TextField(
                                 controller: nameController,
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
                                     iconColor: customColors['green'],
                                     prefixIconColor: customColors['green'],
