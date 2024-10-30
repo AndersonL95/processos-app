@@ -5,6 +5,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/home_page.dart';
+import 'package:processos_app/src/application/screens/menuItem.dart';
+import 'package:processos_app/src/application/screens/perfil.dart';
 import 'package:processos_app/src/application/use-case/getUser_api.dart';
 import 'package:processos_app/src/application/use-case/updateUser_api.dart';
 import 'package:processos_app/src/domain/entities/users.dart';
@@ -47,7 +50,8 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       id: widget.userData[0]['id'] ?? 0,
       username: widget.userData[0]['username'] ?? '',
       email: widget.userData[0]['email'] ?? '',
-      password: '', // Preencha com um valor, ou remova se não necessário
+      password: widget.userData[0]
+          ['password'], // Preencha com um valor, ou remova se não necessário
       name: widget.userData[0]['name'] ?? '',
       cpf: widget.userData[0]['cpf'] ?? '',
       cargo: widget.userData[0]['cargo'] ?? '',
@@ -97,12 +101,12 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
         userToEdit?.photo = "";
       }
 
-      await updateUser.execute(userToEdit!);
+      var response = await updateUser.execute(userToEdit!);
 
       setState(() {
         isLoading = false;
       });
-      if (isLoading) {
+      if (response != 0) {
         toastification.show(
           type: ToastificationType.success,
           style: ToastificationStyle.fillColored,
@@ -110,6 +114,8 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
           title: const Text("Modificado com sucesso."),
           autoCloseDuration: const Duration(seconds: 8),
         );
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => MenuItem()));
       } else {
         toastification.show(
           type: ToastificationType.error,

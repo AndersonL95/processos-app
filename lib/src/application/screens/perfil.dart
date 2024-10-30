@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -36,7 +37,7 @@ class _PerfilPageState extends State<PerfilPage> {
     getUserInfoApi = GetUserInfoApi(apiService);
   }
 
-  File? userImage;
+  ImageProvider? userImage;
 
   Future<void> getData() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
@@ -51,7 +52,8 @@ class _PerfilPageState extends State<PerfilPage> {
 
         if (dataUser.isNotEmpty) {
           String photoBase64 = dataUser[0]['photo'];
-          userImage = await _base64StringToFile(photoBase64);
+          List<int> imageBytes = await _base64StringToBytes(photoBase64);
+          userImage = MemoryImage(Uint8List.fromList(imageBytes));
         }
 
         setState(() {
@@ -69,13 +71,8 @@ class _PerfilPageState extends State<PerfilPage> {
     }
   }
 
-  Future<File> _base64StringToFile(String base64String) async {
-    final bytes = base64Decode(base64String);
-    final directory = await getTemporaryDirectory();
-    final file = File('${directory.path}/user_photo.png');
-    await file.writeAsBytes(bytes);
-
-    return file;
+  Future<List<int>> _base64StringToBytes(String base64String) async {
+    return base64Decode(base64String);
   }
 
   Future<void> logout() async {
@@ -209,17 +206,17 @@ class _PerfilPageState extends State<PerfilPage> {
                                           borderRadius:
                                               BorderRadius.circular(60),
                                           child: Container(
-                                            height: 130,
-                                            width: 130,
-                                            decoration: const BoxDecoration(),
-                                            child: userImage != null
-                                                ? Image.file(
-                                                    userImage!,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Image.asset(
-                                                    'Assets/images/user.png'),
-                                          ),
+                                              height: 130,
+                                              width: 130,
+                                              decoration: const BoxDecoration(),
+                                              child: dataUser[index]['photo'] ==
+                                                      ""
+                                                  ? Image.asset(
+                                                      'Assets/images/user.png')
+                                                  : Image(
+                                                      image: userImage!,
+                                                      fit: BoxFit.cover,
+                                                    )),
                                         ),
                                         /* IconButton(
                                       onPressed: () {},
