@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -58,6 +59,7 @@ class AddContractPageState extends State<AddContractPage> {
 
   bool _loading = true;
   String? _error;
+  List<dynamic> userData = [];
   List<dynamic> data = [];
   List<dynamic> dataS = [];
   List<dynamic> manager = [];
@@ -150,6 +152,7 @@ class AddContractPageState extends State<AddContractPage> {
     final SharedPreferences datas = await SharedPreferences.getInstance();
 
     String? idJson = datas.getString('id');
+
     try {
       Contracts contract = Contracts(
           name: nameController.text,
@@ -166,6 +169,8 @@ class AddContractPageState extends State<AddContractPage> {
           addTerm: addTermController.text,
           addQuant: addQuantController.text,
           companySituation: companySituationController.text.toString(),
+          sector: "Secretaria de Saúde",
+          active: "yes",
           userId: int.parse(idJson!),
           file: _selectPDF?.path ?? "");
 

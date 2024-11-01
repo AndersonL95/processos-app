@@ -41,6 +41,7 @@ class _PerfilPageState extends State<PerfilPage> {
 
   Future<void> getData() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
+
     try {
       await getUserInfoApi.execute(id);
 

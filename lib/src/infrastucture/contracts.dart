@@ -2,16 +2,24 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:processos_app/src/domain/entities/contract.dart';
+import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/infrastucture/authManager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
   final String baseUrl = 'http://10.0.0.126:3000/api';
   final AuthManager authManager;
   ApiContractService(this.authManager);
+  late int tenantId;
 
   Future<int> createContract(Contracts contracts) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
     try {
       var bytes = File(contracts.file).readAsBytesSync();
       contracts.file = base64Encode(bytes);
@@ -23,7 +31,8 @@ class ApiContractService implements RepositoryInterface<Contracts> {
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-tenant-id': tenantId.toString()
                   }
                 : {'Content-type': 'application/json'},
             body: body);
@@ -48,11 +57,17 @@ class ApiContractService implements RepositoryInterface<Contracts> {
 
   @override
   Future<bool> delete(int id) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
     final response = await authManager.sendAuthenticate(() async {
       return http.delete(Uri.parse("$baseUrl/contract/$id"),
           headers: authManager.token != null
               ? {
                   'Authorization': 'Bearer ${authManager.token}',
+                  'x-tenant-id': tenantId.toString()
                 }
               : {});
     });
@@ -66,11 +81,17 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   Future<dynamic> findAllContracts() async {
     var bodyList;
     try {
+      final SharedPreferences data = await SharedPreferences.getInstance();
+      String? tenantJson = data.getString('tenantId');
+      if (tenantJson != null) {
+        tenantId = json.decode(tenantJson);
+      }
       final response = await authManager.sendAuthenticate(() async {
         return http.get(Uri.parse("$baseUrl/contract"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString()
                   }
                 : {});
       });
@@ -87,10 +108,16 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     var bodyList;
     try {
       final response = await authManager.sendAuthenticate(() async {
+        final SharedPreferences data = await SharedPreferences.getInstance();
+        String? tenantJson = data.getString('tenantId');
+        if (tenantJson != null) {
+          tenantId = json.decode(tenantJson);
+        }
         return http.get(Uri.parse("$baseUrl/contract/$id"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString()
                   }
                 : {});
       });
@@ -112,11 +139,17 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   Future<dynamic> findByLast3() async {
     var bodyList = [];
     try {
+      final SharedPreferences data = await SharedPreferences.getInstance();
+      String? tenantJson = data.getString('tenantId');
+      if (tenantJson != null) {
+        tenantId = json.decode(tenantJson);
+      }
       final response = await authManager.sendAuthenticate(() async {
         return http.get(Uri.parse("$baseUrl/contract/recent"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString()
                   }
                 : {});
       });
@@ -131,6 +164,11 @@ class ApiContractService implements RepositoryInterface<Contracts> {
 
   Future<dynamic> updateContract(Contracts contracts) async {
     try {
+      final SharedPreferences data = await SharedPreferences.getInstance();
+      String? tenantJson = data.getString('tenantId');
+      if (tenantJson != null) {
+        tenantId = json.decode(tenantJson);
+      }
       if (contracts.file != "") {
         var bytes = File(contracts.file).readAsBytesSync();
         contracts.file = base64Encode(bytes);
@@ -143,7 +181,8 @@ class ApiContractService implements RepositoryInterface<Contracts> {
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-tenant-id': tenantId.toString()
                   }
                 : {'Content-type': 'application/json'},
             body: body);

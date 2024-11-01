@@ -1,5 +1,6 @@
 class Users {
   int id;
+  int? tenantId;
   String username;
   String email;
   String password;
@@ -8,18 +9,20 @@ class Users {
   String cargo;
   String phone;
   String photo;
+  String role;
 
-  Users({
-    required this.id,
-    required this.username,
-    required this.email,
-    required this.password,
-    required this.name,
-    this.cpf = "",
-    this.cargo = "",
-    this.phone = "",
-    this.photo = "",
-  });
+  Users(
+      {required this.id,
+      this.tenantId,
+      required this.username,
+      required this.email,
+      required this.password,
+      required this.name,
+      this.cpf = "",
+      this.cargo = "",
+      this.phone = "",
+      this.photo = "",
+      this.role = "user"});
 
   void setUsername(String username) {
     if (username.isEmpty) {
@@ -52,6 +55,7 @@ class Users {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
+      "tenantId": tenantId,
       "username": username,
       "email": email,
       "password": password,
@@ -60,20 +64,21 @@ class Users {
       "cargo": cargo,
       "phone": phone,
       "photo": photo,
+      "role": role
     };
   }
 
   factory Users.fromJson(Map<String, dynamic> json) {
     return Users(
-      id: json['id'] ?? 0,
-      username: json['username'] ?? "",
-      email: json['email'] ?? "",
-      password: json['password'] ?? "",
-      name: json['name'] ?? "",
-      cpf: json['cpf'] ?? "",
-      cargo: json['cargo'] ?? "",
-      phone: json['phone'] ?? "",
-      photo: json['photo'] ?? "",
-    );
+        id: json['id'] ?? 0,
+        username: json['username'] ?? "",
+        email: json['email'] ?? "",
+        password: json['password'] ?? "",
+        name: json['name'] ?? "",
+        cpf: json['cpf'] ?? "",
+        cargo: json['cargo'] ?? "",
+        phone: json['phone'] ?? "",
+        photo: json['photo'] ?? "",
+        role: json['role'] ?? "");
   }
 }
