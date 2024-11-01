@@ -57,7 +57,6 @@ class _ContractPageState extends State<ContractPage> {
     } catch (e) {
       _loading = false;
       _error = e.toString();
-      throw Exception(e);
     }
   }
 

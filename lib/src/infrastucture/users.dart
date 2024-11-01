@@ -4,19 +4,27 @@ import 'package:http/http.dart' as http;
 import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService implements RepositoryInterface<Users> {
   final baseUrl = "http://10.0.0.126:3000/api";
   final AuthManager authManager;
   ApiService(this.authManager);
+  late int tenantId;
 
   Future<Map<String, dynamic>> findUser(int id) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
     try {
       final response = await authManager.sendAuthenticate(() async {
         return await http.get(Uri.parse("$baseUrl/users/$id"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString()
                   }
                 : {});
       });
@@ -30,6 +38,11 @@ class ApiService implements RepositoryInterface<Users> {
   }
 
   Future<dynamic> updateUser(Users user) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
     try {
       if (user.photo.isNotEmpty) {
         final base64Pattern =
@@ -54,6 +67,7 @@ class ApiService implements RepositoryInterface<Users> {
               ? {
                   'Authorization': 'Bearer ${authManager.token}',
                   'Content-Type': 'application/json',
+                  'x-tenant-id': tenantId.toString()
                 }
               : {'Content-Type': 'application/json'},
           body: body,

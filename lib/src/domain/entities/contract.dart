@@ -1,5 +1,6 @@
 class Contracts {
   late int? id;
+  late int? tenantId;
   String name = "";
   String numProcess = "";
   String numContract = "";
@@ -14,11 +15,14 @@ class Contracts {
   String addTerm = "";
   String addQuant = "";
   String companySituation = "";
+  String sector = "";
+  String active = "";
   late int userId;
   String file = "";
 
   Contracts(
       {this.id,
+      this.tenantId,
       required name,
       required numProcess,
       required numContract,
@@ -34,6 +38,8 @@ class Contracts {
       required addQuant,
       required companySituation,
       required userId,
+      required this.sector,
+      required this.active,
       required this.file}) {
     setName(name);
     setNumProcess(numProcess);
@@ -167,6 +173,7 @@ class Contracts {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'tenantId': tenantId,
       'name': name,
       'numProcess': numProcess,
       'numContract': numContract,
@@ -182,6 +189,8 @@ class Contracts {
       'addQuant': addQuant,
       'companySituation': companySituation,
       'userId': userId,
+      'sector': sector,
+      'active': active,
       'file': file
     };
   }
@@ -203,6 +212,8 @@ class Contracts {
         addTerm: json['addTerm'],
         addQuant: json['addQuant'],
         companySituation: json['companySituation'],
+        sector: json['sector'],
+        active: json['active'],
         userId: json['userId'],
         file: json['file']);
   }
