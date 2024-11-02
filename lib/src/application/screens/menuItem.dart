@@ -25,7 +25,6 @@ class _MenuItemState extends State<MenuItem> {
     _loadUserData();
   }
 
-  // Função para carregar o ID e a role do usuário
   Future<void> _loadUserData() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     String? idJson = pref.getString('id');
@@ -34,21 +33,21 @@ class _MenuItemState extends State<MenuItem> {
     setState(() {
       userId = idJson != null ? json.decode(idJson) : null;
       userRole = roleJson != null ? json.decode(roleJson) : null;
-      isLoading = false; // Finaliza o carregamento
+      isLoading = false;
     });
+    print("ROLES: ${userRole}");
   }
 
-  // Define as telas com base na role e no ID do usuário
   static List<Widget> _screens(int userId, String? userRole) {
     final screens = [
       HomePage(),
       ContractPage(),
-      PerfilPage(userId: userId), // Passa o ID do usuário para PerfilPage
+      PerfilPage(userId: userId),
     ];
     if (userRole == 'admin') {
       screens.add(UsuariosPage(
         userId: userId,
-      )); // Adiciona a página de usuários para o admin
+      ));
     }
     return screens;
   }

@@ -28,7 +28,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
   List<dynamic> data = [];
   List<dynamic> filtereData = [];
   TextEditingController searchController = TextEditingController();
-
+  List userImageList = [];
   @override
   void initState() {
     apiService = ApiService(authManager);
@@ -38,30 +38,47 @@ class _UsuariosPageState extends State<UsuariosPage> {
   }
 
   Future<void> getUsers() async {
+    setState(() {
+      _loading = true;
+    });
+
     try {
-      await getUsersInfoApi.execute().then((value) async {
-        if (mounted) {
-          setState(() {
-            data = value;
-            filtereData = value;
-            print("DATA: $filtereData");
-            _loading = false;
-          });
-          if (data.isNotEmpty) {
-            String photoBase64 = data[0].photo;
+      final value = await getUsersInfoApi.execute();
+
+      if (mounted) {
+        setState(() {
+          data = value;
+          filtereData = value;
+          _loading = false;
+        });
+
+        List<MemoryImage> userImages = [];
+
+        for (var user in data) {
+          if (user.photo.isNotEmpty) {
+            String photoBase64 = user.photo;
+
             List<int> imageBytes = await _base64StringToBytes(photoBase64);
-            userImage = MemoryImage(Uint8List.fromList(imageBytes));
+
+            if (imageBytes.isNotEmpty) {
+              userImages.add(MemoryImage(Uint8List.fromList(imageBytes)));
+            } else {
+              userImages.add(MemoryImage(Uint8List(0)));
+            }
+          } else {
+            userImages.add(MemoryImage(Uint8List(0)));
           }
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
         }
-      });
+
+        setState(() {
+          userImageList = userImages;
+        });
+      }
     } catch (e) {
-      _loading = false;
-      _error = e.toString();
+      setState(() {
+        _error = "Erro ao carregar informações: ${e.toString()}";
+        _loading = false;
+      });
     }
   }
 
@@ -96,11 +113,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
   void filterData(String query) {
     List<dynamic> temp = [];
     for (var item in data) {
-      if (item['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
-          item['username'].toString().contains(query) ||
-          item['email'].toString().contains(query) ||
-          item['cargo'].toString().contains(query) ||
-          item['tole'].toString().contains(query)) {
+      if (item.name.toString().toLowerCase().contains(query.toLowerCase()) ||
+          item.username.toString().contains(query) ||
+          item.email.toString().contains(query) ||
+          item.cargo.toString().contains(query) ||
+          item.role.ntoString().contains(query)) {
         temp.add(item);
       }
     }
@@ -109,31 +126,12 @@ class _UsuariosPageState extends State<UsuariosPage> {
     });
   }
 
-  void deleteContract(id) async {
-    /* try {
-      print("ID: $id");
-      await deleteContractsInfoApi.execute(id);
-      toastification.show(
-        type: ToastificationType.success,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Contrato apagado."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-      getContracts();
-    } catch (e) {
-      toastification.show(
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Não foi possivel apagar."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-    }*/
-  }
+  void deleteContract(id) async {}
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return (Scaffold(
         appBar: AppBar(
           title: const Padding(
@@ -356,32 +354,29 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.only(
-                                                              left: 15,
-                                                              bottom: 40),
+                                                              left: 10,
+                                                              bottom: 20),
                                                       child: ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(60),
                                                         child: Container(
-                                                          height: 100,
-                                                          width: 100,
-                                                          decoration:
-                                                              const BoxDecoration(),
-                                                          child: filtereData[
-                                                                          index]
-                                                                      .photo ==
-                                                                  ""
-                                                              ? Image.asset(
-                                                                  'Assets/images/user.png',
-                                                                  scale: 7.0,
-                                                                )
-                                                              : Image(
-                                                                  image:
-                                                                      userImage!,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
-                                                        ),
+                                                            height: 100,
+                                                            width: 100,
+                                                            decoration:
+                                                                const BoxDecoration(),
+                                                            child: (filtereData[
+                                                                            index]
+                                                                        .photo ==
+                                                                    "")
+                                                                ? Image.asset(
+                                                                    'Assets/images/user.png',
+                                                                    scale: 5.0)
+                                                                : Image(
+                                                                    image: userImageList[
+                                                                        index],
+                                                                    fit: BoxFit
+                                                                        .cover)),
                                                       ),
                                                     ),
                                                     Column(
@@ -429,6 +424,20 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   right: 15),
                                                           child: Text(
                                                             "email: ${filtereData[index].email}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        16),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 5,
+                                                                  right: 15),
+                                                          child: Text(
+                                                            "Nível: ${filtereData[index].role}",
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:

@@ -22,7 +22,7 @@ class Users {
       this.cargo = "",
       this.phone = "",
       this.photo = "",
-      this.role = "user"});
+      this.role = ""});
 
   void setUsername(String username) {
     if (username.isEmpty) {

@@ -359,7 +359,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                                                 dataUser[index]
                                                                     ['name']),
                                                             style: const TextStyle(
-                                                                fontSize: 22,
+                                                                fontSize: 17,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold),
