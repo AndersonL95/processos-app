@@ -72,6 +72,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   File? _selectPDF;
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
+  String sector = "";
 
   @override
   void initState() {
@@ -109,6 +110,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     companySituationController =
         TextEditingController(text: widget.contractData['companySituation']);
     contractEdit = Contracts.froJson(widget.contractData);
+    sector = widget.contractData['sector'];
     super.initState();
   }
 
@@ -172,6 +174,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       contractEdit?.todo = todoController.text;
       contractEdit?.addTerm = addTermController.text;
       contractEdit?.addQuant = addQuantController.text;
+      contractEdit?.sector = sector;
       contractEdit?.companySituation =
           companySituationController.text.toString();
       contractEdit?.userId = int.parse(idJson!);

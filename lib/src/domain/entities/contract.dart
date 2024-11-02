@@ -38,8 +38,8 @@ class Contracts {
       required addQuant,
       required companySituation,
       required userId,
-      required this.sector,
-      required this.active,
+      required sector,
+      required active,
       required this.file}) {
     setName(name);
     setNumProcess(numProcess);
@@ -55,6 +55,7 @@ class Contracts {
     setAddTerm(addTerm);
     setAddQuant(addQuant);
     setCompanySituation(companySituation);
+    setSector(sector);
     setUserId(userId);
     setFile(file);
   }
@@ -63,6 +64,13 @@ class Contracts {
       throw Exception("Nome está vazio ou é invalido.");
     }
     this.name = name;
+  }
+
+  void setSector(sector) {
+    if (sector == "") {
+      throw Exception("Setor está vazio ou é invalido.");
+    }
+    this.sector = sector;
   }
 
   void setNumProcess(numProcess) {

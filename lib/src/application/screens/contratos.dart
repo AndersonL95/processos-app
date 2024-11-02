@@ -34,7 +34,6 @@ class _ContractPageState extends State<ContractPage> {
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
     getContracts();
-
     super.initState();
   }
 
@@ -47,6 +46,7 @@ class _ContractPageState extends State<ContractPage> {
             filtereData = value;
             _loading = false;
           });
+          print("SECTOR ${data[0]['sector']}");
         } else {
           setState(() {
             _error = "Erro ao carregar informações";
