@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   int id = 0;
   int tenant = 0;
+  String role = "";
   final AuthManager authManager = AuthManager();
 
   Future<void> _login() async {
@@ -49,11 +50,15 @@ class _LoginPageState extends State<LoginPage> {
             .then((value) {
           id = value['id'];
           tenant = value['tenantId'];
+          role = value['role'];
         });
         String idJson = json.encode(id);
         String tenantJson = json.encode(tenant);
+        String roleJson = json.encode(role);
+
         await data.setString('id', idJson);
         await data.setString('tenantId', tenantJson);
+        await data.setString('role', roleJson);
 
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MenuItem()));

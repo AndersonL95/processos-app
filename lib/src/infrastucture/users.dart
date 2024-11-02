@@ -98,9 +98,38 @@ class ApiService implements RepositoryInterface<Users> {
   }
 
   @override
-  Future<List<Users>> findAll() {
-    // TODO: implement findAll
-    throw UnimplementedError();
+  Future<List<Users>> findAll() async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+
+    if (tenantJson != null) {
+      final int tenantId = json.decode(tenantJson);
+
+      try {
+        final response = await authManager.sendAuthenticate(() async {
+          return await http.get(
+            Uri.parse("$baseUrl/users"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString(),
+                  }
+                : {},
+          );
+        });
+
+        if (response.statusCode == 200) {
+          final List<dynamic> usersJson = json.decode(response.body);
+          return usersJson.map((json) => Users.fromJson(json)).toList();
+        } else {
+          throw Exception("Erro ao listar usuários: ${response.body}");
+        }
+      } catch (e) {
+        throw Exception("Falha na solicitação: $e");
+      }
+    } else {
+      throw Exception("Tenant ID não encontrado.");
+    }
   }
 
   @override
