@@ -298,7 +298,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                       color: Colors.white,
                       shadowColor: Colors.black,
                       child: SizedBox(
-                          width: 390,
+                          width: 380,
                           child: Column(
                             children: [
                               Padding(
