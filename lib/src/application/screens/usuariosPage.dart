@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/usuarios_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
 import 'package:processos_app/src/application/use-case/getUsers.api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
@@ -117,7 +118,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
           item.username.toString().contains(query) ||
           item.email.toString().contains(query) ||
           item.cargo.toString().contains(query) ||
-          item.role.ntoString().contains(query)) {
+          item.role.toString().contains(query)) {
         temp.add(item);
       }
     }
@@ -239,14 +240,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                       shadowColor: Colors.black,
                                       child: InkWell(
                                         onTap: () {
-                                          /*  Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => ContractDetailPage(
-                                              contractDetail:
-                                                  filtereData[index],
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => UserDetailPage(
+                                                userDetail: filtereData[index],
+                                              ),
                                             ),
-                                          ),
-                                        );*/
+                                          );
                                         },
                                         child: SizedBox(
                                             width: 350,

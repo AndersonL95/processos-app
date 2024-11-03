@@ -306,7 +306,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                     top: 10, left: 10, right: 10, bottom: 10),
                                 child: TextField(
                                   controller: nameController,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],
@@ -406,6 +406,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                 padding: EdgeInsets.all(10),
                                 child: TextField(
                                   controller: contractLawController,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],

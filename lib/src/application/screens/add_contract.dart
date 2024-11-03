@@ -296,7 +296,7 @@ class AddContractPageState extends State<AddContractPage> {
                       color: Colors.white,
                       shadowColor: Colors.black,
                       child: SizedBox(
-                          width: 390,
+                          width: 380,
                           child: Column(
                             children: [
                               Padding(
@@ -304,7 +304,7 @@ class AddContractPageState extends State<AddContractPage> {
                                     top: 10, left: 10, right: 10, bottom: 10),
                                 child: TextField(
                                   controller: nameController,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],
@@ -404,6 +404,7 @@ class AddContractPageState extends State<AddContractPage> {
                                 padding: EdgeInsets.all(10),
                                 child: TextField(
                                   controller: contractLawController,
+                                  keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],

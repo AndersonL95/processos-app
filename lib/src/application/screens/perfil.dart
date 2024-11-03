@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/update_user.dart';
 import 'package:processos_app/src/application/use-case/getUser_api.dart';
