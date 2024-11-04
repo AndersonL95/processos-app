@@ -1,5 +1,5 @@
 class Users {
-  int id;
+  late int? id;
   int? tenantId;
   String username;
   String email;
@@ -13,7 +13,7 @@ class Users {
   String active;
 
   Users(
-      {required this.id,
+      {this.id,
       this.tenantId,
       required this.username,
       required this.email,

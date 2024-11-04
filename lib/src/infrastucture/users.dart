@@ -86,9 +86,52 @@ class ApiService implements RepositoryInterface<Users> {
   }
 
   @override
-  Future<int> create(Users entity) {
-    // TODO: implement create
-    throw UnimplementedError();
+  Future<int> create(Users user) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
+    try {
+      if (user.photo.isNotEmpty) {
+        final base64Pattern =
+            RegExp(r'^(data:image/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$');
+
+        if (base64Pattern.hasMatch(user.photo)) {
+        } else {
+          final file = File(user.photo);
+          if (await file.exists()) {
+            final bytes = await file.readAsBytes();
+            user.photo = base64Encode(bytes);
+          } else {
+            throw Exception("Arquivo não encontrado: ${user.photo}");
+          }
+        }
+      }
+      String body = jsonEncode(user.toJson());
+      final response = await authManager.sendAuthenticate(() async {
+        return await http.post(
+          Uri.parse("$baseUrl/users"),
+          headers: authManager.token != null
+              ? {
+                  'Authorization': 'Bearer ${authManager.token}',
+                  'Content-Type': 'application/json',
+                  'x-tenant-id': tenantId.toString()
+                }
+              : {'Content-Type': 'application/json'},
+          body: body,
+        );
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = jsonDecode(response.body);
+        return responseBody;
+      } else {
+        throw Exception("Não encontrado: ${response.body}");
+      }
+    } catch (e) {
+      throw Exception("Erro ao atualizar usuário: $e");
+    }
   }
 
   @override

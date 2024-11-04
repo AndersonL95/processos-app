@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:processos_app/src/application/screens/add_user.dart';
 import 'package:processos_app/src/application/screens/usuarios_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
 import 'package:processos_app/src/application/use-case/getUsers.api.dart';
@@ -208,11 +209,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                     backgroundColor: customColors['green'],
                                     minimumSize: Size(85, 60)),
                                 onPressed: () {
-                                  /* Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => AddContractPage(),
-                                      ),
-                                    );*/
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => AddUserPage(),
+                                    ),
+                                  );
                                 },
                                 child: Icon(
                                   Icons.add,
