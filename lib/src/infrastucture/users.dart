@@ -76,7 +76,7 @@ class ApiService implements RepositoryInterface<Users> {
 
       if (response.statusCode == 200) {
         var responseBody = jsonDecode(response.body);
-        return responseBody['id'];
+        return responseBody;
       } else {
         throw Exception("Não encontrado: ${response.body}");
       }

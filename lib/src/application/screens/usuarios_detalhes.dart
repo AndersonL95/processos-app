@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/use-case/getUser_api.dart';
+import 'package:processos_app/src/application/use-case/updateUser_api.dart';
+import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:toastification/toastification.dart';
 
 class UserDetailPage extends StatefulWidget {
   final userDetail;
@@ -21,6 +22,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
   AuthManager authManager = AuthManager();
   late GetUserInfoApi getUserInfoApi;
   late ApiService apiService;
+  late UpdateUser updateUser;
+
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
@@ -34,9 +37,11 @@ class _UserDetailPageState extends State<UserDetailPage> {
   void initState() {
     apiService = ApiService(authManager);
     getUserInfoApi = GetUserInfoApi(apiService);
+    updateUser = UpdateUser(apiService);
+
     id = widget.userDetail.id;
     convertPhoto();
-
+    print("ACTIVE ${widget.userDetail.active}");
     super.initState();
   }
 
@@ -50,7 +55,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
         });
       } else {
         setState(() {
-          userImage = AssetImage('Assets/images/user.png');
+          userImage = const AssetImage('Assets/images/user.png');
         });
       }
     } catch (e) {
@@ -84,6 +89,58 @@ class _UserDetailPageState extends State<UserDetailPage> {
     return lines.join('\n');
   }
 
+  Future<void> inactiveUser(String value) async {
+    try {
+      Users? userEdit = await getUserInfoApi.execute(widget.userDetail.id);
+
+      if (userEdit == null) {
+        print("Usuário não encontrado.");
+        toastification.show(
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("Usuário não encontrado."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+        return;
+      }
+
+      userEdit.active = value;
+      var response = await updateUser.execute(userEdit);
+
+      if (response != 0) {
+        setState(() {
+          widget.userDetail.active = value;
+        });
+
+        toastification.show(
+          type: ToastificationType.success,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("Modificado com sucesso."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+      } else {
+        toastification.show(
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("Erro ao modificar."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+      }
+    } catch (e) {
+      print("ERROR $e");
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Erro ao modificar usuário."),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +168,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                 color: customColors['white'],
               ),
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop(true);
               },
             ),
           ),
@@ -134,8 +191,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 10),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [],
@@ -400,6 +457,34 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                         ),
                                       )),
                                 )),
+                            Column(
+                              children: [
+                                if (widget.userDetail.active == "yes")
+                                  Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.person_remove,
+                                        size: 50,
+                                        color: customColors['crismon'],
+                                      ),
+                                      onPressed: () => inactiveUser('no'),
+                                    ),
+                                  ),
+                                if (widget.userDetail.active == "no")
+                                  Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.person_add,
+                                        size: 50,
+                                        color: Colors.green,
+                                      ),
+                                      onPressed: () => inactiveUser('yes'),
+                                    ),
+                                  )
+                              ],
+                            ),
                           ],
                         )),
                   ),

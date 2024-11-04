@@ -8,7 +8,6 @@ class UpdateUser {
 
   Future execute(Users user) async {
     var response = await apiService.updateUser(user);
-    print("RESPONSE: ${response}");
     return response;
   }
 }

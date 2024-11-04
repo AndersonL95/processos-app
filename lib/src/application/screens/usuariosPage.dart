@@ -239,14 +239,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                       elevation: 10,
                                       shadowColor: Colors.black,
                                       child: InkWell(
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (_) => UserDetailPage(
-                                                userDetail: filtereData[index],
-                                              ),
-                                            ),
-                                          );
+                                        onTap: () async {
+                                          bool? result =
+                                              await Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          UserDetailPage(
+                                                              userDetail:
+                                                                  filtereData[
+                                                                      index])));
+                                          if (result == true) {
+                                            getUsers();
+                                          }
                                         },
                                         child: SizedBox(
                                             width: 350,
@@ -257,93 +261,30 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.end,
                                                   children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: 10, right: 10),
-                                                      child: PopupMenuButton(
-                                                        color: customColors[
-                                                            'gray'],
-                                                        iconSize: 40,
-                                                        onSelected: (value) {},
-                                                        itemBuilder:
-                                                            (BuildContext
-                                                                context) {
-                                                          return [
-                                                            PopupMenuItem(
-                                                              child: InkWell(
-                                                                onTap: () {
-                                                                  /*  Navigator.of(
-                                                                        context)
-                                                                    .push(
-                                                                 MaterialPageRoute(
-                                                                    builder: (_) =>
-                                                                        UpdateContractPage(
-                                                                            contractData:
-                                                                                filtereData[index]),
-                                                                  ),
-                                                                );*/
-                                                                },
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons
-                                                                          .edit,
-                                                                      color: customColors[
-                                                                          'green'],
-                                                                    ),
-                                                                    Text(
-                                                                      "Editar Contrato",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              17,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            PopupMenuItem(
-                                                              child: InkWell(
-                                                                onTap: () => {
-                                                                  deleteContract(
-                                                                      filtereData[
-                                                                              index]
-                                                                          [
-                                                                          'id']),
-                                                                  Navigator.pop(
-                                                                      context)
-                                                                },
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons
-                                                                          .delete,
-                                                                      color: customColors[
-                                                                          'green'],
-                                                                    ),
-                                                                    Text(
-                                                                      "Excluir Contrato",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              17,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            )
-                                                          ];
-                                                        },
+                                                    if (filtereData[index]
+                                                            .active ==
+                                                        'yes')
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20),
+                                                        child: Icon(
+                                                          Icons.check_box,
+                                                          size: 30,
+                                                          color: Colors.green,
+                                                        ),
                                                       ),
-                                                    ),
+                                                    if (filtereData[index]
+                                                            .active ==
+                                                        'no')
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20),
+                                                        child: Icon(
+                                                          Icons.check_box,
+                                                          size: 30,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
                                                   ],
                                                 ),
                                                 Row(
@@ -388,7 +329,6 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                           padding:
                                                               const EdgeInsets
                                                                   .only(
-                                                                  top: 10,
                                                                   right: 15),
                                                           child: Text(
                                                             breakLinesEvery10Characters(
