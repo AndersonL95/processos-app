@@ -32,7 +32,6 @@ class AddUserPageState extends State<AddUserPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  TextEditingController cargoController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController cpfController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -41,7 +40,11 @@ class AddUserPageState extends State<AddUserPage> {
   String? userRole;
   String? activeStatus;
   var maskFormatter = MaskTextInputFormatter(
-      mask: ' ##.#.####.####',
+      mask: ' (##).#.####-####',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy);
+  var maskCpfFormatter = MaskTextInputFormatter(
+      mask: ' ###.###.###-##',
       filter: {"#": RegExp(r'[0-9]')},
       type: MaskAutoCompletionType.lazy);
 
@@ -55,23 +58,30 @@ class AddUserPageState extends State<AddUserPage> {
   bool showTextField = false;
   bool showTextFieldF = false;
   File? _selectPDF;
+  int id = 0;
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
+  DropdownItem? cargoController;
 
+  List<DropdownItem> statusItem = [
+    DropdownItem(displayValue: "Gestor", statusValue: 'Gestor'),
+    DropdownItem(displayValue: "Fiscal", statusValue: 'Fiscal'),
+  ];
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
 
     String? idJson = datas.getString('id');
+    id = json.decode(idJson!);
 
     try {
       Users user = Users(
           name: nameController.text,
           username: usernameController.text,
           email: emailController.text,
-          password: passwordController.text.toString(),
-          cpf: cpfController.text.toString(),
-          cargo: cargoController.toString(),
-          phone: phoneController.toString(),
+          password: passwordController.text,
+          cpf: cpfController.text,
+          cargo: cargoController!.statusValue.toString(),
+          phone: phoneController.text,
           active: active == true ? "yes" : "no",
           role: isAdmin == true ? "admin" : "user",
           photo: '');
@@ -87,8 +97,9 @@ class AddUserPageState extends State<AddUserPage> {
       setState(() {
         _loading = false;
       });
-      Navigator.pushNamed(context, '/menuItem');
+      Navigator.of(context).pop(true);
     } catch (e) {
+      print("ERRO: $e");
       toastification.show(
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
@@ -239,7 +250,7 @@ class AddUserPageState extends State<AddUserPage> {
                                 padding: EdgeInsets.only(left: 10, right: 5),
                                 child: TextField(
                                   controller: usernameController,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],
@@ -319,9 +330,11 @@ class AddUserPageState extends State<AddUserPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(10),
                         child: TextField(
-                          controller: cargoController,
+                          controller: phoneController,
+                          inputFormatters: [maskFormatter],
+                          keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                               iconColor: customColors['green'],
                               prefixIconColor: customColors['green'],
@@ -329,9 +342,9 @@ class AddUserPageState extends State<AddUserPage> {
                               hoverColor: customColors['green'],
                               filled: true,
                               focusColor: customColors['green'],
-                              labelText: "Cargo",
-                              hintText: "Cargo",
-                              prefixIcon: const Icon(Icons.business_sharp),
+                              labelText: "Telefone",
+                              hintText: "Cadastrar telefone",
+                              prefixIcon: const Icon(Icons.phone),
                               enabledBorder: new OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromRGBO(1, 76, 45, 1),
@@ -343,26 +356,79 @@ class AddUserPageState extends State<AddUserPage> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 5, left: 15),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Administrador:",
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.bold),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5),
-                              child: SizedBox(
-                                child: Switch(
-                                  value: isAdmin,
-                                  onChanged: onSwitch,
+                        padding: EdgeInsets.all(10),
+                        child: TextField(
+                          controller: cpfController,
+                          inputFormatters: [maskCpfFormatter],
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              iconColor: customColors['green'],
+                              prefixIconColor: customColors['green'],
+                              fillColor: customColors['white'],
+                              hoverColor: customColors['green'],
+                              filled: true,
+                              focusColor: customColors['green'],
+                              labelText: "CPF",
+                              hintText: "Cadastrar CPF",
+                              prefixIcon: const Icon(Icons.card_membership),
+                              enabledBorder: new OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color.fromRGBO(1, 76, 45, 1),
+                                    width: 2),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
                                 ),
-                              ),
-                            ),
-                          ],
+                              )),
                         ),
                       ),
+                      Padding(
+                          padding:
+                              EdgeInsets.only(top: 20, left: 20, right: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                height: 50,
+                                width: 130,
+                                child: DropdownButton<DropdownItem>(
+                                  hint: Text("Cargo"),
+                                  value: cargoController,
+                                  onChanged: (DropdownItem? value) {
+                                    setState(() {
+                                      cargoController = value;
+                                    });
+                                  },
+                                  items: statusItem.map((DropdownItem item) {
+                                    return DropdownMenuItem<DropdownItem>(
+                                        value: item,
+                                        child: Text(item.displayValue));
+                                  }).toList(),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 5, left: 15),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Administrador:",
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 5),
+                                      child: SizedBox(
+                                        child: Switch(
+                                          value: isAdmin,
+                                          onChanged: onSwitch,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )),
                       Padding(
                         padding: EdgeInsets.only(top: 5, left: 15),
                         child: Row(

@@ -112,25 +112,25 @@ class ApiService implements RepositoryInterface<Users> {
       final response = await authManager.sendAuthenticate(() async {
         return await http.post(
           Uri.parse("$baseUrl/users"),
-          headers: authManager.token != null
-              ? {
-                  'Authorization': 'Bearer ${authManager.token}',
-                  'Content-Type': 'application/json',
-                  'x-tenant-id': tenantId.toString()
-                }
-              : {'Content-Type': 'application/json'},
+          headers: {
+            'Authorization': 'Bearer ${authManager.token}',
+            'Content-Type': 'application/json',
+            'x-tenant-id': tenantId.toString()
+          },
+          //: {'Content-Type': 'application/json'},
           body: body,
         );
       });
+      print("RESPONSE: ${response.statusCode}");
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
-        return responseBody;
+        return responseBody['id'];
       } else {
         throw Exception("Não encontrado: ${response.body}");
       }
     } catch (e) {
-      throw Exception("Erro ao atualizar usuário: $e");
+      throw Exception("Erro ao criar usuário: $e");
     }
   }
 

@@ -1,15 +1,12 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/add_user.dart';
 import 'package:processos_app/src/application/screens/usuarios_detalhes.dart';
-import 'package:processos_app/src/application/use-case/getContract_api.dart';
 import 'package:processos_app/src/application/use-case/getUsers.api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 
 class UsuariosPage extends StatefulWidget {
@@ -208,12 +205,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                     shape: CircleBorder(),
                                     backgroundColor: customColors['green'],
                                     minimumSize: Size(85, 60)),
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => AddUserPage(),
-                                    ),
-                                  );
+                                onPressed: () async {
+                                  bool? result = await Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                          builder: (context) => AddUserPage()));
+                                  if (result == true) {
+                                    getUsers();
+                                  }
                                 },
                                 child: Icon(
                                   Icons.add,

@@ -72,7 +72,7 @@ class _MenuItemState extends State<MenuItem> {
           icon: Icon(Icons.people), label: "Usuarios"));
     }
     if (isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
