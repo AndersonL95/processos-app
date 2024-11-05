@@ -114,7 +114,6 @@ class AddContractPageState extends State<AddContractPage> {
       });
     } catch (e) {
       _loading = false;
-      throw Exception(e);
     }
   }
 
@@ -622,7 +621,7 @@ class AddContractPageState extends State<AddContractPage> {
                                             : managerController.text,
                                       ),
                                     ),
-                                    IconButton(
+                                    /* IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -630,11 +629,11 @@ class AddContractPageState extends State<AddContractPage> {
                                           showTextField = !showTextField;
                                         });
                                       },
-                                    )
+                                    )*/
                                   ],
                                 ),
                               ),
-                              if (showTextField)
+                              /*  if (showTextField)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -675,7 +674,7 @@ class AddContractPageState extends State<AddContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),
+                                ),*/
                               Padding(
                                 padding: EdgeInsets.all(10),
                                 child: Row(
@@ -722,7 +721,7 @@ class AddContractPageState extends State<AddContractPage> {
                                             : supervisorController.text,
                                       ),
                                     ),
-                                    IconButton(
+                                    /*IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -730,11 +729,11 @@ class AddContractPageState extends State<AddContractPage> {
                                           showTextFieldF = !showTextFieldF;
                                         });
                                       },
-                                    )
+                                    )*/
                                   ],
                                 ),
                               ),
-                              if (showTextFieldF)
+                              /*  if (showTextFieldF)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -775,7 +774,7 @@ class AddContractPageState extends State<AddContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),
+                                ),*/
                               Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Row(

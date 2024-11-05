@@ -7,8 +7,6 @@ class GetUsersCargoApi {
   Future<Map<String, List<String>>> execute() async {
     try {
       var usersData = await apiService.findAll();
-
-      // Filtra os usuários com cargo "Fiscal" ou "Gestor"
       List<String> fiscais = usersData
           .where((user) => user.cargo == 'Fiscal')
           .map((user) => user.name)

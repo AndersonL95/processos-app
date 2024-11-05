@@ -95,6 +95,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       userToEdit?.cargo = cargoController.text;
       userToEdit?.phone = phoneController.text;
       userToEdit?.role = widget.userData[0]['role'];
+      userToEdit?.active = "yes";
       userToEdit?.id = int.parse(idJson!);
       if (_selectImage != null && _selectImage!.path.isNotEmpty) {
         userToEdit?.photo = _selectImage!.path;

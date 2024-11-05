@@ -658,7 +658,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                   ],
                                 ),
                               ),
-                              if (showTextField)
+                              /* if (showTextField)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -699,7 +699,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),
+                                ),*/
                               Padding(
                                 padding: EdgeInsets.all(10),
                                 child: Row(
@@ -759,7 +759,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                   ],
                                 ),
                               ),
-                              if (showTextField)
+                              /*  if (showTextField)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -800,7 +800,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),
+                                ),*/
                               Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Row(
@@ -978,7 +978,16 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                                     }).toList()),
                                               ],
                                             )),
-                                      )
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: SizedBox(
+                                          child: Switch(
+                                            value: active,
+                                            onChanged: onActive,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   )),
                               Padding(
