@@ -35,7 +35,6 @@ class _MenuItemState extends State<MenuItem> {
       userRole = roleJson != null ? json.decode(roleJson) : null;
       isLoading = false;
     });
-    print("ROLES: ${userRole}");
   }
 
   static List<Widget> _screens(int userId, String? userRole) {

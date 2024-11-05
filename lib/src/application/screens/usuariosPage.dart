@@ -383,6 +383,20 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                         16),
                                                           ),
                                                         ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 5,
+                                                                  right: 15),
+                                                          child: Text(
+                                                            "Cargo: ${filtereData[index].cargo}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        16),
+                                                          ),
+                                                        ),
                                                       ],
                                                     )
                                                   ],

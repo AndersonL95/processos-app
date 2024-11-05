@@ -104,30 +104,32 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     return bodyList;
   }
 
-  Future<dynamic> findContractId(int id) async {
-    var bodyList;
+  Future<Map<String, dynamic>> findContractId(int id) async {
+    print("IDD: $id");
+
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
     try {
       final response = await authManager.sendAuthenticate(() async {
-        final SharedPreferences data = await SharedPreferences.getInstance();
-        String? tenantJson = data.getString('tenantId');
-        if (tenantJson != null) {
-          tenantId = json.decode(tenantJson);
+        return await http.get(Uri.parse("$baseUrl/contract/$id"), headers: {
+          'Authorization': 'Bearer ${authManager.token}',
+          'x-tenant-id': tenantId.toString()
         }
-        return http.get(Uri.parse("$baseUrl/contract/$id"),
-            headers: authManager.token != null
-                ? {
-                    'Authorization': 'Bearer ${authManager.token}',
-                    'x-tenant-id': tenantId.toString()
-                  }
-                : {});
+            // : {}
+            );
       });
+      print("RES: ${response.body}");
+
       if (response.statusCode == 200) {
-        bodyList = json.decode(response.body);
+        return json.decode(response.body);
       }
+      return json.decode(response.body);
     } catch (e) {
-      throw Exception("Não foi possivel buscar o contrto, $e");
+      throw Exception("$e");
     }
-    return bodyList;
   }
 
   @override
@@ -145,7 +147,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
         tenantId = json.decode(tenantJson);
       }
       final response = await authManager.sendAuthenticate(() async {
-        return http.get(Uri.parse("$baseUrl/contract/recent"),
+        return http.get(Uri.parse("$baseUrl/contract/recent/order"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -169,11 +171,20 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       if (tenantJson != null) {
         tenantId = json.decode(tenantJson);
       }
-      if (contracts.file != "") {
-        var bytes = File(contracts.file).readAsBytesSync();
-        contracts.file = base64Encode(bytes);
-      } else {
-        contracts.file = contracts.file;
+      if (contracts.file.isNotEmpty) {
+        final base64Pattern =
+            RegExp(r'^(data:image/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$');
+
+        if (base64Pattern.hasMatch(contracts.file)) {
+        } else {
+          final file = File(contracts.file);
+          if (await file.exists()) {
+            final bytes = await file.readAsBytes();
+            contracts.file = base64Encode(bytes);
+          } else {
+            throw Exception("Arquivo não encontrado: ${contracts.file}");
+          }
+        }
       }
       String body = jsonEncode(contracts.toJson());
       final response = await authManager.sendAuthenticate(() async {

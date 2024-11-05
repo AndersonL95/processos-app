@@ -9,6 +9,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/use-case/createContract_api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/getUsers.Cargo.dart';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
@@ -29,6 +30,7 @@ class AddContractPageState extends State<AddContractPage> {
   late ApiContractService apiContractService;
   late ApiService apiService;
   late CreateContract createContract;
+  late GetUsersCargoApi getUsersCargoApi;
   TextEditingController nameController = TextEditingController();
   TextEditingController numContractController = TextEditingController();
   TextEditingController numProcessController = TextEditingController();
@@ -68,6 +70,8 @@ class AddContractPageState extends State<AddContractPage> {
   bool showTextFieldF = false;
   File? _selectPDF;
   String? base64Pdf;
+  List<String> managerUser = [];
+  List<String> supervisorUsers = [];
   final formKey = GlobalKey<FormState>();
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
@@ -148,6 +152,21 @@ class AddContractPageState extends State<AddContractPage> {
     }
   }
 
+  Future<void> _loadUsers() async {
+    try {
+      var usersData = await getUsersCargoApi.execute();
+      setState(() {
+        supervisor = usersData['fiscais']!;
+        manager = usersData['gestores']!;
+
+        print("Gestor : $manager");
+      });
+    } catch (e) {
+      // Tratar erro
+      print('Erro ao carregar usuários: $e');
+    }
+  }
+
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
 
@@ -187,6 +206,7 @@ class AddContractPageState extends State<AddContractPage> {
       });
       Navigator.pushNamed(context, '/menuItem');
     } catch (e) {
+      print("ERROR: $e");
       toastification.show(
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
@@ -200,9 +220,12 @@ class AddContractPageState extends State<AddContractPage> {
   @override
   void initState() {
     apiContractService = ApiContractService(authManager);
+    apiService = ApiService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
+    getUsersCargoApi = GetUsersCargoApi(apiService);
     createContract = CreateContract(apiContractService);
     getContracts();
+    _loadUsers();
     super.initState();
   }
 
@@ -404,7 +427,7 @@ class AddContractPageState extends State<AddContractPage> {
                                 padding: EdgeInsets.all(10),
                                 child: TextField(
                                   controller: contractLawController,
-                                  keyboardType: TextInputType.text,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],
@@ -556,7 +579,7 @@ class AddContractPageState extends State<AddContractPage> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: DropdownButtonFormField<dynamic>(
+                                      child: DropdownButtonFormField<String>(
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -565,29 +588,33 @@ class AddContractPageState extends State<AddContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText: "Gerente",
+                                          labelText: "Gestor",
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Color.fromRGBO(
-                                                    1, 76, 45, 1),
-                                                width: 2),
+                                              color:
+                                                  Color.fromRGBO(1, 76, 45, 1),
+                                              width: 2,
+                                            ),
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10)),
                                           ),
                                         ),
-                                        items: managerUnique
-                                            .map<DropdownMenuItem<dynamic>>(
-                                                (dynamic value) {
-                                          return DropdownMenuItem<dynamic>(
+                                        items: manager
+                                            .map<DropdownMenuItem<String>>(
+                                                (value) {
+                                          return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
                                           );
                                         }).toList(),
-                                        onChanged: (dynamic newValue) {
+                                        onChanged: (String? newValue) {
                                           setState(() {
-                                            managerController.text = newValue;
-                                            showTextField = false;
+                                            // Atualiza o controlador de texto se necessário
+                                            managerController.text = newValue ??
+                                                ''; // Se null, define como string vazia
+                                            showTextField =
+                                                false; // Lógica adicional para exibir/ocultar campos
                                           });
                                         },
                                         value: managerController.text.isEmpty
@@ -623,7 +650,7 @@ class AddContractPageState extends State<AddContractPage> {
                                           filled: true,
                                           focusColor: customColors['green'],
                                           labelText: "Novo Gerente",
-                                          hintText: "Digite o nome do Geerente",
+                                          hintText: "Digite o nome do Gestor",
                                           prefixIcon:
                                               const Icon(Icons.person_add),
                                           enabledBorder: OutlineInputBorder(
@@ -654,7 +681,7 @@ class AddContractPageState extends State<AddContractPage> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: DropdownButtonFormField<dynamic>(
+                                      child: DropdownButtonFormField<String>(
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -667,26 +694,27 @@ class AddContractPageState extends State<AddContractPage> {
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Color.fromRGBO(
-                                                    1, 76, 45, 1),
-                                                width: 2),
+                                              color:
+                                                  Color.fromRGBO(1, 76, 45, 1),
+                                              width: 2,
+                                            ),
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10)),
                                           ),
                                         ),
-                                        items: supervisorUnique
-                                            .map<DropdownMenuItem<dynamic>>(
-                                                (dynamic value) {
-                                          return DropdownMenuItem<dynamic>(
+                                        items: supervisor
+                                            .map<DropdownMenuItem<String>>(
+                                                (value) {
+                                          return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
                                           );
                                         }).toList(),
-                                        onChanged: (dynamic newValue) {
+                                        onChanged: (String? newValue) {
                                           setState(() {
                                             supervisorController.text =
-                                                newValue;
-                                            showTextFieldF = false;
+                                                newValue ?? '';
+                                            showTextField = false;
                                           });
                                         },
                                         value: supervisorController.text.isEmpty
