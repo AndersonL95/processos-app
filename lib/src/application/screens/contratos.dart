@@ -7,6 +7,9 @@ import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/screens/update_contract.dart';
 import 'package:processos_app/src/application/use-case/delet_contract.api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/get_contractId.dart';
+import 'package:processos_app/src/application/use-case/update_contract_api.dart';
+import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:toastification/toastification.dart';
@@ -19,8 +22,10 @@ class ContractPage extends StatefulWidget {
 class _ContractPageState extends State<ContractPage> {
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
+  late GetContractIdInfoApi getContractIdInfoApi;
   late ApiContractService apiContractService;
   late DeleteContractsInfoApi deleteContractsInfoApi;
+  late UpdateContract updateContract;
   bool _loading = true;
 
   String? _error;
@@ -33,6 +38,8 @@ class _ContractPageState extends State<ContractPage> {
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
+    getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
+    updateContract = UpdateContract(apiContractService);
     getContracts();
     super.initState();
   }
@@ -46,7 +53,6 @@ class _ContractPageState extends State<ContractPage> {
             filtereData = value;
             _loading = false;
           });
-          print("SECTOR ${data[0]['sector']}");
         } else {
           setState(() {
             _error = "Erro ao carregar informações";
@@ -100,24 +106,50 @@ class _ContractPageState extends State<ContractPage> {
     });
   }
 
-  void deleteContract(id) async {
+  Future<void> inactiveUser(int id, String value) async {
     try {
-      print("ID: $id");
-      await deleteContractsInfoApi.execute(id);
-      toastification.show(
-        type: ToastificationType.success,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Contrato apagado."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-      getContracts();
+      Contracts? contractEdit = await getContractIdInfoApi.execute(id);
+
+      if (contractEdit == null) {
+        print("Contrato não encontrado.");
+        toastification.show(
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("Usuário não encontrado."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+        return;
+      }
+
+      contractEdit.active = value;
+      var response = await updateContract.execute(contractEdit);
+
+      if (response != 0) {
+        getContracts();
+        toastification.show(
+          type: ToastificationType.success,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("Modificado com sucesso."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+      } else {
+        toastification.show(
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          context: context,
+          title: const Text("Erro ao modificar."),
+          autoCloseDuration: const Duration(seconds: 8),
+        );
+      }
     } catch (e) {
+      print("ERROR $e");
       toastification.show(
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
         context: context,
-        title: const Text("Não foi possivel apagar."),
+        title: const Text("Erro ao modificar usuário."),
         autoCloseDuration: const Duration(seconds: 8),
       );
     }
@@ -249,8 +281,35 @@ class _ContractPageState extends State<ContractPage> {
                                             children: [
                                               Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.end,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
+                                                  if (filtereData[index]
+                                                          ['active'] ==
+                                                      'yes')
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 10, left: 10),
+                                                      child: Icon(
+                                                        Icons.check_box,
+                                                        size: 35,
+                                                        color: customColors[
+                                                            'green'],
+                                                      ),
+                                                    ),
+                                                  if (filtereData[index]
+                                                          ['active'] ==
+                                                      'no')
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 10, left: 10),
+                                                      child: Icon(
+                                                        Icons.check_box,
+                                                        size: 35,
+                                                        color: customColors[
+                                                            'grey'],
+                                                      ),
+                                                    ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
                                                         top: 10, right: 10),
@@ -298,39 +357,82 @@ class _ContractPageState extends State<ContractPage> {
                                                               ),
                                                             ),
                                                           ),
-                                                          PopupMenuItem(
-                                                            child: InkWell(
-                                                              onTap: () => {
-                                                                deleteContract(
-                                                                    filtereData[
-                                                                            index]
-                                                                        ['id']),
-                                                                Navigator.pop(
-                                                                    context)
-                                                              },
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .spaceBetween,
-                                                                children: [
-                                                                  Icon(
-                                                                    Icons
-                                                                        .delete,
-                                                                    color: customColors[
-                                                                        'green'],
-                                                                  ),
-                                                                  Text(
-                                                                    "Excluir Contrato",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            17,
-                                                                        fontWeight:
-                                                                            FontWeight.bold),
-                                                                  ),
-                                                                ],
+                                                          if (filtereData[index]
+                                                                  ['active'] ==
+                                                              'yes')
+                                                            PopupMenuItem(
+                                                              child: InkWell(
+                                                                onTap: () => {
+                                                                  inactiveUser(
+                                                                      filtereData[
+                                                                              index]
+                                                                          [
+                                                                          'id'],
+                                                                      'no'),
+                                                                  Navigator.pop(
+                                                                      context)
+                                                                },
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .delete,
+                                                                      color: customColors[
+                                                                          'green'],
+                                                                    ),
+                                                                    const Text(
+                                                                      "Excluir Contrato",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              17,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                  ],
+                                                                ),
                                                               ),
                                                             ),
-                                                          )
+                                                          if (filtereData[index]
+                                                                  ['active'] ==
+                                                              'no')
+                                                            PopupMenuItem(
+                                                              child: InkWell(
+                                                                onTap: () => {
+                                                                  inactiveUser(
+                                                                      filtereData[
+                                                                              index]
+                                                                          [
+                                                                          'id'],
+                                                                      'yes'),
+                                                                  Navigator.pop(
+                                                                      context)
+                                                                },
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .delete,
+                                                                      color: customColors[
+                                                                          'green'],
+                                                                    ),
+                                                                    Text(
+                                                                      "Ativar Contrato",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              17,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            )
                                                         ];
                                                       },
                                                     ),

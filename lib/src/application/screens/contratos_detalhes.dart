@@ -181,7 +181,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                   elevation: 10,
                                   shadowColor: Colors.black,
                                   child: SizedBox(
-                                      width: 385,
+                                      width: 370,
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
@@ -246,7 +246,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                             children: [
                                               Padding(
                                                   padding: EdgeInsets.only(
-                                                      top: 10, left: 10),
+                                                      top: 10, left: 5),
                                                   child: Card(
                                                     shape: RoundedRectangleBorder(
                                                         borderRadius:
@@ -260,7 +260,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                     elevation: 10,
                                                     shadowColor: Colors.black,
                                                     child: SizedBox(
-                                                        width: 150,
+                                                        width: 140,
                                                         child: Row(
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
@@ -269,7 +269,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                             Padding(
                                                               padding:
                                                                   EdgeInsets
-                                                                      .all(20),
+                                                                      .all(10),
                                                               child: InkWell(
                                                                 onTap: () => {
                                                                   if (pathPDF

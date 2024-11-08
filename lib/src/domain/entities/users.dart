@@ -1,5 +1,5 @@
 class Users {
-  int id;
+  late int? id;
   int? tenantId;
   String username;
   String email;
@@ -10,9 +10,10 @@ class Users {
   String phone;
   String photo;
   String role;
+  String active;
 
   Users(
-      {required this.id,
+      {this.id,
       this.tenantId,
       required this.username,
       required this.email,
@@ -22,7 +23,8 @@ class Users {
       this.cargo = "",
       this.phone = "",
       this.photo = "",
-      this.role = "user"});
+      this.role = "",
+      this.active = ""});
 
   void setUsername(String username) {
     if (username.isEmpty) {
@@ -64,7 +66,8 @@ class Users {
       "cargo": cargo,
       "phone": phone,
       "photo": photo,
-      "role": role
+      "role": role,
+      "active": active
     };
   }
 
@@ -79,6 +82,7 @@ class Users {
         cargo: json['cargo'] ?? "",
         phone: json['phone'] ?? "",
         photo: json['photo'] ?? "",
-        role: json['role'] ?? "");
+        role: json['role'] ?? "",
+        active: json['active'] ?? "");
   }
 }

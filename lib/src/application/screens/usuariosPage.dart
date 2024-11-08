@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/screens/add_user.dart';
+import 'package:processos_app/src/application/screens/usuarios_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getUsers.api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 
 class UsuariosPage extends StatefulWidget {
@@ -28,7 +27,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
   List<dynamic> data = [];
   List<dynamic> filtereData = [];
   TextEditingController searchController = TextEditingController();
-
+  List userImageList = [];
   @override
   void initState() {
     apiService = ApiService(authManager);
@@ -38,30 +37,47 @@ class _UsuariosPageState extends State<UsuariosPage> {
   }
 
   Future<void> getUsers() async {
+    setState(() {
+      _loading = true;
+    });
+
     try {
-      await getUsersInfoApi.execute().then((value) async {
-        if (mounted) {
-          setState(() {
-            data = value;
-            filtereData = value;
-            print("DATA: $filtereData");
-            _loading = false;
-          });
-          if (data.isNotEmpty) {
-            String photoBase64 = data[0].photo;
+      final value = await getUsersInfoApi.execute();
+
+      if (mounted) {
+        setState(() {
+          data = value;
+          filtereData = value;
+          _loading = false;
+        });
+
+        List<MemoryImage> userImages = [];
+
+        for (var user in data) {
+          if (user.photo.isNotEmpty) {
+            String photoBase64 = user.photo;
+
             List<int> imageBytes = await _base64StringToBytes(photoBase64);
-            userImage = MemoryImage(Uint8List.fromList(imageBytes));
+
+            if (imageBytes.isNotEmpty) {
+              userImages.add(MemoryImage(Uint8List.fromList(imageBytes)));
+            } else {
+              userImages.add(MemoryImage(Uint8List(0)));
+            }
+          } else {
+            userImages.add(MemoryImage(Uint8List(0)));
           }
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
         }
-      });
+
+        setState(() {
+          userImageList = userImages;
+        });
+      }
     } catch (e) {
-      _loading = false;
-      _error = e.toString();
+      setState(() {
+        _error = "Erro ao carregar informações: ${e.toString()}";
+        _loading = false;
+      });
     }
   }
 
@@ -96,11 +112,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
   void filterData(String query) {
     List<dynamic> temp = [];
     for (var item in data) {
-      if (item['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
-          item['username'].toString().contains(query) ||
-          item['email'].toString().contains(query) ||
-          item['cargo'].toString().contains(query) ||
-          item['tole'].toString().contains(query)) {
+      if (item.name.toString().toLowerCase().contains(query.toLowerCase()) ||
+          item.username.toString().contains(query) ||
+          item.email.toString().contains(query) ||
+          item.cargo.toString().contains(query) ||
+          item.role.toString().contains(query)) {
         temp.add(item);
       }
     }
@@ -109,31 +125,12 @@ class _UsuariosPageState extends State<UsuariosPage> {
     });
   }
 
-  void deleteContract(id) async {
-    /* try {
-      print("ID: $id");
-      await deleteContractsInfoApi.execute(id);
-      toastification.show(
-        type: ToastificationType.success,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Contrato apagado."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-      getContracts();
-    } catch (e) {
-      toastification.show(
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Não foi possivel apagar."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-    }*/
-  }
+  void deleteContract(id) async {}
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return (Scaffold(
         appBar: AppBar(
           title: const Padding(
@@ -208,12 +205,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                     shape: CircleBorder(),
                                     backgroundColor: customColors['green'],
                                     minimumSize: Size(85, 60)),
-                                onPressed: () {
-                                  /* Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => AddContractPage(),
-                                      ),
-                                    );*/
+                                onPressed: () async {
+                                  bool? result = await Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                          builder: (context) => AddUserPage()));
+                                  if (result == true) {
+                                    getUsers();
+                                  }
                                 },
                                 child: Icon(
                                   Icons.add,
@@ -240,15 +238,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                       elevation: 10,
                                       shadowColor: Colors.black,
                                       child: InkWell(
-                                        onTap: () {
-                                          /*  Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => ContractDetailPage(
-                                              contractDetail:
-                                                  filtereData[index],
-                                            ),
-                                          ),
-                                        );*/
+                                        onTap: () async {
+                                          bool? result =
+                                              await Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          UserDetailPage(
+                                                              userDetail:
+                                                                  filtereData[
+                                                                      index])));
+                                          if (result == true) {
+                                            getUsers();
+                                          }
                                         },
                                         child: SizedBox(
                                             width: 350,
@@ -259,93 +260,30 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.end,
                                                   children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: 10, right: 10),
-                                                      child: PopupMenuButton(
-                                                        color: customColors[
-                                                            'gray'],
-                                                        iconSize: 40,
-                                                        onSelected: (value) {},
-                                                        itemBuilder:
-                                                            (BuildContext
-                                                                context) {
-                                                          return [
-                                                            PopupMenuItem(
-                                                              child: InkWell(
-                                                                onTap: () {
-                                                                  /*  Navigator.of(
-                                                                        context)
-                                                                    .push(
-                                                                 MaterialPageRoute(
-                                                                    builder: (_) =>
-                                                                        UpdateContractPage(
-                                                                            contractData:
-                                                                                filtereData[index]),
-                                                                  ),
-                                                                );*/
-                                                                },
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons
-                                                                          .edit,
-                                                                      color: customColors[
-                                                                          'green'],
-                                                                    ),
-                                                                    Text(
-                                                                      "Editar Contrato",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              17,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            PopupMenuItem(
-                                                              child: InkWell(
-                                                                onTap: () => {
-                                                                  deleteContract(
-                                                                      filtereData[
-                                                                              index]
-                                                                          [
-                                                                          'id']),
-                                                                  Navigator.pop(
-                                                                      context)
-                                                                },
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons
-                                                                          .delete,
-                                                                      color: customColors[
-                                                                          'green'],
-                                                                    ),
-                                                                    Text(
-                                                                      "Excluir Contrato",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              17,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            )
-                                                          ];
-                                                        },
+                                                    if (filtereData[index]
+                                                            .active ==
+                                                        'yes')
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20),
+                                                        child: Icon(
+                                                          Icons.check_box,
+                                                          size: 30,
+                                                          color: Colors.green,
+                                                        ),
                                                       ),
-                                                    ),
+                                                    if (filtereData[index]
+                                                            .active ==
+                                                        'no')
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20),
+                                                        child: Icon(
+                                                          Icons.check_box,
+                                                          size: 30,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
                                                   ],
                                                 ),
                                                 Row(
@@ -356,32 +294,29 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.only(
-                                                              left: 15,
-                                                              bottom: 40),
+                                                              left: 10,
+                                                              bottom: 20),
                                                       child: ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(60),
                                                         child: Container(
-                                                          height: 100,
-                                                          width: 100,
-                                                          decoration:
-                                                              const BoxDecoration(),
-                                                          child: filtereData[
-                                                                          index]
-                                                                      .photo ==
-                                                                  ""
-                                                              ? Image.asset(
-                                                                  'Assets/images/user.png',
-                                                                  scale: 7.0,
-                                                                )
-                                                              : Image(
-                                                                  image:
-                                                                      userImage!,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
-                                                        ),
+                                                            height: 100,
+                                                            width: 100,
+                                                            decoration:
+                                                                const BoxDecoration(),
+                                                            child: (filtereData[
+                                                                            index]
+                                                                        .photo ==
+                                                                    "")
+                                                                ? Image.asset(
+                                                                    'Assets/images/user.png',
+                                                                    scale: 5.0)
+                                                                : Image(
+                                                                    image: userImageList[
+                                                                        index],
+                                                                    fit: BoxFit
+                                                                        .cover)),
                                                       ),
                                                     ),
                                                     Column(
@@ -393,7 +328,6 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                           padding:
                                                               const EdgeInsets
                                                                   .only(
-                                                                  top: 10,
                                                                   right: 15),
                                                           child: Text(
                                                             breakLinesEvery10Characters(
@@ -429,6 +363,34 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   right: 15),
                                                           child: Text(
                                                             "email: ${filtereData[index].email}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        16),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 5,
+                                                                  right: 15),
+                                                          child: Text(
+                                                            "Nível: ${filtereData[index].role}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        16),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 5,
+                                                                  right: 15),
+                                                          child: Text(
+                                                            "Cargo: ${filtereData[index].cargo}",
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:

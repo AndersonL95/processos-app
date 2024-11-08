@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
 
@@ -8,10 +10,18 @@ class GetContractIdInfoApi {
   Future execute(int id) async {
     try {
       var contractData = await apiService.findContractId(id);
+      if (contractData != null) {
+        Contracts contracts = Contracts.froJson(contractData);
+        print("CONTRACTS: $contracts");
 
-      return contractData;
+        return contracts;
+      } else {
+        print("Nenhum contrato foi encontrado com o id: $id");
+        return null;
+      }
     } catch (e) {
-      throw Exception(e);
+      print("Error: $e");
+      return null;
     }
   }
 }

@@ -94,6 +94,8 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       userToEdit?.cpf = cpfController.text;
       userToEdit?.cargo = cargoController.text;
       userToEdit?.phone = phoneController.text;
+      userToEdit?.role = widget.userData[0]['role'];
+      userToEdit?.active = "yes";
       userToEdit?.id = int.parse(idJson!);
       if (_selectImage != null && _selectImage!.path.isNotEmpty) {
         userToEdit?.photo = _selectImage!.path;
@@ -237,7 +239,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                     color: Colors.white,
                     shadowColor: Colors.black,
                     child: SizedBox(
-                        width: 390,
+                        width: 380,
                         child: Column(
                           children: [
                             if (widget.userData[0]['photo'] != "")

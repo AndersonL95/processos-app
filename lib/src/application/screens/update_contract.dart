@@ -7,8 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/getUsers.Cargo.dart';
+import 'package:processos_app/src/application/use-case/getUsers.api.dart';
 import 'package:processos_app/src/application/use-case/update_contract_api.dart';
 import 'package:processos_app/src/domain/entities/contract.dart';
+import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
@@ -29,6 +32,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   var selecttem = "";
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
+  late GetUsersCargoApi getUsersCargoApi;
   late ApiContractService apiContractService;
   late ApiService apiService;
   late UpdateContract updateContract;
@@ -73,12 +77,20 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
   String sector = "";
+  bool active = false;
+  String? activeStatus;
+  List<Map<String, dynamic>> users = [];
+  List<String> managerUser = [];
+  List<String> supervisorUsers = [];
 
   @override
   void initState() {
     apiContractService = ApiContractService(authManager);
+    apiService = ApiService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
+    getUsersCargoApi = GetUsersCargoApi(apiService);
     updateContract = UpdateContract(apiContractService);
+    _loadUsers();
     nameController = TextEditingController(text: widget.contractData['name']);
     numContractController =
         TextEditingController(text: widget.contractData['numContract']);
@@ -111,6 +123,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         TextEditingController(text: widget.contractData['companySituation']);
     contractEdit = Contracts.froJson(widget.contractData);
     sector = widget.contractData['sector'];
+    active = widget.contractData['active'] == 'yes' ? true : false;
     super.initState();
   }
 
@@ -139,6 +152,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   bool _managerExists(String name) {
     for (var item in data) {
       if (item['manager'] == name || item['supervisor'] == name) {
+        print("NAME: $item");
         return true;
       }
     }
@@ -152,6 +166,28 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       setState(() {
         _selectPDF = File(result.files.single.path!);
       });
+    }
+  }
+
+  void onActive(bool value) {
+    setState(() {
+      active = value;
+      activeStatus = value ? "yes" : "no";
+    });
+  }
+
+  Future<void> _loadUsers() async {
+    try {
+      var usersData = await getUsersCargoApi.execute();
+      setState(() {
+        supervisor = usersData['fiscais']!;
+        manager = usersData['gestores']!;
+
+        print("Gestor : $manager");
+      });
+    } catch (e) {
+      // Tratar erro
+      print('Erro ao carregar usuários: $e');
     }
   }
 
@@ -175,6 +211,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       contractEdit?.addTerm = addTermController.text;
       contractEdit?.addQuant = addQuantController.text;
       contractEdit?.sector = sector;
+      contractEdit?.active = active == true ? 'yes' : "no";
       contractEdit?.companySituation =
           companySituationController.text.toString();
       contractEdit?.userId = int.parse(idJson!);
@@ -207,7 +244,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     }
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     Set<String> managerUnique = {};
@@ -298,7 +334,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                       color: Colors.white,
                       shadowColor: Colors.black,
                       child: SizedBox(
-                          width: 390,
+                          width: 380,
                           child: Column(
                             children: [
                               Padding(
@@ -306,7 +342,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                     top: 10, left: 10, right: 10, bottom: 10),
                                 child: TextField(
                                   controller: nameController,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],
@@ -406,6 +442,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                 padding: EdgeInsets.all(10),
                                 child: TextField(
                                   controller: contractLawController,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                       iconColor: customColors['green'],
                                       prefixIconColor: customColors['green'],
@@ -565,7 +602,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: DropdownButtonFormField<dynamic>(
+                                      child: DropdownButtonFormField<String>(
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -574,29 +611,31 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText:
-                                              widget.contractData['manager'],
+                                          labelText: widget.contractData[
+                                              'manager'], // Label do dropdown
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Color.fromRGBO(
-                                                    1, 76, 45, 1),
-                                                width: 2),
+                                              color:
+                                                  Color.fromRGBO(1, 76, 45, 1),
+                                              width: 2,
+                                            ),
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10)),
                                           ),
                                         ),
-                                        items: managerUnique
-                                            .map<DropdownMenuItem<dynamic>>(
-                                                (dynamic value) {
-                                          return DropdownMenuItem<dynamic>(
+                                        items: manager
+                                            .map<DropdownMenuItem<String>>(
+                                                (value) {
+                                          return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
                                           );
                                         }).toList(),
-                                        onChanged: (dynamic newValue) {
+                                        onChanged: (String? newValue) {
                                           setState(() {
-                                            managerController.text = newValue;
+                                            managerController.text =
+                                                newValue ?? '';
                                             showTextField = false;
                                           });
                                         },
@@ -605,7 +644,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                             : managerController.text,
                                       ),
                                     ),
-                                    IconButton(
+                                    /* IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -613,11 +652,11 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           showTextField = !showTextField;
                                         });
                                       },
-                                    )
+                                    )*/
                                   ],
                                 ),
                               ),
-                              if (showTextField)
+                              /* if (showTextField)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -658,13 +697,13 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),
+                                ),*/
                               Padding(
                                 padding: EdgeInsets.all(10),
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: DropdownButtonFormField<dynamic>(
+                                      child: DropdownButtonFormField<String>(
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -673,30 +712,31 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           hoverColor: customColors['green'],
                                           filled: true,
                                           focusColor: customColors['green'],
-                                          labelText:
-                                              widget.contractData['supervisor'],
+                                          labelText: widget.contractData[
+                                              'supervisor'], // Label do dropdown
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Color.fromRGBO(
-                                                    1, 76, 45, 1),
-                                                width: 2),
+                                              color:
+                                                  Color.fromRGBO(1, 76, 45, 1),
+                                              width: 2,
+                                            ),
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10)),
                                           ),
                                         ),
-                                        items: supervisorUnique
-                                            .map<DropdownMenuItem<dynamic>>(
-                                                (dynamic value) {
-                                          return DropdownMenuItem<dynamic>(
+                                        items: supervisor
+                                            .map<DropdownMenuItem<String>>(
+                                                (value) {
+                                          return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
                                           );
                                         }).toList(),
-                                        onChanged: (dynamic newValue) {
+                                        onChanged: (String? newValue) {
                                           setState(() {
                                             supervisorController.text =
-                                                newValue;
+                                                newValue ?? '';
                                             showTextField = false;
                                           });
                                         },
@@ -705,7 +745,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                             : supervisorController.text,
                                       ),
                                     ),
-                                    IconButton(
+                                    /* IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -713,11 +753,11 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           showTextField = !showTextField;
                                         });
                                       },
-                                    )
+                                    )*/
                                   ],
                                 ),
                               ),
-                              if (showTextField)
+                              /*  if (showTextField)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -758,7 +798,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),
+                                ),*/
                               Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Row(
@@ -794,7 +834,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                                 onQtyChanged: (val) {
                                                   addTermController.text =
                                                       val.toString();
-                                                  print("VALOR: $val");
                                                 },
                                               ),
                                             ),
@@ -835,6 +874,17 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                                 },
                                               ),
                                             ),
+                                            if (widget.contractData['active'] ==
+                                                'no')
+                                              Padding(
+                                                padding: EdgeInsets.all(10),
+                                                child: SizedBox(
+                                                  child: Switch(
+                                                    value: active,
+                                                    onChanged: onActive,
+                                                  ),
+                                                ),
+                                              ),
                                           ],
                                         ),
                                       )
@@ -926,7 +976,28 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                                     }).toList()),
                                               ],
                                             )),
-                                      )
+                                      ),
+                                    ],
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Text(
+                                          "Ativar contrato: ",
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        child: Switch(
+                                          value: active,
+                                          onChanged: onActive,
+                                        ),
+                                      ),
                                     ],
                                   )),
                               Padding(

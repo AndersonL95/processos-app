@@ -1,13 +1,13 @@
 import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 
-class UpdateUser {
+class CreateUser {
   final ApiService apiService;
 
-  UpdateUser(this.apiService);
+  CreateUser(this.apiService);
 
-  Future execute(Users user) async {
-    var response = await apiService.updateUser(user);
-    return response;
+  Future execute(Users users) async {
+    var userData = await apiService.create(users);
+    return userData;
   }
 }
