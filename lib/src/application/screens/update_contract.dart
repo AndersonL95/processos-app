@@ -634,11 +634,9 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         }).toList(),
                                         onChanged: (String? newValue) {
                                           setState(() {
-                                            // Atualiza o controlador de texto se necessário
-                                            managerController.text = newValue ??
-                                                ''; // Se null, define como string vazia
-                                            showTextField =
-                                                false; // Lógica adicional para exibir/ocultar campos
+                                            managerController.text =
+                                                newValue ?? '';
+                                            showTextField = false;
                                           });
                                         },
                                         value: managerController.text.isEmpty
@@ -646,7 +644,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                             : managerController.text,
                                       ),
                                     ),
-                                    IconButton(
+                                    /* IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -654,7 +652,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           showTextField = !showTextField;
                                         });
                                       },
-                                    )
+                                    )*/
                                   ],
                                 ),
                               ),
@@ -747,7 +745,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                             : supervisorController.text,
                                       ),
                                     ),
-                                    IconButton(
+                                    /* IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -755,7 +753,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           showTextField = !showTextField;
                                         });
                                       },
-                                    )
+                                    )*/
                                   ],
                                 ),
                               ),
@@ -979,13 +977,25 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                               ],
                                             )),
                                       ),
+                                    ],
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
                                       Padding(
                                         padding: EdgeInsets.all(10),
-                                        child: SizedBox(
-                                          child: Switch(
-                                            value: active,
-                                            onChanged: onActive,
-                                          ),
+                                        child: Text(
+                                          "Ativar contrato: ",
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        child: Switch(
+                                          value: active,
+                                          onChanged: onActive,
                                         ),
                                       ),
                                     ],

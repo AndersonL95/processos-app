@@ -126,21 +126,6 @@ class AddContractPageState extends State<AddContractPage> {
     return false;
   }
 
-/*  void _addManager(String name) {
-    if (!_managerExists(name)) {
-      setState(() {
-        data.add({'manager': name});
-        dataS.add({'supervisor': name});
-        selecttem = name;
-        showTextField = false;
-      });
-    } else {
-      setState(() {
-        _error = "O gerente já existe.";
-      });
-    }
-  }*/
-
   Future<void> _pickPDF() async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
@@ -161,7 +146,6 @@ class AddContractPageState extends State<AddContractPage> {
         print("Gestor : $manager");
       });
     } catch (e) {
-      // Tratar erro
       print('Erro ao carregar usuários: $e');
     }
   }
@@ -222,9 +206,9 @@ class AddContractPageState extends State<AddContractPage> {
     apiService = ApiService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getUsersCargoApi = GetUsersCargoApi(apiService);
+    _loadUsers();
     createContract = CreateContract(apiContractService);
     getContracts();
-    _loadUsers();
     super.initState();
   }
 
@@ -393,6 +377,7 @@ class AddContractPageState extends State<AddContractPage> {
                                         padding:
                                             EdgeInsets.only(left: 5, right: 10),
                                         child: TextField(
+                                          keyboardType: TextInputType.number,
                                           controller: numProcessController,
                                           decoration: InputDecoration(
                                               iconColor: customColors['green'],
