@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -9,10 +8,12 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/use-case/createContract_api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/getSector_api.dart';
 import 'package:processos_app/src/application/use-case/getUsers.Cargo.dart';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:processos_app/src/infrastucture/sector.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -25,9 +26,12 @@ class AddContractPage extends StatefulWidget {
 class AddContractPageState extends State<AddContractPage> {
   static Map<String, dynamic>? dataUser;
   var selecttem = "";
+  var status = 'yes';
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late ApiContractService apiContractService;
+  late ApiSectorService apiSectorService;
+  late GetSectorsInfoApi getSectorsInfoApi;
   late ApiService apiService;
   late CreateContract createContract;
   late GetUsersCargoApi getUsersCargoApi;
@@ -45,6 +49,8 @@ class AddContractPageState extends State<AddContractPage> {
   TextEditingController companySituationController = TextEditingController();
   List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
   DropdownItem? statusContractController;
+  String? sectorContractController;
+
   TextEditingController supervisorController = TextEditingController();
   var maskFormatter = MaskTextInputFormatter(
       mask: 'R\$ ###.###.###,##',
@@ -73,7 +79,7 @@ class AddContractPageState extends State<AddContractPage> {
   List<String> managerUser = [];
   List<String> supervisorUsers = [];
   final formKey = GlobalKey<FormState>();
-
+  List<DropdownMenuItem<String>> sectorsData = [];
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final DateTime? data = await showDatePicker(
         context: context,
@@ -92,6 +98,31 @@ class AddContractPageState extends State<AddContractPage> {
         } else {
           finalDate = data;
         }
+      });
+    }
+  }
+
+  Future<void> getSectors() async {
+    try {
+      await getSectorsInfoApi.execute().then((value) {
+        if (mounted) {
+          setState(() {
+            sectorsData = value.map<DropdownMenuItem<String>>((sector) {
+              return DropdownMenuItem<String>(
+                value: sector.id.toString(),
+                child: Text(sector.name),
+              );
+            }).toList();
+          });
+        } else {
+          setState(() {
+            _error = "Erro ao carregar informações";
+          });
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
       });
     }
   }
@@ -142,8 +173,6 @@ class AddContractPageState extends State<AddContractPage> {
       setState(() {
         supervisor = usersData['fiscais']!;
         manager = usersData['gestores']!;
-
-        print("Gestor : $manager");
       });
     } catch (e) {
       print('Erro ao carregar usuários: $e');
@@ -171,8 +200,8 @@ class AddContractPageState extends State<AddContractPage> {
           addTerm: addTermController.text,
           addQuant: addQuantController.text,
           companySituation: companySituationController.text.toString(),
-          sector: "Secretaria de Saúde",
-          active: "yes",
+          sector: sectorContractController?.toString(),
+          active: status,
           userId: int.parse(idJson!),
           file: _selectPDF?.path ?? "");
 
@@ -204,11 +233,15 @@ class AddContractPageState extends State<AddContractPage> {
   void initState() {
     apiContractService = ApiContractService(authManager);
     apiService = ApiService(authManager);
+    apiSectorService = ApiSectorService(authManager);
+    getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getUsersCargoApi = GetUsersCargoApi(apiService);
+
     _loadUsers();
     createContract = CreateContract(apiContractService);
     getContracts();
+    getSectors();
     super.initState();
   }
 
@@ -487,6 +520,33 @@ class AddContractPageState extends State<AddContractPage> {
                                   )
                                 ]),
                               ),
+                              Padding(
+                                  padding: EdgeInsets.all(15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10),
+                                        child: Text("Secretaria: ",
+                                            style: TextStyle(fontSize: 17)),
+                                      ),
+                                      SizedBox(
+                                        width: 200,
+                                        child: DropdownButton<String>(
+                                          value: sectorContractController,
+                                          hint: Text("Selecione um setor"),
+                                          items: sectorsData,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              sectorContractController =
+                                                  newValue;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  )),
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: TextField(
@@ -830,7 +890,6 @@ class AddContractPageState extends State<AddContractPage> {
                                                 onQtyChanged: (val) {
                                                   addQuantController.text =
                                                       val.toString();
-                                                  print("VALOR: $val");
                                                 },
                                               ),
                                             ),
