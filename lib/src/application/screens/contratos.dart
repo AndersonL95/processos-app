@@ -264,8 +264,9 @@ class _ContractPageState extends State<ContractPage> {
                                     elevation: 10,
                                     shadowColor: Colors.black,
                                     child: InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).push(
+                                      onTap: () async {
+                                        bool? result =
+                                            await Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (_) => ContractDetailPage(
                                               contractDetail:
@@ -273,10 +274,12 @@ class _ContractPageState extends State<ContractPage> {
                                             ),
                                           ),
                                         );
+                                        if (result == true) {
+                                          getContracts();
+                                        }
                                       },
                                       child: SizedBox(
                                           width: 350,
-                                          height: 240,
                                           child: Column(
                                             children: [
                                               Row(
@@ -298,8 +301,11 @@ class _ContractPageState extends State<ContractPage> {
                                                       ),
                                                     ),
                                                   if (filtereData[index]
-                                                          ['active'] ==
-                                                      'no')
+                                                              ['active'] ==
+                                                          'no' ||
+                                                      filtereData[index]
+                                                              ['active'] ==
+                                                          "")
                                                     Padding(
                                                       padding: EdgeInsets.only(
                                                           top: 10, left: 10),
@@ -312,7 +318,7 @@ class _ContractPageState extends State<ContractPage> {
                                                     ),
                                                   Padding(
                                                     padding: EdgeInsets.only(
-                                                        top: 10, right: 10),
+                                                        top: 1, right: 10),
                                                     child: PopupMenuButton(
                                                       color:
                                                           customColors['gray'],
@@ -323,10 +329,11 @@ class _ContractPageState extends State<ContractPage> {
                                                         return [
                                                           PopupMenuItem(
                                                             child: InkWell(
-                                                              onTap: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .push(
+                                                              onTap: () async {
+                                                                bool? result =
+                                                                    await Navigator.of(
+                                                                            context)
+                                                                        .push(
                                                                   MaterialPageRoute(
                                                                     builder: (_) =>
                                                                         UpdateContractPage(
@@ -334,6 +341,10 @@ class _ContractPageState extends State<ContractPage> {
                                                                                 filtereData[index]),
                                                                   ),
                                                                 );
+                                                                if (result ==
+                                                                    true) {
+                                                                  getContracts();
+                                                                }
                                                               },
                                                               child: Row(
                                                                 mainAxisAlignment:
@@ -396,8 +407,13 @@ class _ContractPageState extends State<ContractPage> {
                                                               ),
                                                             ),
                                                           if (filtereData[index]
-                                                                  ['active'] ==
-                                                              'no')
+                                                                      [
+                                                                      'active'] ==
+                                                                  'no' ||
+                                                              filtereData[index]
+                                                                      [
+                                                                      'active'] ==
+                                                                  "")
                                                             PopupMenuItem(
                                                               child: InkWell(
                                                                 onTap: () => {
@@ -463,7 +479,7 @@ class _ContractPageState extends State<ContractPage> {
                                                         padding:
                                                             const EdgeInsets
                                                                 .only(
-                                                                top: 10,
+                                                                top: 1,
                                                                 right: 15),
                                                         child: Text(
                                                           breakLinesEvery10Characters(
@@ -480,13 +496,13 @@ class _ContractPageState extends State<ContractPage> {
                                                         padding:
                                                             const EdgeInsets
                                                                 .only(
-                                                                top: 10,
+                                                                top: 1,
                                                                 right: 15),
                                                         child: Text(
                                                           "Contrato Nº: ${filtereData[index]['numContract'].toString().substring(0, min(filtereData[index]['numContract'].toString().length, 10))}",
                                                           style:
                                                               const TextStyle(
-                                                            fontSize: 16,
+                                                            fontSize: 14,
                                                           ),
                                                         ),
                                                       ),
@@ -500,7 +516,7 @@ class _ContractPageState extends State<ContractPage> {
                                                           "Processo Nº: ${filtereData[index]['numProcess']}",
                                                           style:
                                                               const TextStyle(
-                                                                  fontSize: 16),
+                                                                  fontSize: 14),
                                                         ),
                                                       ),
                                                       Padding(
@@ -513,7 +529,33 @@ class _ContractPageState extends State<ContractPage> {
                                                           "Gestor: ${filtereData[index]['manager'].toString().substring(0, min(filtereData[index]['manager'].toString().length, 10))}",
                                                           style:
                                                               const TextStyle(
-                                                                  fontSize: 16),
+                                                                  fontSize: 14),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 5,
+                                                                right: 15),
+                                                        child: Text(
+                                                          "Fiscal: ${filtereData[index]['supervisor'].toString().substring(0, min(filtereData[index]['supervisor'].toString().length, 10))}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 5,
+                                                                right: 15),
+                                                        child: Text(
+                                                          "Secretaria: ${filtereData[index]['sector'].toString().substring(0, min(filtereData[index]['sector'].toString().length, 10))}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14),
                                                         ),
                                                       ),
                                                       if (filtereData[index][

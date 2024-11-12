@@ -98,6 +98,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     apiSectorService = ApiSectorService(authManager);
     getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     updateContract = UpdateContract(apiContractService);
+    getSectors();
     _loadUsers();
     nameController = TextEditingController(text: widget.contractData['name']);
     numContractController =
@@ -118,8 +119,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       addQuantController =
           TextEditingController(text: widget.contractData['addQuant']);
     }
-    String? sectorcontracts = widget.contractData['sector'];
-
+    sectorContractController = widget.contractData['sector'];
     balanceController =
         TextEditingController(text: widget.contractData['balance']);
     initDate = DateTime.parse(widget.contractData['initDate']);
@@ -135,6 +135,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     contractEdit = Contracts.froJson(widget.contractData);
     sector = widget.contractData['sector'];
     active = widget.contractData['active'] == 'yes' ? true : false;
+    print("SECRETARIA: ${widget.contractData['sector']}");
     super.initState();
   }
 
@@ -167,7 +168,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
           setState(() {
             sectorsData = value.map<DropdownMenuItem<String>>((sector) {
               return DropdownMenuItem<String>(
-                value: sector.id.toString(),
+                value: sector.name.toString(),
                 child: Text(sector.name),
               );
             }).toList();
@@ -315,7 +316,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                 color: customColors['white'],
               ),
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop(true);
               },
             ),
           ),

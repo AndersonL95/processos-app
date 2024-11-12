@@ -26,7 +26,7 @@ class AddContractPage extends StatefulWidget {
 class AddContractPageState extends State<AddContractPage> {
   static Map<String, dynamic>? dataUser;
   var selecttem = "";
-  var status = 'yes';
+  var status = '';
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late ApiContractService apiContractService;
@@ -102,14 +102,14 @@ class AddContractPageState extends State<AddContractPage> {
     }
   }
 
-  Future<void> getSectors() async {
+  Future getSectors() async {
     try {
       await getSectorsInfoApi.execute().then((value) {
         if (mounted) {
           setState(() {
             sectorsData = value.map<DropdownMenuItem<String>>((sector) {
               return DropdownMenuItem<String>(
-                value: sector.id.toString(),
+                value: sector.name.toString(),
                 child: Text(sector.name),
               );
             }).toList();
@@ -237,11 +237,12 @@ class AddContractPageState extends State<AddContractPage> {
     getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getUsersCargoApi = GetUsersCargoApi(apiService);
-
-    _loadUsers();
     createContract = CreateContract(apiContractService);
-    getContracts();
+    status = "yes";
+    _loadUsers();
     getSectors();
+    getContracts();
+
     super.initState();
   }
 
