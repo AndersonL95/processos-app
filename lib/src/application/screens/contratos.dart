@@ -7,11 +7,13 @@ import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/screens/update_contract.dart';
 import 'package:processos_app/src/application/use-case/delet_contract.api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/getSector_api.dart';
 import 'package:processos_app/src/application/use-case/get_contractId.dart';
 import 'package:processos_app/src/application/use-case/update_contract_api.dart';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:processos_app/src/infrastucture/sector.dart';
 import 'package:toastification/toastification.dart';
 
 class ContractPage extends StatefulWidget {
@@ -23,20 +25,27 @@ class _ContractPageState extends State<ContractPage> {
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late GetContractIdInfoApi getContractIdInfoApi;
+  late GetSectorsInfoApi getSectorsInfoApi;
   late ApiContractService apiContractService;
+  late ApiSectorService apiSectorService;
   late DeleteContractsInfoApi deleteContractsInfoApi;
   late UpdateContract updateContract;
   bool _loading = true;
-
+  String? selectSortOption;
+  String? selectedSector;
   String? _error;
   List<dynamic> data = [];
   List<dynamic> filtereData = [];
   TextEditingController searchController = TextEditingController();
+  String? sectorContractController;
+  List<DropdownMenuItem<String>> sectorsData = [];
 
   @override
   void initState() {
     apiContractService = ApiContractService(authManager);
+    apiSectorService = ApiSectorService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
+    getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
     getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
     updateContract = UpdateContract(apiContractService);
@@ -44,25 +53,33 @@ class _ContractPageState extends State<ContractPage> {
     super.initState();
   }
 
+  List<String> sortOptions = [
+    "Data ini. - Cresc.",
+    "Data ini. - Decrs.",
+    "Data fin. - Cresc.",
+    "Data fin. - Decrs."
+  ];
   Future<void> getContracts() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
     try {
-      await getContractsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            data = value;
-            filtereData = value;
-            _loading = false;
-          });
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
-        }
-      });
+      final value = await getContractsInfoApi.execute();
+      if (mounted) {
+        setState(() {
+          data = value;
+          filtereData = value;
+          _loading = false;
+        });
+      }
+      getSectors();
     } catch (e) {
-      _loading = false;
-      _error = e.toString();
+      setState(() {
+        _error = "Erro ao carregar informações: $e";
+        _loading = false;
+      });
     }
   }
 
@@ -90,7 +107,7 @@ class _ContractPageState extends State<ContractPage> {
     return lines.join('\n');
   }
 
-  void filterData(String query) {
+  void searchData(String query) {
     List<dynamic> temp = [];
     for (var item in data) {
       if (item['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
@@ -104,6 +121,135 @@ class _ContractPageState extends State<ContractPage> {
     setState(() {
       filtereData = temp;
     });
+  }
+
+  Future<void> getSectors() async {
+    try {
+      await getSectorsInfoApi.execute().then((value) {
+        if (mounted) {
+          setState(() {
+            sectorsData = value.map<DropdownMenuItem<String>>((sector) {
+              return DropdownMenuItem<String>(
+                value: sector.name.toString(),
+                child: Text(sector.name),
+              );
+            }).toList();
+          });
+        } else {
+          setState(() {
+            _error = "Erro ao carregar informações";
+          });
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    }
+  }
+
+  void filterData() {
+    List<dynamic> temp = data.where((e) {
+      final sector = e['sector'];
+      bool sectorSelect = selectedSector == null || sector == selectedSector;
+      return sectorSelect;
+    }).toList();
+    if (selectSortOption != null) {
+      switch (selectSortOption) {
+        case 'Data ini. - Cresc.':
+          temp.sort((a, b) => DateTime.parse(a['initDate'])
+              .compareTo(DateTime.parse(b['initDate'])));
+          break;
+        case 'Data ini. - Decrs.':
+          temp.sort((a, b) => DateTime.parse(b['initDate'])
+              .compareTo(DateTime.parse(a['initDate'])));
+          break;
+        case 'Data fin. - Cresc.':
+          temp.sort((a, b) => DateTime.parse(a['finalDate'])
+              .compareTo(DateTime.parse(b['finalDate'])));
+          break;
+        case 'Data fin. - Decrs.':
+          temp.sort((a, b) => DateTime.parse(b['finalDate'])
+              .compareTo(DateTime.parse(a['finalDate'])));
+          break;
+      }
+    }
+    setState(() {
+      filtereData = temp;
+    });
+  }
+
+  void openModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Filtros",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  DropdownButton<String>(
+                    value: sectorContractController,
+                    hint: Text("Selecione um setor"),
+                    items: sectorsData,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        sectorContractController = newValue;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              DropdownButtonFormField(
+                value: selectSortOption,
+                hint: Text("Selecione a ordenação"),
+                items: sortOptions.map((e) {
+                  return DropdownMenuItem(
+                    child: Text(e),
+                    value: e,
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectSortOption = value;
+                  });
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedSector = sectorContractController;
+                  });
+                  filterData();
+                  Navigator.pop(context);
+                },
+                child: Text("Aplicar filtros"),
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: customColors['green']),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> inactiveUser(int id, String value) async {
@@ -173,14 +319,14 @@ class _ContractPageState extends State<ContractPage> {
           automaticallyImplyLeading: false,
           actions: [
             Padding(
-              padding: EdgeInsets.only(top: 10),
+              padding: EdgeInsets.only(top: 10, right: 10),
               child: IconButton(
                 icon: Icon(
-                  Icons.notification_important,
-                  size: 30,
+                  Icons.filter_alt_outlined,
+                  size: 40,
                   color: customColors['white'],
                 ),
-                onPressed: () {},
+                onPressed: openModal,
               ),
             ),
           ],
@@ -203,7 +349,7 @@ class _ContractPageState extends State<ContractPage> {
                         child: TextField(
                           controller: searchController,
                           onChanged: (value) {
-                            filterData(value);
+                            searchData(value);
                           },
                           decoration: InputDecoration(
                               iconColor: customColors['green'],
@@ -251,6 +397,8 @@ class _ContractPageState extends State<ContractPage> {
                         child: ListView.builder(
                           itemCount: filtereData.length,
                           itemBuilder: (context, index) {
+                            print("DATA: ${filtereData.length}");
+
                             return Column(
                               children: [
                                 Padding(

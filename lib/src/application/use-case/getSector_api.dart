@@ -6,9 +6,9 @@ class GetSectorsInfoApi {
 
   Future execute() async {
     try {
-      var contractData = await apiSectorService.findAllSector();
+      var sectorData = await apiSectorService.findAllSector();
 
-      return contractData;
+      return sectorData;
     } catch (e) {
       throw Exception(e);
     }

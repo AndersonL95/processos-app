@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/domain/entities/sector.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiSectorService implements RepositoryInterface<Users> {
-  final baseUrl = "http://192.168.0.108:3000/api";
+class ApiSectorService implements RepositoryInterface<Sector> {
+  final baseUrl = "http://192.168.0.117:3000/api";
   final AuthManager authManager;
   ApiSectorService(this.authManager);
   late int tenantId;
@@ -102,20 +101,20 @@ class ApiSectorService implements RepositoryInterface<Users> {
   }
 
   @override
-  Future<List<Users>> findById(int id) {
-    // TODO: implement findById
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<int> create(Users entity) {
+  Future<int> create(Sector entity) {
     // TODO: implement create
     throw UnimplementedError();
   }
 
   @override
-  Future<List<Users>> findAll() {
+  Future<List<Sector>> findAll() {
     // TODO: implement findAll
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Sector>> findById(int id) {
+    // TODO: implement findById
     throw UnimplementedError();
   }
 }
