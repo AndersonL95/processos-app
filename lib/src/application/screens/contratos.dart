@@ -245,6 +245,22 @@ class _ContractPageState extends State<ContractPage> {
                     ),
                     backgroundColor: customColors['green']),
               ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    sectorContractController = null;
+                    selectedSector = null;
+                    selectSortOption = null;
+                    filtereData = data;
+                  });
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.delete,
+                  size: 45,
+                  color: customColors['crismon'],
+                ),
+              )
             ],
           ),
         );
