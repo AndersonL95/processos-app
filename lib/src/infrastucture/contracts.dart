@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:processos_app/src/domain/entities/contract.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
-  final String baseUrl = 'http://10.0.0.126:3000/api';
+  final String baseUrl = 'http://192.168.0.117:3000/api';
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;
@@ -79,15 +78,15 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   }
 
   Future<dynamic> findAllContracts() async {
-    var bodyList;
+    var bodyList = [];
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
     try {
-      final SharedPreferences data = await SharedPreferences.getInstance();
-      String? tenantJson = data.getString('tenantId');
-      if (tenantJson != null) {
-        tenantId = json.decode(tenantJson);
-      }
       final response = await authManager.sendAuthenticate(() async {
-        return http.get(Uri.parse("$baseUrl/contract"),
+        return await http.get(Uri.parse("$baseUrl/contract"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -130,12 +129,6 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     } catch (e) {
       throw Exception("$e");
     }
-  }
-
-  @override
-  Future<List<Contracts>> findById(int id) {
-    // TODO: implement findById
-    throw UnimplementedError();
   }
 
   Future<dynamic> findByLast3() async {
@@ -208,6 +201,12 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     } catch (e) {
       throw Exception("Erro ao modificar contrato: $e");
     }
+  }
+
+  @override
+  Future<List<Contracts>> findById(int id) {
+    // TODO: implement findById
+    throw UnimplementedError();
   }
 
   @override

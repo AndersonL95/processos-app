@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/getSector_api.dart';
 import 'package:processos_app/src/application/use-case/getUsers.Cargo.dart';
 import 'package:processos_app/src/application/use-case/getUsers.api.dart';
 import 'package:processos_app/src/application/use-case/update_contract_api.dart';
@@ -14,6 +15,7 @@ import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:processos_app/src/infrastucture/sector.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -36,6 +38,8 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   late ApiContractService apiContractService;
   late ApiService apiService;
   late UpdateContract updateContract;
+  late ApiSectorService apiSectorService;
+  late GetSectorsInfoApi getSectorsInfoApi;
   late TextEditingController nameController;
   late TextEditingController numContractController;
   late TextEditingController numProcessController;
@@ -82,6 +86,8 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   List<Map<String, dynamic>> users = [];
   List<String> managerUser = [];
   List<String> supervisorUsers = [];
+  List<DropdownMenuItem<String>> sectorsData = [];
+  String? sectorContractController;
 
   @override
   void initState() {
@@ -89,7 +95,10 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     apiService = ApiService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getUsersCargoApi = GetUsersCargoApi(apiService);
+    apiSectorService = ApiSectorService(authManager);
+    getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     updateContract = UpdateContract(apiContractService);
+    getSectors();
     _loadUsers();
     nameController = TextEditingController(text: widget.contractData['name']);
     numContractController =
@@ -104,11 +113,13 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         (item) => item.statusValue == statuscontracts,
         orElse: () => statusItem[0],
       );
+
       addTermController =
           TextEditingController(text: widget.contractData['addTerm']);
       addQuantController =
           TextEditingController(text: widget.contractData['addQuant']);
     }
+    sectorContractController = widget.contractData['sector'];
     balanceController =
         TextEditingController(text: widget.contractData['balance']);
     initDate = DateTime.parse(widget.contractData['initDate']);
@@ -124,6 +135,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     contractEdit = Contracts.froJson(widget.contractData);
     sector = widget.contractData['sector'];
     active = widget.contractData['active'] == 'yes' ? true : false;
+    print("SECRETARIA: ${widget.contractData['sector']}");
     super.initState();
   }
 
@@ -145,6 +157,31 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         } else {
           finalDate = data;
         }
+      });
+    }
+  }
+
+  Future<void> getSectors() async {
+    try {
+      await getSectorsInfoApi.execute().then((value) {
+        if (mounted) {
+          setState(() {
+            sectorsData = value.map<DropdownMenuItem<String>>((sector) {
+              return DropdownMenuItem<String>(
+                value: sector.name.toString(),
+                child: Text(sector.name),
+              );
+            }).toList();
+          });
+        } else {
+          setState(() {
+            _error = "Erro ao carregar informações";
+          });
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
       });
     }
   }
@@ -210,7 +247,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       contractEdit?.todo = todoController.text;
       contractEdit?.addTerm = addTermController.text;
       contractEdit?.addQuant = addQuantController.text;
-      contractEdit?.sector = sector;
+      contractEdit?.sector = sectorContractController!;
       contractEdit?.active = active == true ? 'yes' : "no";
       contractEdit?.companySituation =
           companySituationController.text.toString();
@@ -279,7 +316,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                 color: customColors['white'],
               ),
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop(true);
               },
             ),
           ),
@@ -526,6 +563,33 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                   )
                                 ]),
                               ),
+                              Padding(
+                                  padding: EdgeInsets.all(15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10),
+                                        child: Text("Secretaria: ",
+                                            style: TextStyle(fontSize: 17)),
+                                      ),
+                                      SizedBox(
+                                        width: 200,
+                                        child: DropdownButton<String>(
+                                          value: sectorContractController,
+                                          hint: Text("Selecione um setor"),
+                                          items: sectorsData,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              sectorContractController =
+                                                  newValue;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  )),
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: TextField(

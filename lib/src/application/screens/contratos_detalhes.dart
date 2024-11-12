@@ -148,7 +148,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                 color: customColors['white'],
               ),
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop(true);
               },
             ),
           ),

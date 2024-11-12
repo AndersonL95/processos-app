@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthManager with ChangeNotifier {
   String? _token;
   String? _refresh_token;
-  final baseUrl = "http://10.0.0.126:3000/api";
+  final baseUrl = "http://192.168.0.117:3000/api";
   String? get token => _token;
 
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -42,6 +42,7 @@ class AuthManager with ChangeNotifier {
     await data.remove('refreshToken');
     await data.remove('id');
     await data.remove('userInfo');
+    await data.remove('tenantId');
     notifyListeners();
   }
 
@@ -84,6 +85,7 @@ class AuthManager with ChangeNotifier {
 
     if (response.statusCode == 401) {
       if (await refreshToken() != null) {
+        _token = await refreshToken();
         response = await requestFunction();
       }
     }
