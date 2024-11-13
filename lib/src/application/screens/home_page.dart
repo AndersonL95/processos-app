@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getLast3.dart';
+import 'package:processos_app/src/application/use-case/getNotification_api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:processos_app/src/infrastucture/notifications.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,14 +19,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   AuthManager authManager = AuthManager();
   late Get3LastContractsInfoApi getContractsInfoApi;
+  late GetNotificationInfoApi getNotificationInfoApi;
+  late ApiNotificationService apiNotificationService;
   late ApiContractService apiContractService;
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
+  int notificationCount = 0;
 
   @override
   void initState() {
     apiContractService = ApiContractService(authManager);
+    apiNotificationService = ApiNotificationService(authManager);
+    getNotificationInfoApi = GetNotificationInfoApi(apiNotificationService);
     getContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
     getContracts();
     super.initState();
@@ -57,10 +64,21 @@ class _HomePageState extends State<HomePage> {
           });
         }
       });
+      getNotification();
     } catch (e) {
       _loading = false;
       _error = e.toString();
-      throw Exception(e);
+    }
+  }
+
+  void getNotification() async {
+    try {
+      final count = await getNotificationInfoApi.execute();
+      setState(() {
+        notificationCount = count;
+      });
+    } catch (e) {
+      print("Erro ao obter notificações: $e");
     }
   }
 
@@ -84,11 +102,29 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: IconButton(
-              icon: Icon(
-                Icons.notification_important,
-                size: 30,
-                color: customColors['white'],
-              ),
+              icon: Stack(children: [
+                Icon(
+                  Icons.notifications_active,
+                  size: 30,
+                  color: customColors['white'],
+                ),
+                if (notificationCount > 0) ...[
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$notificationCount',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  )
+                ],
+              ]),
               onPressed: () {},
             ),
           ),
