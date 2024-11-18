@@ -415,8 +415,6 @@ class _ContractPageState extends State<ContractPage> {
                         child: ListView.builder(
                           itemCount: filtereData.length,
                           itemBuilder: (context, index) {
-                            print("DATA: ${filtereData.length}");
-
                             return Column(
                               children: [
                                 Padding(

@@ -83,8 +83,8 @@ class _PerfilPageState extends State<PerfilPage> {
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 35) {
-      int endIndex = i + 35;
+    for (int i = 0; i < input.length; i += 28) {
+      int endIndex = i + 28;
       if (endIndex > input.length) {
         endIndex = input.length;
       }

@@ -7,7 +7,7 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiNotificationService implements RepositoryInterface<Notification> {
-  final baseUrl = "http://192.168.0.117:3000/api";
+  final baseUrl = "http://192.168.0.102:3000/api";
   final AuthManager authManager;
   ApiNotificationService(this.authManager);
   late int tenantId;
@@ -70,26 +70,26 @@ class ApiNotificationService implements RepositoryInterface<Notification> {
   Future<List> findAllNotifications() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
+    String? idJson = data.getString('id');
 
     if (tenantJson != null) {
       final int tenantId = json.decode(tenantJson);
+      final int userId = json.decode(idJson!);
 
       try {
         final response = await authManager.sendAuthenticate(() async {
-          return await http.get(
-            Uri.parse("$baseUrl/notification"),
-            headers: authManager.token != null
-                ? {
-                    'Authorization': 'Bearer ${authManager.token}',
-                    'x-tenant-id': tenantId.toString(),
-                  }
-                : {},
-          );
+          return await http.get(Uri.parse("$baseUrl/notification/$userId"),
+              headers: authManager.token != null
+                  ? {
+                      'Authorization': 'Bearer ${authManager.token}',
+                      'x-tenant-id': tenantId.toString(),
+                    }
+                  : {});
         });
-
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonResponse = json.decode(response.body);
           final List notifications = jsonResponse['notifications'] ?? [];
+
           return notifications;
         } else {
           throw Exception("Erro ao listar notificações: ${response.body}");
@@ -99,6 +99,40 @@ class ApiNotificationService implements RepositoryInterface<Notification> {
       }
     } else {
       throw Exception("Tenant ID não encontrado.");
+    }
+  }
+
+  Future<void> markNotificationView(int id) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    String? idJson = data.getString('id');
+
+    if (tenantJson != null) {
+      final int tenantId = json.decode(tenantJson);
+      final int userId = json.decode(idJson!);
+
+      try {
+        final response = await authManager.sendAuthenticate(() async {
+          return await http.post(Uri.parse("$baseUrl/notification/viwed/$id"),
+              headers: authManager.token != null
+                  ? {
+                      'Authorization': 'Bearer ${authManager.token}',
+                      'x-tenant-id': tenantId.toString(),
+                      'Content-Type': 'application/json'
+                    }
+                  : {},
+              body: jsonEncode({'userId': userId}));
+        });
+        print("RESPONSE ${response.statusCode}");
+
+        if (response.statusCode == 200) {
+          print("OK: ${response.body}");
+        } else {
+          print("ERRO ao abrir.");
+        }
+      } catch (e) {
+        print("CATCH: $e");
+      }
     }
   }
 

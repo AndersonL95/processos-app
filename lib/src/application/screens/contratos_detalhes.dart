@@ -23,6 +23,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late ApiContractService apiContractService;
+
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
@@ -34,11 +35,13 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   void initState() {
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
+
     getContracts();
     statusResul();
     pathFile().then((v) {
       pathPDF = v.path;
     });
+
     super.initState();
   }
 
@@ -568,7 +571,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                     'supervisor'],
                                                                 style: TextStyle(
                                                                     fontSize:
-                                                                        17,
+                                                                        13,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold),
@@ -595,7 +598,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                     'manager'],
                                                                 style: TextStyle(
                                                                     fontSize:
-                                                                        17,
+                                                                        13,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold),

@@ -5,6 +5,7 @@ import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getLast3.dart';
 import 'package:processos_app/src/application/use-case/getNotification_api.dart';
+import 'package:processos_app/src/application/use-case/viwed_notification.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:processos_app/src/infrastucture/notifications.dart';
@@ -22,9 +23,12 @@ class _HomePageState extends State<HomePage> {
   late GetNotificationInfoApi getNotificationInfoApi;
   late ApiNotificationService apiNotificationService;
   late ApiContractService apiContractService;
+  late MarkAsViewdNotificationApi markAsViewdNotificationApi;
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
+  List<dynamic> notificationData = [];
+
   int notificationCount = 0;
 
   @override
@@ -33,6 +37,8 @@ class _HomePageState extends State<HomePage> {
     apiNotificationService = ApiNotificationService(authManager);
     getNotificationInfoApi = GetNotificationInfoApi(apiNotificationService);
     getContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
+    markAsViewdNotificationApi =
+        MarkAsViewdNotificationApi(apiNotificationService);
     getContracts();
     super.initState();
   }
@@ -71,15 +77,110 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void getNotification() async {
+  Future getNotification() async {
     try {
-      final count = await getNotificationInfoApi.execute();
+      List allNotifications = await getNotificationInfoApi.execute();
+      List unreadNotifications = allNotifications
+          .where((notification) => !notification['read'])
+          .toList();
       setState(() {
-        notificationCount = count;
+        notificationCount = unreadNotifications.length;
+        notificationData = allNotifications;
       });
     } catch (e) {
       print("Erro ao obter notificações: $e");
     }
+  }
+
+  void showNotification(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Notificações"),
+          content: notificationCount > 0
+              ? SizedBox(
+                  width: double.maxFinite,
+                  height: 300,
+                  child: ListView.builder(
+                    itemCount: notificationData.length,
+                    itemBuilder: (context, index) {
+                      final notification = notificationData[index];
+                      return Column(
+                        children: [
+                          Card(
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              clipBehavior: Clip.antiAlias,
+                              elevation: 10,
+                              shadowColor: Colors.black,
+                              child: InkWell(
+                                onTap: () async {
+                                  bool? result =
+                                      await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (_) => ContractDetailPage(
+                                              contractDetail: data[index],
+                                            )),
+                                  );
+                                  if (result == true) {
+                                    getContracts();
+                                    markAsView(notification['id']);
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: 280,
+                                  height: 100,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(15),
+                                        child: Image.asset(
+                                          'Assets/images/pdf2.png',
+                                          scale: 9.0,
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20, right: 15),
+                                            child: Text(
+                                              breakLinesEvery10Characters(
+                                                  notification['message']),
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )),
+                        ],
+                      );
+                    },
+                  ),
+                )
+              : Center(
+                  child: Text("Você não tem notificações."),
+                ),
+        );
+      },
+    );
+  }
+
+  void markAsView(int id) async {
+    await markAsViewdNotificationApi.execute(id);
+    getNotification();
+    //print("NOTIFICATION: $res");
   }
 
   @override
@@ -125,7 +226,9 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ]),
-              onPressed: () {},
+              onPressed: () {
+                showNotification(context);
+              },
             ),
           ),
         ],
