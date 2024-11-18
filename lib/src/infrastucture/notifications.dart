@@ -1,14 +1,15 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:processos_app/src/domain/entities/sector.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiSectorService implements RepositoryInterface<Sector> {
+class ApiNotificationService implements RepositoryInterface<Notification> {
   final baseUrl = "http://192.168.0.102:3000/api";
   final AuthManager authManager;
-  ApiSectorService(this.authManager);
+  ApiNotificationService(this.authManager);
   late int tenantId;
 
   /* @override
@@ -66,31 +67,32 @@ class ApiSectorService implements RepositoryInterface<Sector> {
     throw UnimplementedError();
   }
 
-  Future<List<Sector>> findAllSector() async {
+  Future<List> findAllNotifications() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
+    String? idJson = data.getString('id');
 
     if (tenantJson != null) {
       final int tenantId = json.decode(tenantJson);
+      final int userId = json.decode(idJson!);
 
       try {
         final response = await authManager.sendAuthenticate(() async {
-          return await http.get(
-            Uri.parse("$baseUrl/sector"),
-            headers: authManager.token != null
-                ? {
-                    'Authorization': 'Bearer ${authManager.token}',
-                    'x-tenant-id': tenantId.toString(),
-                  }
-                : {},
-          );
+          return await http.get(Uri.parse("$baseUrl/notification/$userId"),
+              headers: authManager.token != null
+                  ? {
+                      'Authorization': 'Bearer ${authManager.token}',
+                      'x-tenant-id': tenantId.toString(),
+                    }
+                  : {});
         });
-
         if (response.statusCode == 200) {
-          final List<dynamic> sectorJson = json.decode(response.body);
-          return sectorJson.map((json) => Sector.fromJson(json)).toList();
+          final Map<String, dynamic> jsonResponse = json.decode(response.body);
+          final List notifications = jsonResponse['notifications'] ?? [];
+
+          return notifications;
         } else {
-          throw Exception("Erro ao listar Secretarias: ${response.body}");
+          throw Exception("Erro ao listar notificações: ${response.body}");
         }
       } catch (e) {
         throw Exception("Falha na solicitação: $e");
@@ -100,20 +102,54 @@ class ApiSectorService implements RepositoryInterface<Sector> {
     }
   }
 
+  Future<void> markNotificationView(int id) async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    String? idJson = data.getString('id');
+
+    if (tenantJson != null) {
+      final int tenantId = json.decode(tenantJson);
+      final int userId = json.decode(idJson!);
+
+      try {
+        final response = await authManager.sendAuthenticate(() async {
+          return await http.post(Uri.parse("$baseUrl/notification/viwed/$id"),
+              headers: authManager.token != null
+                  ? {
+                      'Authorization': 'Bearer ${authManager.token}',
+                      'x-tenant-id': tenantId.toString(),
+                      'Content-Type': 'application/json'
+                    }
+                  : {},
+              body: jsonEncode({'userId': userId}));
+        });
+        print("RESPONSE ${response.statusCode}");
+
+        if (response.statusCode == 200) {
+          print("OK: ${response.body}");
+        } else {
+          print("ERRO ao abrir.");
+        }
+      } catch (e) {
+        print("CATCH: $e");
+      }
+    }
+  }
+
   @override
-  Future<int> create(Sector entity) {
+  Future<int> create(Notification entity) {
     // TODO: implement create
     throw UnimplementedError();
   }
 
   @override
-  Future<List<Sector>> findAll() {
+  Future<List<Notification>> findAll() {
     // TODO: implement findAll
     throw UnimplementedError();
   }
 
   @override
-  Future<List<Sector>> findById(int id) {
+  Future<List<Notification>> findById(int id) {
     // TODO: implement findById
     throw UnimplementedError();
   }

@@ -7,12 +7,14 @@ import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/screens/update_contract.dart';
 import 'package:processos_app/src/application/use-case/delet_contract.api.dart';
 import 'package:processos_app/src/application/use-case/getContract_api.dart';
+import 'package:processos_app/src/application/use-case/getNotification_api.dart';
 import 'package:processos_app/src/application/use-case/getSector_api.dart';
 import 'package:processos_app/src/application/use-case/get_contractId.dart';
 import 'package:processos_app/src/application/use-case/update_contract_api.dart';
 import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:processos_app/src/infrastucture/notifications.dart';
 import 'package:processos_app/src/infrastucture/sector.dart';
 import 'package:toastification/toastification.dart';
 
@@ -83,6 +85,31 @@ class _ContractPageState extends State<ContractPage> {
     }
   }
 
+  Future<void> getSectors() async {
+    try {
+      await getSectorsInfoApi.execute().then((value) {
+        if (mounted) {
+          setState(() {
+            sectorsData = value.map<DropdownMenuItem<String>>((sector) {
+              return DropdownMenuItem<String>(
+                value: sector.name.toString(),
+                child: Text(sector.name),
+              );
+            }).toList();
+          });
+        } else {
+          setState(() {
+            _error = "Erro ao carregar informações";
+          });
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    }
+  }
+
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
     for (int i = 0; i < input.length; i += 20) {
@@ -121,31 +148,6 @@ class _ContractPageState extends State<ContractPage> {
     setState(() {
       filtereData = temp;
     });
-  }
-
-  Future<void> getSectors() async {
-    try {
-      await getSectorsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            sectorsData = value.map<DropdownMenuItem<String>>((sector) {
-              return DropdownMenuItem<String>(
-                value: sector.name.toString(),
-                child: Text(sector.name),
-              );
-            }).toList();
-          });
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-          });
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-      });
-    }
   }
 
   void filterData() {
@@ -413,8 +415,6 @@ class _ContractPageState extends State<ContractPage> {
                         child: ListView.builder(
                           itemCount: filtereData.length,
                           itemBuilder: (context, index) {
-                            print("DATA: ${filtereData.length}");
-
                             return Column(
                               children: [
                                 Padding(
