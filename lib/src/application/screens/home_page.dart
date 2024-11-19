@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:processos_app/src/application/components/Notification_Widget.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getLast3.dart';
@@ -96,83 +97,14 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Notificações"),
-          content: notificationCount > 0
-              ? SizedBox(
-                  width: double.maxFinite,
-                  height: 300,
-                  child: ListView.builder(
-                    itemCount: notificationData.length,
-                    itemBuilder: (context, index) {
-                      final notification = notificationData[index];
-                      return Column(
-                        children: [
-                          Card(
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              clipBehavior: Clip.antiAlias,
-                              elevation: 10,
-                              shadowColor: Colors.black,
-                              child: InkWell(
-                                onTap: () async {
-                                  bool? result =
-                                      await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (_) => ContractDetailPage(
-                                              contractDetail: data[index],
-                                            )),
-                                  );
-                                  if (result == true) {
-                                    getContracts();
-                                    markAsView(notification['id']);
-                                  }
-                                },
-                                child: SizedBox(
-                                  width: 280,
-                                  height: 100,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(15),
-                                        child: Image.asset(
-                                          'Assets/images/pdf2.png',
-                                          scale: 9.0,
-                                        ),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 20, right: 15),
-                                            child: Text(
-                                              breakLinesEvery10Characters(
-                                                  notification['message']),
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )),
-                        ],
-                      );
-                    },
-                  ),
-                )
-              : Center(
-                  child: Text("Você não tem notificações."),
-                ),
-        );
+        return NotificationWidget(
+            notifications: notificationData,
+            data: data,
+            notificationCount: notificationCount,
+            onNotificationTap: (id) async {
+              markAsView(id);
+            },
+            onRefreshNotifications: getNotification);
       },
     );
   }
@@ -180,7 +112,6 @@ class _HomePageState extends State<HomePage> {
   void markAsView(int id) async {
     await markAsViewdNotificationApi.execute(id);
     getNotification();
-    //print("NOTIFICATION: $res");
   }
 
   @override

@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:processos_app/src/domain/entities/sector.dart';
 import 'package:processos_app/src/domain/repository/interface_rep.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiNotificationService implements RepositoryInterface<Notification> {
-  final baseUrl = "http://192.168.0.102:3000/api";
+  final baseUrl = "http://192.168.0.110:3000/api";
   final AuthManager authManager;
   ApiNotificationService(this.authManager);
   late int tenantId;
