@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:processos_app/src/application/components/Modal_Widget.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/add_contract.dart';
 import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
@@ -41,6 +42,7 @@ class _ContractPageState extends State<ContractPage> {
   TextEditingController searchController = TextEditingController();
   String? sectorContractController;
   List<DropdownMenuItem<String>> sectorsData = [];
+  int? selectedDaysLeft;
 
   @override
   void initState() {
@@ -78,10 +80,12 @@ class _ContractPageState extends State<ContractPage> {
       }
       getSectors();
     } catch (e) {
-      setState(() {
-        _error = "Erro ao carregar informações: $e";
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = "Erro ao carregar informações: $e";
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -150,35 +154,22 @@ class _ContractPageState extends State<ContractPage> {
     });
   }
 
-  void filterData() {
-    List<dynamic> temp = data.where((e) {
-      final sector = e['sector'];
-      bool sectorSelect = selectedSector == null || sector == selectedSector;
-      return sectorSelect;
-    }).toList();
-    if (selectSortOption != null) {
-      switch (selectSortOption) {
-        case 'Data ini. - Cresc.':
-          temp.sort((a, b) => DateTime.parse(a['initDate'])
-              .compareTo(DateTime.parse(b['initDate'])));
-          break;
-        case 'Data ini. - Decrs.':
-          temp.sort((a, b) => DateTime.parse(b['initDate'])
-              .compareTo(DateTime.parse(a['initDate'])));
-          break;
-        case 'Data fin. - Cresc.':
-          temp.sort((a, b) => DateTime.parse(a['finalDate'])
-              .compareTo(DateTime.parse(b['finalDate'])));
-          break;
-        case 'Data fin. - Decrs.':
-          temp.sort((a, b) => DateTime.parse(b['finalDate'])
-              .compareTo(DateTime.parse(a['finalDate'])));
-          break;
+  String calculateDays(String finalDate) {
+    try {
+      final DateTime parseDate = DateTime.parse(finalDate);
+      final DateTime today = DateTime.now();
+      final int daysLeft = parseDate.difference(today).inDays;
+
+      if (daysLeft > 0) {
+        return "$daysLeft dias restantes";
+      } else if (daysLeft == 0) {
+        return "Vence hoje.";
+      } else {
+        return "Já venceu.";
       }
+    } catch (e) {
+      return "Data invalida.";
     }
-    setState(() {
-      filtereData = temp;
-    });
   }
 
   void openModal() {
@@ -189,82 +180,19 @@ class _ContractPageState extends State<ContractPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Filtros",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  DropdownButton<String>(
-                    value: sectorContractController,
-                    hint: Text("Selecione um setor"),
-                    items: sectorsData,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        sectorContractController = newValue;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              DropdownButtonFormField(
-                value: selectSortOption,
-                hint: Text("Selecione a ordenação"),
-                items: sortOptions.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e),
-                    value: e,
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectSortOption = value;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    selectedSector = sectorContractController;
-                  });
-                  filterData();
-                  Navigator.pop(context);
-                },
-                child: Text("Aplicar filtros"),
-                style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    backgroundColor: customColors['green']),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    sectorContractController = null;
-                    selectedSector = null;
-                    selectSortOption = null;
-                    filtereData = data;
-                  });
-                  Navigator.pop(context);
-                },
-                icon: Icon(
-                  Icons.delete,
-                  size: 45,
-                  color: customColors['crismon'],
-                ),
-              )
-            ],
-          ),
+        return OpenModalComponent(
+          data: data,
+          onFilterApplied: (filteredData) {
+            setState(() {
+              filtereData = filteredData;
+            });
+          },
+          customColors: customColors,
+          selectedSector: selectedSector,
+          selectSortOption: selectSortOption,
+          selectedDaysLeft: selectedDaysLeft,
+          sectorsData: sectorsData,
+          sortOptions: sortOptions,
         );
       },
     );
@@ -720,6 +648,27 @@ class _ContractPageState extends State<ContractPage> {
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                top: 5,
+                                                                right: 15),
+                                                        child: Text(
+                                                          calculateDays(
+                                                              filtereData[index]
+                                                                  [
+                                                                  'finalDate']),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .red),
                                                         ),
                                                       ),
                                                       if (filtereData[index][

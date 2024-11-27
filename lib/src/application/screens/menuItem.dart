@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/contratos.dart';
 import 'package:processos_app/src/application/screens/home_page.dart';
@@ -59,6 +60,9 @@ class _MenuItemState extends State<MenuItem> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        systemNavigationBarColor: customColors['green'],
+        systemNavigationBarIconBrightness: Brightness.light));
     final bottomNavItems = [
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
       const BottomNavigationBarItem(

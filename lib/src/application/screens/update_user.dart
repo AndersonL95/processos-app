@@ -73,7 +73,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
   }
 
   Future<void> _getCamera(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
         _selectImage = File(pickedFile.path);
