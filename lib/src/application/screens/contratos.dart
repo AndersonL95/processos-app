@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:processos_app/src/application/components/FilteredData_Widget.dart';
 import 'package:processos_app/src/application/components/Modal_Widget.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/add_contract.dart';
@@ -17,6 +19,7 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:processos_app/src/infrastucture/notifications.dart';
 import 'package:processos_app/src/infrastucture/sector.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
 class ContractPage extends StatefulWidget {
@@ -64,17 +67,25 @@ class _ContractPageState extends State<ContractPage> {
     "Data fin. - Decrs."
   ];
   Future<void> getContracts() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    String? roleJson = pref.getString('role');
+    String? userRole;
     setState(() {
       _loading = true;
+      userRole = roleJson != null ? json.decode(roleJson) : null;
       _error = null;
     });
 
     try {
       final value = await getContractsInfoApi.execute();
       if (mounted) {
+        final filteredByRole = userRole == 'admin'
+            ? value
+            : value.where((contract) => contract['active'] == 'yes').toList();
+
         setState(() {
-          data = value;
-          filtereData = value;
+          data = filteredByRole;
+          filtereData = FilterDataComponent.filterData(data: filteredByRole);
           _loading = false;
         });
       }

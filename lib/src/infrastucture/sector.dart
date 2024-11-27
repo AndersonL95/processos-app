@@ -6,7 +6,7 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiSectorService implements RepositoryInterface<Sector> {
-  final baseUrl = "http://192.168.0.114:3000/api";
+  final baseUrl = "http://192.168.0.120:3000/api";
   final AuthManager authManager;
   ApiSectorService(this.authManager);
   late int tenantId;
