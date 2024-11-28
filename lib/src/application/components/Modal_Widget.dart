@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/components/FilteredData_Widget.dart';
 
-class OpenModalComponent extends StatelessWidget {
+class OpenModalComponent extends StatefulWidget {
   final List<dynamic> data;
   final Function(List<dynamic>) onFilterApplied;
   final Map<String, Color> customColors;
@@ -10,6 +10,7 @@ class OpenModalComponent extends StatelessWidget {
   final int? selectedDaysLeft;
   final List<DropdownMenuItem<String>> sectorsData;
   final List<String> sortOptions;
+  final bool isAdmin; // Identifica se é admin
 
   OpenModalComponent({
     required this.data,
@@ -20,14 +21,29 @@ class OpenModalComponent extends StatelessWidget {
     this.selectedDaysLeft,
     required this.sectorsData,
     required this.sortOptions,
+    required this.isAdmin,
   });
 
   @override
-  Widget build(BuildContext context) {
-    String? sectorController = selectedSector;
-    String? sortOptionController = selectSortOption;
-    int? daysLeftController = selectedDaysLeft;
+  _OpenModalComponentState createState() => _OpenModalComponentState();
+}
 
+class _OpenModalComponentState extends State<OpenModalComponent> {
+  String? sectorController;
+  String? sortOptionController;
+  int? daysLeftController;
+  bool showOnlyInactive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    sectorController = widget.selectedSector;
+    sortOptionController = widget.selectSortOption;
+    daysLeftController = widget.selectedDaysLeft;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -41,23 +57,27 @@ class OpenModalComponent extends StatelessWidget {
           DropdownButtonFormField<String>(
             value: sectorController,
             hint: Text("Selecione um setor"),
-            items: sectorsData,
+            items: widget.sectorsData,
             onChanged: (String? newValue) {
-              sectorController = newValue;
+              setState(() {
+                sectorController = newValue;
+              });
             },
           ),
           SizedBox(height: 20),
           DropdownButtonFormField(
             value: sortOptionController,
             hint: Text("Selecione a ordenação"),
-            items: sortOptions.map((e) {
+            items: widget.sortOptions.map((e) {
               return DropdownMenuItem(
                 child: Text(e),
                 value: e,
               );
             }).toList(),
             onChanged: (value) {
-              sortOptionController = value;
+              setState(() {
+                sortOptionController = value;
+              });
             },
           ),
           SizedBox(height: 20),
@@ -71,19 +91,38 @@ class OpenModalComponent extends StatelessWidget {
               );
             }).toList(),
             onChanged: (int? newValue) {
-              daysLeftController = newValue;
+              setState(() {
+                daysLeftController = newValue;
+              });
             },
           ),
+          SizedBox(height: 20),
+          if (widget.isAdmin)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Mostrar apenas inativos"),
+                Switch(
+                  value: showOnlyInactive,
+                  onChanged: (value) {
+                    setState(() {
+                      showOnlyInactive = value;
+                    });
+                  },
+                ),
+              ],
+            ),
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               final filteredData = FilterDataComponent.filterData(
-                data: data,
+                data: widget.data,
                 selectedSector: sectorController,
                 selectSortOption: sortOptionController,
                 selectedDaysLeft: daysLeftController,
+                showOnlyInactive: showOnlyInactive,
               );
-              onFilterApplied(filteredData);
+              widget.onFilterApplied(filteredData);
               Navigator.pop(context);
             },
             child: Text("Aplicar filtros"),
@@ -92,18 +131,18 @@ class OpenModalComponent extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              backgroundColor: customColors['green'],
+              backgroundColor: widget.customColors['green'],
             ),
           ),
           IconButton(
             onPressed: () {
-              onFilterApplied(data);
+              widget.onFilterApplied(widget.data);
               Navigator.pop(context);
             },
             icon: Icon(
               Icons.delete,
               size: 45,
-              color: customColors['crismon'],
+              color: widget.customColors['crismon'],
             ),
           ),
         ],

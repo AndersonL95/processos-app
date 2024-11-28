@@ -82,10 +82,17 @@ class _ContractPageState extends State<ContractPage> {
         final filteredByRole = userRole == 'admin'
             ? value
             : value.where((contract) => contract['active'] == 'yes').toList();
+        final sortedContracts = filteredByRole
+          ..sort((a, b) {
+            final aActive = a['active'] == 'yes' ? 0 : 1;
+            final bActive = b['active'] == 'yes' ? 0 : 1;
+            return aActive.compareTo(bActive);
+          });
 
+        // Salvar os dados iniciais e filtrados
         setState(() {
-          data = filteredByRole;
-          filtereData = FilterDataComponent.filterData(data: filteredByRole);
+          data = sortedContracts;
+          filtereData = FilterDataComponent.filterData(data: sortedContracts);
           _loading = false;
         });
       }
@@ -183,7 +190,11 @@ class _ContractPageState extends State<ContractPage> {
     }
   }
 
-  void openModal() {
+  void openModal() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    String? roleJson = pref.getString('role');
+    String userRole = roleJson != null ? json.decode(roleJson) : null;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -192,6 +203,7 @@ class _ContractPageState extends State<ContractPage> {
       ),
       builder: (context) {
         return OpenModalComponent(
+          isAdmin: userRole == 'admin' ? true : false,
           data: data,
           onFilterApplied: (filteredData) {
             setState(() {
