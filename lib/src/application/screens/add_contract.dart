@@ -80,6 +80,7 @@ class AddContractPageState extends State<AddContractPage> {
   List<String> supervisorUsers = [];
   final formKey = GlobalKey<FormState>();
   List<DropdownMenuItem<String>> sectorsData = [];
+
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final DateTime? data = await showDatePicker(
         context: context,
@@ -136,6 +137,7 @@ class AddContractPageState extends State<AddContractPage> {
 
             _loading = false;
           });
+          _loadUsers();
         } else {
           setState(() {
             _error = "Erro ao carregar informações";
@@ -174,6 +176,7 @@ class AddContractPageState extends State<AddContractPage> {
         supervisor = usersData['fiscais']!;
         manager = usersData['gestores']!;
       });
+      getSectors();
     } catch (e) {
       print('Erro ao carregar usuários: $e');
     }
@@ -239,8 +242,6 @@ class AddContractPageState extends State<AddContractPage> {
     getUsersCargoApi = GetUsersCargoApi(apiService);
     createContract = CreateContract(apiContractService);
     status = "yes";
-    _loadUsers();
-    getSectors();
     getContracts();
 
     super.initState();
@@ -533,7 +534,7 @@ class AddContractPageState extends State<AddContractPage> {
                                             style: TextStyle(fontSize: 17)),
                                       ),
                                       SizedBox(
-                                        width: 200,
+                                        width: 230,
                                         child: DropdownButton<String>(
                                           value: sectorContractController,
                                           hint: Text("Selecione um setor"),

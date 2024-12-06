@@ -113,38 +113,43 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
               ],
             ),
           SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              final filteredData = FilterDataComponent.filterData(
-                data: widget.data,
-                selectedSector: sectorController,
-                selectSortOption: sortOptionController,
-                selectedDaysLeft: daysLeftController,
-                showOnlyInactive: showOnlyInactive,
-              );
-              widget.onFilterApplied(filteredData);
-              Navigator.pop(context);
-            },
-            child: Text("Aplicar filtros"),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: () {
+                  widget.onFilterApplied(widget.data);
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.filter_list_off,
+                  size: 45,
+                  color: widget.customColors['crismon'],
+                ),
               ),
-              backgroundColor: widget.customColors['green'],
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              widget.onFilterApplied(widget.data);
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.delete,
-              size: 45,
-              color: widget.customColors['crismon'],
-            ),
-          ),
+              ElevatedButton(
+                onPressed: () {
+                  final filteredData = FilterDataComponent.filterData(
+                    data: widget.data,
+                    selectedSector: sectorController,
+                    selectSortOption: sortOptionController,
+                    selectedDaysLeft: daysLeftController,
+                    showOnlyInactive: showOnlyInactive,
+                  );
+                  widget.onFilterApplied(filteredData);
+                  Navigator.pop(context);
+                },
+                child: Text("Aplicar"),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: widget.customColors['green'],
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );
