@@ -18,7 +18,7 @@ class _MenuItemState extends State<MenuItem> {
   int currentIndex = 0;
   int? userId;
   String? userRole;
-  bool isLoading = true; // Adiciona um indicador de carregamento
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _MenuItemState extends State<MenuItem> {
       ContractPage(),
       PerfilPage(userId: userId),
     ];
-    if (userRole == 'admin') {
+    if (userRole == 'admin' || userRole == 'superAdmin') {
       screens.add(UsuariosPage(
         userId: userId,
       ));
@@ -70,7 +70,7 @@ class _MenuItemState extends State<MenuItem> {
       const BottomNavigationBarItem(
           icon: Icon(Icons.person_2), label: "Perfil"),
     ];
-    if (userRole == 'admin') {
+    if (userRole == 'admin' || userRole == 'superAdmin') {
       bottomNavItems.add(const BottomNavigationBarItem(
           icon: Icon(Icons.people), label: "Usuarios"));
     }

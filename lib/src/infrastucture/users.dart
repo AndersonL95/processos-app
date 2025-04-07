@@ -7,10 +7,11 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService implements RepositoryInterface<Users> {
-  final baseUrl = "https://processos-api-v201.onrender.com/api";
+  final baseUrl = "https://192.168.0.102:3000/api";
   final AuthManager authManager;
   ApiService(this.authManager);
   late int tenantId;
+  late String role;
 
   Future<Map<String, dynamic>> findUser(int id) async {
     final SharedPreferences data = await SharedPreferences.getInstance();
@@ -90,8 +91,11 @@ class ApiService implements RepositoryInterface<Users> {
   Future<int> create(Users user) async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
+    String? roleJson = data.getString('role');
+
     if (tenantJson != null) {
       tenantId = json.decode(tenantJson);
+      role = json.decode(roleJson!);
     }
     try {
       if (user.photo.isNotEmpty) {
@@ -116,14 +120,15 @@ class ApiService implements RepositoryInterface<Users> {
           headers: {
             'Authorization': 'Bearer ${authManager.token}',
             'Content-Type': 'application/json',
-            'x-tenant-id': tenantId.toString()
+            if (role != "superAdmin")
+              'x-tenant-id': tenantId.toString()
+            else if (user.tenantId != null)
+              'x-tenant-id': user.tenantId.toString()
           },
           //: {'Content-Type': 'application/json'},
           body: body,
         );
       });
-      print("RESPONSE: ${response.statusCode}");
-
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
         return responseBody['id'];
@@ -145,9 +150,11 @@ class ApiService implements RepositoryInterface<Users> {
   Future<List<Users>> findAll() async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
+    String? roleJson = data.getString('role');
 
     if (tenantJson != null) {
       final int tenantId = json.decode(tenantJson);
+      role = json.decode(roleJson!);
 
       try {
         final response = await authManager.sendAuthenticate(() async {
@@ -156,7 +163,8 @@ class ApiService implements RepositoryInterface<Users> {
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
-                    'x-tenant-id': tenantId.toString(),
+                    if (role != "superAdmin")
+                      'x-tenant-id': tenantId.toString(),
                   }
                 : {},
           );

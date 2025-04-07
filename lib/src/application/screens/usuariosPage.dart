@@ -376,7 +376,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   top: 5,
                                                                   right: 15),
                                                           child: Text(
-                                                            "Nível: ${filtereData[index].role}",
+                                                            "Nível: ${filtereData[index].tenantId}",
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:

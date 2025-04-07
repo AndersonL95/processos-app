@@ -1,19 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:input_quantity/input_quantity.dart';
-import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/use-case/createContract_api.dart';
 import 'package:processos_app/src/application/use-case/create_user.dart';
-import 'package:processos_app/src/application/use-case/getContract_api.dart';
-import 'package:processos_app/src/domain/entities/contract.dart';
 import 'package:processos_app/src/domain/entities/users.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -35,6 +27,8 @@ class AddUserPageState extends State<AddUserPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController cpfController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController tenantIdController = TextEditingController();
+
   bool isAdmin = false;
   bool active = false;
   String? userRole;
@@ -62,19 +56,30 @@ class AddUserPageState extends State<AddUserPage> {
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
   DropdownItem? cargoController;
+  String? role;
 
   List<DropdownItem> statusItem = [
     DropdownItem(displayValue: "Gestor", statusValue: 'Gestor'),
     DropdownItem(displayValue: "Fiscal", statusValue: 'Fiscal'),
   ];
+  Future<void> loadRole() async {
+    final SharedPreferences datas = await SharedPreferences.getInstance();
+    String? roleJson = datas.getString('role');
+    if (roleJson != null) {
+      setState(() {
+        role = json.decode(roleJson);
+      });
+    }
+  }
+
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
-
     String? idJson = datas.getString('id');
     id = json.decode(idJson!);
 
     try {
       Users user = Users(
+          tenantId: int.parse(tenantIdController.text),
           name: nameController.text,
           username: usernameController.text,
           email: emailController.text,
@@ -128,6 +133,7 @@ class AddUserPageState extends State<AddUserPage> {
   void initState() {
     apiService = ApiService(authManager);
     createUser = CreateUser(apiService);
+    loadRole();
     super.initState();
   }
 
@@ -430,26 +436,68 @@ class AddUserPageState extends State<AddUserPage> {
                             ],
                           )),
                       Padding(
-                        padding: EdgeInsets.only(top: 5, left: 15),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Ativo:",
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.bold),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(10),
-                              child: SizedBox(
-                                child: Switch(
-                                  value: active,
-                                  onChanged: onActive,
-                                ),
+                          padding: EdgeInsets.only(top: 5, left: 15),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: role == 'superAdmin'
+                                    ? Padding(
+                                        padding: EdgeInsets.all(1),
+                                        child: TextField(
+                                          controller: tenantIdController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                              iconColor: customColors['green'],
+                                              prefixIconColor:
+                                                  customColors['green'],
+                                              fillColor: customColors['white'],
+                                              hoverColor: customColors['green'],
+                                              filled: true,
+                                              focusColor: customColors['green'],
+                                              labelText: "Tenant-ID",
+                                              hintText: "Digite o Tenant-id",
+                                              prefixIcon:
+                                                  const Icon(Icons.numbers),
+                                              enabledBorder:
+                                                  new OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Color.fromRGBO(
+                                                        1, 76, 45, 1),
+                                                    width: 2),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(10),
+                                                ),
+                                              )),
+                                        ),
+                                      )
+                                    : const SizedBox(),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
+                              SizedBox(width: 30),
+                              Expanded(
+                                flex: 1,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Ativo:",
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: SizedBox(
+                                        child: Switch(
+                                          value: active,
+                                          onChanged: onActive,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          )),
                       Padding(
                         padding: EdgeInsets.only(top: 20, bottom: 30),
                         child: ElevatedButton(

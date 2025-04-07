@@ -8,7 +8,7 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
-  final String baseUrl = 'https://processos-api-v201.onrender.com/api';
+  final baseUrl = "https://192.168.0.102:3000/api";
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;

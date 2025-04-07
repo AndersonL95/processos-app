@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthManager with ChangeNotifier {
   String? _token;
   String? _refresh_token;
-  final baseUrl = "https://processos-api-v201.onrender.com/api";
+  final baseUrl = "https://192.168.0.102:3000/api";
   String? get token => _token;
 
   Future<Map<String, dynamic>> login(String email, String password) async {
