@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:processos_app/src/application/constants/colors.dart';
 import 'package:processos_app/src/application/screens/add_user.dart';
 import 'package:processos_app/src/application/screens/usuarios_detalhes.dart';
 import 'package:processos_app/src/application/use-case/getUsers.api.dart';
+import 'package:processos_app/src/application/use-case/getUsersInAdmin.api.dart';
 import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UsuariosPage extends StatefulWidget {
   late final int userId;
@@ -19,7 +22,9 @@ class UsuariosPage extends StatefulWidget {
 class _UsuariosPageState extends State<UsuariosPage> {
   AuthManager authManager = AuthManager();
   late GetUsersInfoApi getUsersInfoApi;
+  late GetUsersAdminInfoApi getUsersAdminInfoApi;
   late ApiService apiService;
+  late String roleJ;
   bool _loading = true;
   ImageProvider? userImage;
 
@@ -32,17 +37,31 @@ class _UsuariosPageState extends State<UsuariosPage> {
   void initState() {
     apiService = ApiService(authManager);
     getUsersInfoApi = GetUsersInfoApi(apiService);
+    getUsersAdminInfoApi = GetUsersAdminInfoApi(apiService);
     getUsers();
     super.initState();
   }
 
   Future<void> getUsers() async {
+    final SharedPreferences role = await SharedPreferences.getInstance();
+    String? roleJson = role.getString('role');
+    roleJ = json.decode(roleJson!);
+
     setState(() {
       _loading = true;
     });
 
     try {
-      final value = await getUsersInfoApi.execute();
+      if (roleJ == "superAdmin") {
+        print('AQUI 1X');
+      } else {
+        print('AQUI 2X');
+      }
+      final value = roleJ == "superAdmin"
+          ? await getUsersAdminInfoApi.execute()
+          : await getUsersInfoApi.execute();
+
+      print("VALUE: ${value.length}");
 
       if (mounted) {
         setState(() {
@@ -366,7 +385,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
-                                                                        16),
+                                                                        13),
                                                           ),
                                                         ),
                                                         Padding(
@@ -376,7 +395,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   top: 5,
                                                                   right: 15),
                                                           child: Text(
-                                                            "Nível: ${filtereData[index].tenantId}",
+                                                            "Nível: ${filtereData[index].role}",
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:

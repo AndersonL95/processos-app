@@ -7,7 +7,7 @@ import 'package:processos_app/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService implements RepositoryInterface<Users> {
-  final baseUrl = "https://192.168.0.102:3000/api";
+  final baseUrl = "http://192.168.0.104:3000/api";
   final AuthManager authManager;
   ApiService(this.authManager);
   late int tenantId;
@@ -163,8 +163,43 @@ class ApiService implements RepositoryInterface<Users> {
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
-                    if (role != "superAdmin")
-                      'x-tenant-id': tenantId.toString(),
+                    'x-tenant-id': tenantId.toString(),
+                  }
+                : {},
+          );
+        });
+
+        if (response.statusCode == 200) {
+          final List<dynamic> usersJson = json.decode(response.body);
+          return usersJson.map((json) => Users.fromJson(json)).toList();
+        } else {
+          throw Exception("Erro ao listar usuários: ${response.body}");
+        }
+      } catch (e) {
+        throw Exception("Falha na solicitação: $e");
+      }
+    } else {
+      throw Exception("Tenant ID não encontrado.");
+    }
+  }
+
+  Future<List<Users>> findAllInAdmin() async {
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    String? roleJson = data.getString('role');
+
+    if (tenantJson != null) {
+      final int tenantId = json.decode(tenantJson);
+      role = json.decode(roleJson!);
+
+      try {
+        final response = await authManager.sendAuthenticate(() async {
+          return await http.get(
+            Uri.parse("$baseUrl/users_admin"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString(),
                   }
                 : {},
           );
