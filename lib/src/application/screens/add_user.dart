@@ -53,6 +53,7 @@ class AddUserPageState extends State<AddUserPage> {
   bool showTextFieldF = false;
   File? _selectPDF;
   int id = 0;
+  int tenant = 0;
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
   DropdownItem? cargoController;
@@ -74,12 +75,16 @@ class AddUserPageState extends State<AddUserPage> {
 
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
+    String? tenantIdJson = datas.getString('tenantId');
     String? idJson = datas.getString('id');
     id = json.decode(idJson!);
+    tenant = json.decode(tenantIdJson!);
 
     try {
       Users user = Users(
-          tenantId: int.parse(tenantIdController.text),
+          tenantId: tenantIdController.text.isNotEmpty
+              ? int.parse(tenantIdController.text)
+              : tenant,
           name: nameController.text,
           username: usernameController.text,
           email: emailController.text,
