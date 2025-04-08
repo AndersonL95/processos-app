@@ -99,8 +99,8 @@ class _UsuariosPageState extends State<UsuariosPage> {
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 22) {
-      int endIndex = i + 22;
+    for (int i = 0; i < input.length; i += 25) {
+      int endIndex = i + 25;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
@@ -264,7 +264,6 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                           }
                                         },
                                         child: SizedBox(
-                                            width: 350,
                                             height: 240,
                                             child: Column(
                                               children: [
