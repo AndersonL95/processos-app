@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
           type: ToastificationType.error,
           style: ToastificationStyle.fillColored,
           context: context,
-          title: const Text("E-mail ou Senha incorretos."),
+          title: Text(e.toString().replaceFirst("Error: ", "")),
           autoCloseDuration: const Duration(seconds: 8),
         );
       } finally {
