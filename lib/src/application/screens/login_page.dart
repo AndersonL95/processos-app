@@ -63,12 +63,11 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MenuItem()));
       } catch (e) {
-        print("ERRO LOGIN: $e");
         toastification.show(
           type: ToastificationType.error,
           style: ToastificationStyle.fillColored,
           context: context,
-          title: const Text("E-mail ou Senha incorretos."),
+          title: Text(e.toString().replaceFirst("Exception: ", "")),
           autoCloseDuration: const Duration(seconds: 8),
         );
       } finally {

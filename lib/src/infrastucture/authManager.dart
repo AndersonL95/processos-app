@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:processos_app/src/application/components/loginError.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthManager with ChangeNotifier {
   String? _token;
   String? _refresh_token;
-  final baseUrl = "http://192.168.0.104:3000/api";
+  final baseUrl = "http://10.0.2.2:3000/api";
   String? get token => _token;
 
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -29,11 +30,15 @@ class AuthManager with ChangeNotifier {
         await data.setString('refreshToken', responseBody['refreshToken']);
         notifyListeners();
         return responseBody;
+      } else if (response.statusCode == 429) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        throw CustomHttpException(
+            responseBody['message'] ?? "Muitas tentativas. Tente mais tarde");
       } else {
-        throw Exception("Erro ao efetuar o login");
+        throw "Erro ao efetuar o login";
       }
     } catch (e) {
-      throw Exception("$e");
+      throw e.toString().replaceAll('Exception: ', '');
     }
   }
 

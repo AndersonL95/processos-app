@@ -52,16 +52,9 @@ class _UsuariosPageState extends State<UsuariosPage> {
     });
 
     try {
-      if (roleJ == "superAdmin") {
-        print('AQUI 1X');
-      } else {
-        print('AQUI 2X');
-      }
       final value = roleJ == "superAdmin"
           ? await getUsersAdminInfoApi.execute()
           : await getUsersInfoApi.execute();
-
-      print("VALUE: ${value.length}");
 
       if (mounted) {
         setState(() {
@@ -106,8 +99,8 @@ class _UsuariosPageState extends State<UsuariosPage> {
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 20) {
-      int endIndex = i + 20;
+    for (int i = 0; i < input.length; i += 25) {
+      int endIndex = i + 25;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
@@ -271,7 +264,6 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                           }
                                         },
                                         child: SizedBox(
-                                            width: 350,
                                             height: 240,
                                             child: Column(
                                               children: [
@@ -347,7 +339,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                           padding:
                                                               const EdgeInsets
                                                                   .only(
-                                                                  right: 15),
+                                                                  right: 30),
                                                           child: Text(
                                                             breakLinesEvery10Characters(
                                                                 filtereData[
@@ -365,7 +357,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                               const EdgeInsets
                                                                   .only(
                                                                   top: 10,
-                                                                  right: 15),
+                                                                  right: 30),
                                                           child: Text(
                                                             "Username: ${filtereData[index].username}",
                                                             style:
@@ -375,25 +367,30 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                           ),
                                                         ),
                                                         Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  top: 5,
-                                                                  right: 15),
-                                                          child: Text(
-                                                            "email: ${filtereData[index].email}",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        13),
-                                                          ),
-                                                        ),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    top: 5,
+                                                                    right: 30),
+                                                            child: Row(
+                                                              children: [
+                                                                Text(
+                                                                  breakLinesEvery10Characters(
+                                                                      filtereData[
+                                                                              index]
+                                                                          .email),
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          16),
+                                                                ),
+                                                              ],
+                                                            )),
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
                                                                   .only(
                                                                   top: 5,
-                                                                  right: 15),
+                                                                  right: 30),
                                                           child: Text(
                                                             "Nível: ${filtereData[index].role}",
                                                             style:
@@ -407,7 +404,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                               const EdgeInsets
                                                                   .only(
                                                                   top: 5,
-                                                                  right: 15),
+                                                                  right: 30),
                                                           child: Text(
                                                             "Cargo: ${filtereData[index].cargo}",
                                                             style:

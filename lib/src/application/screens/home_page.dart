@@ -221,7 +221,38 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Expanded(
                                 child: data.isEmpty
-                                    ? const Text("Vazio")
+                                    ? const SizedBox(
+                                        height: 400,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 70),
+                                                child: Center(
+                                                  child: Text(
+                                                    "Nenhum contrato encontrado",
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                )),
+                                            SizedBox(height: 5),
+                                            Padding(
+                                              padding: EdgeInsets.only(top: 1),
+                                              child: Image(
+                                                image: AssetImage(
+                                                    'Assets/gif/ellipsis.gif'),
+                                                fit: BoxFit.cover,
+                                                height: 50,
+                                                width: 50,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
                                     : SizedBox(
                                         height: 400,
                                         child: ListView.builder(
