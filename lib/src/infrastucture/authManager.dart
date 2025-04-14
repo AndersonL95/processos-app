@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:processos_app/src/application/components/loginError.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthManager with ChangeNotifier {
@@ -30,15 +31,14 @@ class AuthManager with ChangeNotifier {
         notifyListeners();
         return responseBody;
       } else if (response.statusCode == 429) {
-        print("STATUS: ${response.statusCode}");
-        final responseBody = json.decode(response.body);
-        throw Exception(
-            responseBody['message'] ?? "Muitas tentativas. Tente mais tarde.");
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        throw CustomHttpException(
+            responseBody['message'] ?? "Muitas tentativas. Tente mais tarde");
       } else {
-        throw Exception("Erro ao efetuar o login");
+        throw "Erro ao efetuar o login";
       }
     } catch (e) {
-      throw Exception("$e");
+      throw e.toString().replaceAll('Exception: ', '');
     }
   }
 
