@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:processos_app/src/domain/entities/sector.dart';
-import 'package:processos_app/src/domain/repository/interface_rep.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/domain/entities/sector.dart';
+import 'package:docInHand/src/domain/repository/interface_rep.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiSectorService implements RepositoryInterface<Sector> {

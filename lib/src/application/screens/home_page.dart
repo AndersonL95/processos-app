@@ -1,15 +1,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:processos_app/src/application/components/Notification_Widget.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
-import 'package:processos_app/src/application/use-case/getLast3.dart';
-import 'package:processos_app/src/application/use-case/getNotification_api.dart';
-import 'package:processos_app/src/application/use-case/viwed_notification.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
-import 'package:processos_app/src/infrastucture/notifications.dart';
+import 'package:docInHand/src/application/components/Notification_Widget.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/contratos_detalhes.dart';
+import 'package:docInHand/src/application/use-case/getLast3.dart';
+import 'package:docInHand/src/application/use-case/getNotification_api.dart';
+import 'package:docInHand/src/application/use-case/viwed_notification.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/infrastucture/notifications.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -122,7 +122,8 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.only(top: 10),
           child: Text(
             "DocInHand",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         toolbarHeight: 120,

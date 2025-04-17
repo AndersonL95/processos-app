@@ -1,0 +1,1 @@
+/home/anderson/Documentos/processos-app/build/app/intermediates/cxx/Debug/6c45c5e5/obj/x86_64

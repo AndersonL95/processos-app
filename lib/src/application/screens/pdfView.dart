@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:toastification/toastification.dart';
 
 class PdfViewPage extends StatefulWidget {
@@ -88,7 +88,10 @@ class _PdfViewPageState extends State<PdfViewPage> {
                 padding: EdgeInsets.only(right: 10),
                 child: Text(
                   "DocInHand",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               )),
           toolbarHeight: 120,

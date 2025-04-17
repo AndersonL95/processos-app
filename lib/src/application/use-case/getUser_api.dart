@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:processos_app/src/domain/entities/users.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/domain/entities/users.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetUserInfoApi {

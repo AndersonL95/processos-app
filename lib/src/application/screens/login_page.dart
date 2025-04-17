@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/menuItem.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/menuItem.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -151,7 +151,10 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text(
                 "Login",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
             ),
           )

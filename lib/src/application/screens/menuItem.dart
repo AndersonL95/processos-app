@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/contratos.dart';
-import 'package:processos_app/src/application/screens/home_page.dart';
-import 'package:processos_app/src/application/screens/perfil.dart';
-import 'package:processos_app/src/application/screens/usuariosPage.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/contratos.dart';
+import 'package:docInHand/src/application/screens/home_page.dart';
+import 'package:docInHand/src/application/screens/perfil.dart';
+import 'package:docInHand/src/application/screens/usuariosPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuItem extends StatefulWidget {

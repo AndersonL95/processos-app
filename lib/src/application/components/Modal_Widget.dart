@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:processos_app/src/application/components/FilteredData_Widget.dart';
+import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
 
 class OpenModalComponent extends StatefulWidget {
   final List<dynamic> data;

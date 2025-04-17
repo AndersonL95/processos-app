@@ -1,4 +1,4 @@
-import 'package:processos_app/src/infrastucture/sector.dart';
+import 'package:docInHand/src/infrastucture/sector.dart';
 
 class GetSectorsInfoApi {
   final ApiSectorService apiSectorService;

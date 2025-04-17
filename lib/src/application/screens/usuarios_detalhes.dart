@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/use-case/getUser_api.dart';
-import 'package:processos_app/src/application/use-case/updateUser_api.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/use-case/getUser_api.dart';
+import 'package:docInHand/src/application/use-case/updateUser_api.dart';
+import 'package:docInHand/src/domain/entities/users.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 import 'package:toastification/toastification.dart';
 
 class UserDetailPage extends StatefulWidget {
@@ -151,7 +151,10 @@ class _UserDetailPageState extends State<UserDetailPage> {
                 padding: EdgeInsets.only(right: 10),
                 child: Text(
                   "DocInHand",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               )),
           toolbarHeight: 120,

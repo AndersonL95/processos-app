@@ -1,4 +1,4 @@
-import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
 
 class GetContractsInfoApi {
   final ApiContractService apiContractService;

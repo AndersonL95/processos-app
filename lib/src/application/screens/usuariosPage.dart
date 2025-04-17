@@ -3,13 +3,13 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/add_user.dart';
-import 'package:processos_app/src/application/screens/usuarios_detalhes.dart';
-import 'package:processos_app/src/application/use-case/getUsers.api.dart';
-import 'package:processos_app/src/application/use-case/getUsersInAdmin.api.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/add_user.dart';
+import 'package:docInHand/src/application/screens/usuarios_detalhes.dart';
+import 'package:docInHand/src/application/use-case/getUsers.api.dart';
+import 'package:docInHand/src/application/use-case/getUsersInAdmin.api.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsuariosPage extends StatefulWidget {
@@ -149,7 +149,10 @@ class _UsuariosPageState extends State<UsuariosPage> {
             padding: EdgeInsets.only(top: 10),
             child: Text(
               "DocInHand",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
           ),
           toolbarHeight: 120,

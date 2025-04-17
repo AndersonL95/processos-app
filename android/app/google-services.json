@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1074436671679",
+    "project_id": "dockinhand",
+    "storage_bucket": "dockinhand.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1074436671679:android:6feb3fa231ee8e4ab85e0a",
+        "android_client_info": {
+          "package_name": "com.atj.docInHand"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJIxi20Aw1L4sph_AtkffrYo77PD7qnPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

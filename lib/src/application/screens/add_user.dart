@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/use-case/create_user.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/use-case/create_user.dart';
+import 'package:docInHand/src/domain/entities/users.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -152,7 +152,10 @@ class AddUserPageState extends State<AddUserPage> {
               padding: EdgeInsets.only(right: 10),
               child: Text(
                 "DocInHand",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
             )),
         toolbarHeight: 120,
