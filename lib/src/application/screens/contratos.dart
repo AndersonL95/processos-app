@@ -1,24 +1,25 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:docInHand/src/application/screens/sector_add.dart';
 import 'package:flutter/material.dart';
-import 'package:processos_app/src/application/components/FilteredData_Widget.dart';
-import 'package:processos_app/src/application/components/Modal_Widget.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/add_contract.dart';
-import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
-import 'package:processos_app/src/application/screens/update_contract.dart';
-import 'package:processos_app/src/application/use-case/delet_contract.api.dart';
-import 'package:processos_app/src/application/use-case/getContract_api.dart';
-import 'package:processos_app/src/application/use-case/getNotification_api.dart';
-import 'package:processos_app/src/application/use-case/getSector_api.dart';
-import 'package:processos_app/src/application/use-case/get_contractId.dart';
-import 'package:processos_app/src/application/use-case/update_contract_api.dart';
-import 'package:processos_app/src/domain/entities/contract.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
-import 'package:processos_app/src/infrastucture/notifications.dart';
-import 'package:processos_app/src/infrastucture/sector.dart';
+import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
+import 'package:docInHand/src/application/components/Modal_Widget.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/add_contract.dart';
+import 'package:docInHand/src/application/screens/contratos_detalhes.dart';
+import 'package:docInHand/src/application/screens/update_contract.dart';
+import 'package:docInHand/src/application/use-case/delet_contract.api.dart';
+import 'package:docInHand/src/application/use-case/getContract_api.dart';
+import 'package:docInHand/src/application/use-case/getNotification_api.dart';
+import 'package:docInHand/src/application/use-case/getSector_api.dart';
+import 'package:docInHand/src/application/use-case/get_contractId.dart';
+import 'package:docInHand/src/application/use-case/update_contract_api.dart';
+import 'package:docInHand/src/domain/entities/contract.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/infrastucture/notifications.dart';
+import 'package:docInHand/src/infrastucture/sector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -46,6 +47,7 @@ class _ContractPageState extends State<ContractPage> {
   String? sectorContractController;
   List<DropdownMenuItem<String>> sectorsData = [];
   int? selectedDaysLeft;
+  String? userRole;
 
   @override
   void initState() {
@@ -69,7 +71,6 @@ class _ContractPageState extends State<ContractPage> {
   Future<void> getContracts() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     String? roleJson = pref.getString('role');
-    String? userRole;
     setState(() {
       _loading = true;
       userRole = roleJson != null ? json.decode(roleJson) : null;
@@ -278,7 +279,10 @@ class _ContractPageState extends State<ContractPage> {
             padding: EdgeInsets.only(top: 10),
             child: Text(
               "DocInHand",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
           ),
           toolbarHeight: 120,
@@ -337,29 +341,61 @@ class _ContractPageState extends State<ContractPage> {
                               )),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20, right: 30),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      shape: CircleBorder(),
-                                      backgroundColor: customColors['green'],
-                                      minimumSize: Size(85, 60)),
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => AddContractPage(),
-                                      ),
-                                    );
-                                  },
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 30,
-                                    color: customColors['white'],
-                                  ))
-                            ]),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (userRole == "admin" || userRole == "superAdmin")
+                            Padding(
+                              padding: EdgeInsets.only(top: 20),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            shape: CircleBorder(),
+                                            backgroundColor:
+                                                customColors['green'],
+                                            minimumSize: Size(85, 60)),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => AddSectorPage(),
+                                            ),
+                                          );
+                                        },
+                                        child: Icon(
+                                          Icons.badge,
+                                          size: 30,
+                                          color: customColors['white'],
+                                        ))
+                                  ]),
+                            ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 20, right: 20),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          shape: CircleBorder(),
+                                          backgroundColor:
+                                              customColors['green'],
+                                          minimumSize: Size(85, 60)),
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => AddContractPage(),
+                                          ),
+                                        );
+                                      },
+                                      child: Icon(
+                                        Icons.assignment_add,
+                                        size: 30,
+                                        color: customColors['white'],
+                                      ))
+                                ]),
+                          ),
+                        ],
                       ),
                       Expanded(
                         flex: 1,

@@ -4,15 +4,15 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/home_page.dart';
-import 'package:processos_app/src/application/screens/menuItem.dart';
-import 'package:processos_app/src/application/screens/perfil.dart';
-import 'package:processos_app/src/application/use-case/getUser_api.dart';
-import 'package:processos_app/src/application/use-case/updateUser_api.dart';
-import 'package:processos_app/src/domain/entities/users.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/home_page.dart';
+import 'package:docInHand/src/application/screens/menuItem.dart';
+import 'package:docInHand/src/application/screens/perfil.dart';
+import 'package:docInHand/src/application/use-case/getUser_api.dart';
+import 'package:docInHand/src/application/use-case/updateUser_api.dart';
+import 'package:docInHand/src/domain/entities/users.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -168,7 +168,10 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
               padding: EdgeInsets.only(right: 10),
               child: Text(
                 "DocInHand",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
             )),
         toolbarHeight: 120,

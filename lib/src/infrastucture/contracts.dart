@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:processos_app/src/domain/entities/contract.dart';
-import 'package:processos_app/src/domain/repository/interface_rep.dart';
+import 'package:docInHand/src/domain/entities/contract.dart';
+import 'package:docInHand/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
-import 'package:processos_app/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {

@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:input_quantity/input_quantity.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/use-case/createContract_api.dart';
-import 'package:processos_app/src/application/use-case/getContract_api.dart';
-import 'package:processos_app/src/application/use-case/getSector_api.dart';
-import 'package:processos_app/src/application/use-case/getUsers.Cargo.dart';
-import 'package:processos_app/src/domain/entities/contract.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
-import 'package:processos_app/src/infrastucture/sector.dart';
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/use-case/createContract_api.dart';
+import 'package:docInHand/src/application/use-case/getContract_api.dart';
+import 'package:docInHand/src/application/use-case/getSector_api.dart';
+import 'package:docInHand/src/application/use-case/getUsers.Cargo.dart';
+import 'package:docInHand/src/domain/entities/contract.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/infrastucture/sector.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -160,8 +160,10 @@ class AddContractPageState extends State<AddContractPage> {
   }
 
   Future<void> _pickPDF() async {
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
     if (result != null) {
       setState(() {
         _selectPDF = File(result.files.single.path!);
@@ -265,7 +267,10 @@ class AddContractPageState extends State<AddContractPage> {
                 padding: EdgeInsets.only(right: 10),
                 child: Text(
                   "DocInHand",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               )),
           toolbarHeight: 120,

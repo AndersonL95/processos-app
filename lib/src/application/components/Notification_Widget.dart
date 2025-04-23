@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:processos_app/src/application/screens/contratos_detalhes.dart';
+import 'package:docInHand/src/application/screens/contratos_detalhes.dart';
 
 class NotificationWidget extends StatefulWidget {
   final List<dynamic> notifications;

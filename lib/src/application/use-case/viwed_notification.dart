@@ -1,4 +1,4 @@
-import 'package:processos_app/src/infrastucture/notifications.dart';
+import 'package:docInHand/src/infrastucture/notifications.dart';
 
 class MarkAsViewdNotificationApi {
   final ApiNotificationService apiNotificationService;

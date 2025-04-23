@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:processos_app/src/application/components/loginError.dart';
+import 'package:docInHand/src/application/components/loginError.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthManager with ChangeNotifier {

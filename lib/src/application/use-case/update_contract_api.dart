@@ -1,5 +1,5 @@
-import 'package:processos_app/src/domain/entities/contract.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/domain/entities/contract.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
 
 class UpdateContract {
   final ApiContractService apiContractService;

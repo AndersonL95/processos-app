@@ -1,4 +1,4 @@
-import 'package:processos_app/src/infrastucture/users.dart';
+import 'package:docInHand/src/infrastucture/users.dart';
 
 class GetUsersInfoApi {
   final ApiService apiService;

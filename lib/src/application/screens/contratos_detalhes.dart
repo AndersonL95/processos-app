@@ -5,11 +5,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:processos_app/src/application/constants/colors.dart';
-import 'package:processos_app/src/application/screens/pdfView.dart';
-import 'package:processos_app/src/application/use-case/getContract_api.dart';
-import 'package:processos_app/src/infrastucture/authManager.dart';
-import 'package:processos_app/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/screens/pdfView.dart';
+import 'package:docInHand/src/application/use-case/getContract_api.dart';
+import 'package:docInHand/src/infrastucture/authManager.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
 
 class ContractDetailPage extends StatefulWidget {
   final contractDetail;
@@ -134,7 +134,10 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                 padding: EdgeInsets.only(right: 10),
                 child: Text(
                   "DocInHand",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               )),
           toolbarHeight: 120,

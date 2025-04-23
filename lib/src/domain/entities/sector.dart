@@ -13,7 +13,7 @@ class Sector {
     return {
       "id": id,
       "tenantId": tenantId,
-      "username": name,
+      "name": name,
     };
   }
 
