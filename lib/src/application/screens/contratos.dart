@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:docInHand/src/application/screens/sector_add.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
 import 'package:docInHand/src/application/components/Modal_Widget.dart';
@@ -46,6 +47,7 @@ class _ContractPageState extends State<ContractPage> {
   String? sectorContractController;
   List<DropdownMenuItem<String>> sectorsData = [];
   int? selectedDaysLeft;
+  String? userRole;
 
   @override
   void initState() {
@@ -69,7 +71,6 @@ class _ContractPageState extends State<ContractPage> {
   Future<void> getContracts() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     String? roleJson = pref.getString('role');
-    String? userRole;
     setState(() {
       _loading = true;
       userRole = roleJson != null ? json.decode(roleJson) : null;
@@ -340,29 +341,61 @@ class _ContractPageState extends State<ContractPage> {
                               )),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20, right: 30),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      shape: CircleBorder(),
-                                      backgroundColor: customColors['green'],
-                                      minimumSize: Size(85, 60)),
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => AddContractPage(),
-                                      ),
-                                    );
-                                  },
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 30,
-                                    color: customColors['white'],
-                                  ))
-                            ]),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (userRole == "admin" || userRole == "superAdmin")
+                            Padding(
+                              padding: EdgeInsets.only(top: 20),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            shape: CircleBorder(),
+                                            backgroundColor:
+                                                customColors['green'],
+                                            minimumSize: Size(85, 60)),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => AddSectorPage(),
+                                            ),
+                                          );
+                                        },
+                                        child: Icon(
+                                          Icons.badge,
+                                          size: 30,
+                                          color: customColors['white'],
+                                        ))
+                                  ]),
+                            ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 20, right: 20),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          shape: CircleBorder(),
+                                          backgroundColor:
+                                              customColors['green'],
+                                          minimumSize: Size(85, 60)),
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => AddContractPage(),
+                                          ),
+                                        );
+                                      },
+                                      child: Icon(
+                                        Icons.assignment_add,
+                                        size: 30,
+                                        color: customColors['white'],
+                                      ))
+                                ]),
+                          ),
+                        ],
                       ),
                       Expanded(
                         flex: 1,

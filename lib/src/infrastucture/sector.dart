@@ -11,41 +11,25 @@ class ApiSectorService implements RepositoryInterface<Sector> {
   ApiSectorService(this.authManager);
   late int tenantId;
 
-  /* @override
-  Future<int> create(Users user) async {
+  @override
+  Future<int> create(Sector sector) async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
     if (tenantJson != null) {
       tenantId = json.decode(tenantJson);
     }
     try {
-      if (user.photo.isNotEmpty) {
-        final base64Pattern =
-            RegExp(r'^(data:image/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$');
-
-        if (base64Pattern.hasMatch(user.photo)) {
-        } else {
-          final file = File(user.photo);
-          if (await file.exists()) {
-            final bytes = await file.readAsBytes();
-            user.photo = base64Encode(bytes);
-          } else {
-            throw Exception("Arquivo não encontrado: ${user.photo}");
-          }
-        }
-      }
-      String body = jsonEncode(user.toJson());
+      String body = jsonEncode(sector.toJson());
       final response = await authManager.sendAuthenticate(() async {
-        return await http.post(
-          Uri.parse("$baseUrl/users"),
-          headers: {
-            'Authorization': 'Bearer ${authManager.token}',
-            'Content-Type': 'application/json',
-            'x-tenant-id': tenantId.toString()
-          },
-          //: {'Content-Type': 'application/json'},
-          body: body,
-        );
+        return http.post(Uri.parse("$baseUrl/sector"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'Content-Type': 'application/json',
+                    'x-tenant-id': tenantId.toString()
+                  }
+                : {'Content-type': 'application/json'},
+            body: body);
       });
       print("RESPONSE: ${response.statusCode}");
 
@@ -56,9 +40,9 @@ class ApiSectorService implements RepositoryInterface<Sector> {
         throw Exception("Não encontrado: ${response.body}");
       }
     } catch (e) {
-      throw Exception("Erro ao criar usuário: $e");
+      throw Exception("Erro ao criar setor: $e");
     }
-  }*/
+  }
 
   @override
   Future<void> delete(int id) {
@@ -101,11 +85,6 @@ class ApiSectorService implements RepositoryInterface<Sector> {
   }
 
   @override
-  Future<int> create(Sector entity) {
-    // TODO: implement create
-    throw UnimplementedError();
-  }
-
   @override
   Future<List<Sector>> findAll() {
     // TODO: implement findAll

@@ -23,8 +23,6 @@ class _PdfViewPageState extends State<PdfViewPage> {
   @override
   void initState() {
     super.initState();
-    print("-----PDF-----");
-    print(widget.pdfPath);
   }
 
   final Completer<PDFViewController> controller =

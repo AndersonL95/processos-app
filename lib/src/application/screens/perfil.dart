@@ -83,8 +83,8 @@ class _PerfilPageState extends State<PerfilPage> {
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 28) {
-      int endIndex = i + 28;
+    for (int i = 0; i < input.length; i += 26) {
+      int endIndex = i + 26;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
@@ -122,6 +122,7 @@ class _PerfilPageState extends State<PerfilPage> {
                   icon: const Icon(
                     Icons.settings,
                     size: 40,
+                    color: Colors.white,
                   ),
                   itemBuilder: (BuildContext context) {
                     return [
@@ -194,7 +195,6 @@ class _PerfilPageState extends State<PerfilPage> {
                             child: Column(
                               children: [
                                 Container(
-                                    height: 260,
                                     width: MediaQuery.of(context).size.width,
                                     decoration: BoxDecoration(
                                       color: customColors['green'],

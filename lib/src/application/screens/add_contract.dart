@@ -160,8 +160,10 @@ class AddContractPageState extends State<AddContractPage> {
   }
 
   Future<void> _pickPDF() async {
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
     if (result != null) {
       setState(() {
         _selectPDF = File(result.files.single.path!);
