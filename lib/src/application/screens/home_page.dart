@@ -293,7 +293,7 @@ class _HomePageState extends State<HomePage> {
                                                           },
                                                           child: SizedBox(
                                                             width: 350,
-                                                            height: 220,
+                                                            height: 230,
                                                             child: Row(
                                                               mainAxisAlignment:
                                                                   MainAxisAlignment

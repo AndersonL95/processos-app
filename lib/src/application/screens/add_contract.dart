@@ -26,7 +26,7 @@ class AddContractPage extends StatefulWidget {
 class AddContractPageState extends State<AddContractPage> {
   static Map<String, dynamic>? dataUser;
   var selecttem = "";
-  var status = '';
+  bool active = true;
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
   late ApiContractService apiContractService;
@@ -206,7 +206,7 @@ class AddContractPageState extends State<AddContractPage> {
           addQuant: addQuantController.text,
           companySituation: companySituationController.text.toString(),
           sector: sectorContractController?.toString(),
-          active: status,
+          active: active == true ? "yes" : "no",
           userId: int.parse(idJson!),
           file: _selectPDF?.path ?? "");
 
@@ -243,7 +243,6 @@ class AddContractPageState extends State<AddContractPage> {
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getUsersCargoApi = GetUsersCargoApi(apiService);
     createContract = CreateContract(apiContractService);
-    status = "yes";
     getContracts();
 
     super.initState();

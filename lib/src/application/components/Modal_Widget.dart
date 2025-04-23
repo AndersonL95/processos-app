@@ -7,6 +7,8 @@ class OpenModalComponent extends StatefulWidget {
   final Map<String, Color> customColors;
   final String? selectedSector;
   final String? selectSortOption;
+  final String? selectedContractStatus;
+  final String? selectedCompanySituation;
   final int? selectedDaysLeft;
   final List<DropdownMenuItem<String>> sectorsData;
   final List<String> sortOptions;
@@ -19,6 +21,8 @@ class OpenModalComponent extends StatefulWidget {
     this.selectedSector,
     this.selectSortOption,
     this.selectedDaysLeft,
+    this.selectedContractStatus,
+    this.selectedCompanySituation,
     required this.sectorsData,
     required this.sortOptions,
     required this.isAdmin,
@@ -31,6 +35,8 @@ class OpenModalComponent extends StatefulWidget {
 class _OpenModalComponentState extends State<OpenModalComponent> {
   String? sectorController;
   String? sortOptionController;
+  String? contractStatusController;
+  String? companySituationController;
   int? daysLeftController;
   bool showOnlyInactive = false;
 
@@ -40,6 +46,8 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
     sectorController = widget.selectedSector;
     sortOptionController = widget.selectSortOption;
     daysLeftController = widget.selectedDaysLeft;
+    contractStatusController = widget.selectedContractStatus;
+    companySituationController = widget.selectedCompanySituation;
   }
 
   @override
@@ -52,6 +60,38 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
           Text(
             "Filtros",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          DropdownButtonFormField(
+            value: contractStatusController,
+            hint: Text("Status do contrato"),
+            items: ['ok', 'review', 'pendent'].map((status) {
+              return DropdownMenuItem(
+                child: Text(status),
+                value: status,
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                contractStatusController = value;
+              });
+            },
+          ),
+          SizedBox(height: 20),
+          DropdownButtonFormField(
+            value: companySituationController,
+            hint: Text("Status da empresa"),
+            items: ['Ok', 'Alerta', 'Pendente'].map((status) {
+              return DropdownMenuItem(
+                child: Text(status),
+                value: status,
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                companySituationController = value;
+              });
+            },
           ),
           SizedBox(height: 20),
           DropdownButtonFormField<String>(
@@ -135,6 +175,8 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
                     selectSortOption: sortOptionController,
                     selectedDaysLeft: daysLeftController,
                     showOnlyInactive: showOnlyInactive,
+                    selectedContractStatus: contractStatusController,
+                    selectedCompanySituation: companySituationController,
                   );
                   widget.onFilterApplied(filteredData);
                   Navigator.pop(context);
