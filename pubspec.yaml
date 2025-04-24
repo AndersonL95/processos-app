@@ -30,6 +30,7 @@ dependencies:
   input_quantity: 2.5.1
   file_picker: 9.2.2
   image_picker: ^1.1.2
+  fl_chart: 0.70.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

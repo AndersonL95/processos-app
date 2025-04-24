@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:docInHand/src/application/components/contractStaus.dart';
+import 'package:docInHand/src/application/use-case/getContract_api.dart';
+import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/components/Notification_Widget.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
@@ -20,7 +23,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   AuthManager authManager = AuthManager();
-  late Get3LastContractsInfoApi getContractsInfoApi;
+  late Get3LastContractsInfoApi get3ContractsInfoApi;
+  late GetContractsInfoApi getContractsInfoApi;
   late GetNotificationInfoApi getNotificationInfoApi;
   late ApiNotificationService apiNotificationService;
   late ApiContractService apiContractService;
@@ -37,7 +41,8 @@ class _HomePageState extends State<HomePage> {
     apiContractService = ApiContractService(authManager);
     apiNotificationService = ApiNotificationService(authManager);
     getNotificationInfoApi = GetNotificationInfoApi(apiNotificationService);
-    getContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
+    get3ContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
+    getContractsInfoApi = GetContractsInfoApi(apiContractService);
     markAsViewdNotificationApi =
         MarkAsViewdNotificationApi(apiNotificationService);
     getContracts();
@@ -57,6 +62,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getContracts() async {
+    try {
+      await get3ContractsInfoApi.execute().then((value) {
+        if (mounted) {
+          setState(() {
+            data = value;
+            _loading = false;
+          });
+        } else {
+          setState(() {
+            _error = "Erro ao carregar informações";
+            _loading = false;
+          });
+        }
+      });
+      getNotification();
+    } catch (e) {
+      _loading = false;
+      _error = e.toString();
+    }
+  }
+
+  Future<void> getContractsStatus() async {
     try {
       await getContractsInfoApi.execute().then((value) {
         if (mounted) {
@@ -182,40 +209,6 @@ class _HomePageState extends State<HomePage> {
                   ? SingleChildScrollView(
                       child: Column(
                       children: [
-                        const Padding(
-                          padding:
-                              EdgeInsets.only(top: 40, left: 20, right: 20),
-                          child: Row(
-                            children: [
-                              Card(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                clipBehavior: Clip.antiAlias,
-                                elevation: 10,
-                                color: Colors.white,
-                                shadowColor: Colors.black,
-                                child: SizedBox(
-                                    width: 270,
-                                    height: 60,
-                                    child: Row(
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.all(10),
-                                          child: Text(
-                                            "Adicionados recentens",
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        )
-                                      ],
-                                    )),
-                              )
-                            ],
-                          ),
-                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -254,200 +247,215 @@ class _HomePageState extends State<HomePage> {
                                           ],
                                         ),
                                       )
-                                    : SizedBox(
-                                        height: 400,
-                                        child: ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: data.length,
-                                            itemBuilder: (context, index) {
-                                              return Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                    : Column(
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 30),
+                                            child: Contractstaus(data: data),
+                                          ),
+                                          Padding(
+                                              padding: EdgeInsets.only(
+                                                  top: 30, left: 15),
+                                              child: Row(
                                                 children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 70,
-                                                            left: 5,
-                                                            right: 5),
-                                                    child: Card(
-                                                        shape: const RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                    Radius.circular(
-                                                                        20))),
-                                                        clipBehavior:
-                                                            Clip.antiAlias,
-                                                        elevation: 10,
-                                                        shadowColor:
-                                                            Colors.black,
-                                                        child: InkWell(
-                                                          onTap: () => {
-                                                            Navigator.of(context).push(
-                                                                MaterialPageRoute(
-                                                                    builder: (_) =>
-                                                                        ContractDetailPage(
-                                                                          contractDetail:
-                                                                              data[index],
-                                                                        )))
-                                                          },
-                                                          child: SizedBox(
-                                                            width: 350,
-                                                            height: 230,
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: [
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(
-                                                                          15),
-                                                                  child: Image
-                                                                      .asset(
-                                                                    'Assets/images/pdf2.png',
-                                                                    scale: 5.0,
-                                                                  ),
-                                                                ),
-                                                                Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          top:
-                                                                              40,
-                                                                          right:
-                                                                              15),
-                                                                      child:
-                                                                          Text(
-                                                                        breakLinesEvery10Characters(data[index]
-                                                                            [
-                                                                            'name']),
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                18,
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      ),
-                                                                    ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          top:
-                                                                              10,
-                                                                          right:
-                                                                              15),
-                                                                      child:
-                                                                          Text(
-                                                                        "Contrato Nº: ${data[index]['numContract'].toString().substring(0, min(data[index]['numContract'].toString().length, 10))}",
-                                                                        style:
-                                                                            const TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          top:
-                                                                              5,
-                                                                          right:
-                                                                              15),
-                                                                      child:
-                                                                          Text(
-                                                                        "Processo Nº: ${data[index]['numProcess']}",
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                16),
-                                                                      ),
-                                                                    ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          top:
-                                                                              5,
-                                                                          right:
-                                                                              15),
-                                                                      child:
-                                                                          Text(
-                                                                        "Gestor: ${data[index]['manager'].toString().substring(0, min(data[index]['manager'].toString().length, 10))}",
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                16),
-                                                                      ),
-                                                                    ),
-                                                                    if (data[index]
-                                                                            [
-                                                                            'contractStatus'] ==
-                                                                        'ok')
-                                                                      Padding(
-                                                                        padding: const EdgeInsets
-                                                                            .only(
-                                                                            top:
-                                                                                35),
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              185,
-                                                                          height:
-                                                                              5,
-                                                                          color:
-                                                                              customColors['green'],
-                                                                        ),
-                                                                      ),
-                                                                    if (data[index]
-                                                                            [
-                                                                            'contractStatus'] ==
-                                                                        'pendent')
-                                                                      Padding(
-                                                                        padding: const EdgeInsets
-                                                                            .only(
-                                                                            top:
-                                                                                35),
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              195,
-                                                                          height:
-                                                                              5,
-                                                                          color:
-                                                                              customColors['crismon'],
-                                                                        ),
-                                                                      ),
-                                                                    if (data[index]
-                                                                            [
-                                                                            'contractStatus'] ==
-                                                                        'review')
-                                                                      Padding(
-                                                                        padding: const EdgeInsets
-                                                                            .only(
-                                                                            top:
-                                                                                35),
-                                                                        child:
-                                                                            Container(
-                                                                          width:
-                                                                              185,
-                                                                          height:
-                                                                              5,
-                                                                          color:
-                                                                              customColors['yellow'],
-                                                                        ),
-                                                                      ),
-                                                                  ],
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )),
+                                                  Text(
+                                                    "Adicionados recentemente",
+                                                    style: TextStyle(
+                                                        fontSize: 22,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: customColors[
+                                                            'green']),
                                                   ),
                                                 ],
-                                              );
-                                            }),
+                                              )),
+                                          SizedBox(
+                                            height: 250,
+                                            child: ListView.builder(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount: data.length,
+                                                itemBuilder: (context, index) {
+                                                  return SizedBox(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 15,
+                                                              left: 5,
+                                                              right: 5),
+                                                      child: Card(
+                                                          shape: const RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.all(
+                                                                      Radius.circular(
+                                                                          20))),
+                                                          clipBehavior:
+                                                              Clip.antiAlias,
+                                                          elevation: 10,
+                                                          shadowColor:
+                                                              Colors.black,
+                                                          child: InkWell(
+                                                            onTap: () => {
+                                                              Navigator.of(context).push(
+                                                                  MaterialPageRoute(
+                                                                      builder:
+                                                                          (_) =>
+                                                                              ContractDetailPage(
+                                                                                contractDetail: data[index],
+                                                                              )))
+                                                            },
+                                                            child: SizedBox(
+                                                              width: 350,
+                                                              height: 230,
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(
+                                                                            15),
+                                                                    child: Image
+                                                                        .asset(
+                                                                      'Assets/images/pdf2.png',
+                                                                      scale:
+                                                                          5.0,
+                                                                    ),
+                                                                  ),
+                                                                  Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                40,
+                                                                            right:
+                                                                                15),
+                                                                        child:
+                                                                            Text(
+                                                                          breakLinesEvery10Characters(data[index]
+                                                                              [
+                                                                              'name']),
+                                                                          style: const TextStyle(
+                                                                              fontSize: 18,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                10,
+                                                                            right:
+                                                                                15),
+                                                                        child:
+                                                                            Text(
+                                                                          "Contrato Nº: ${data[index]['numContract'].toString().substring(0, min(data[index]['numContract'].toString().length, 10))}",
+                                                                          style:
+                                                                              const TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                5,
+                                                                            right:
+                                                                                15),
+                                                                        child:
+                                                                            Text(
+                                                                          "Processo Nº: ${data[index]['numProcess']}",
+                                                                          style:
+                                                                              const TextStyle(fontSize: 16),
+                                                                        ),
+                                                                      ),
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                5,
+                                                                            right:
+                                                                                15),
+                                                                        child:
+                                                                            Text(
+                                                                          "Gestor: ${data[index]['manager'].toString().substring(0, min(data[index]['manager'].toString().length, 10))}",
+                                                                          style:
+                                                                              const TextStyle(fontSize: 16),
+                                                                        ),
+                                                                      ),
+                                                                      if (data[index]
+                                                                              [
+                                                                              'contractStatus'] ==
+                                                                          'ok')
+                                                                        Padding(
+                                                                          padding: const EdgeInsets
+                                                                              .only(
+                                                                              top: 35),
+                                                                          child:
+                                                                              Container(
+                                                                            width:
+                                                                                185,
+                                                                            height:
+                                                                                5,
+                                                                            color:
+                                                                                customColors['green'],
+                                                                          ),
+                                                                        ),
+                                                                      if (data[index]
+                                                                              [
+                                                                              'contractStatus'] ==
+                                                                          'pendent')
+                                                                        Padding(
+                                                                          padding: const EdgeInsets
+                                                                              .only(
+                                                                              top: 35),
+                                                                          child:
+                                                                              Container(
+                                                                            width:
+                                                                                195,
+                                                                            height:
+                                                                                5,
+                                                                            color:
+                                                                                customColors['crismon'],
+                                                                          ),
+                                                                        ),
+                                                                      if (data[index]
+                                                                              [
+                                                                              'contractStatus'] ==
+                                                                          'review')
+                                                                        Padding(
+                                                                          padding: const EdgeInsets
+                                                                              .only(
+                                                                              top: 35),
+                                                                          child:
+                                                                              Container(
+                                                                            width:
+                                                                                185,
+                                                                            height:
+                                                                                5,
+                                                                            color:
+                                                                                customColors['yellow'],
+                                                                          ),
+                                                                        ),
+                                                                    ],
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          )),
+                                                    ),
+                                                  );
+                                                }),
+                                          )
+                                        ],
                                       ))
                           ],
                         ),
@@ -459,3 +467,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+/**Padding(
+                                                    padding: EdgeInsets.all(5),
+                                                    child: Contractstaus(
+                                                        data: data),
+                                                  ), */
