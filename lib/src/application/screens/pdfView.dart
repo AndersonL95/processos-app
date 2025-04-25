@@ -97,11 +97,13 @@ class _PdfViewPageState extends State<PdfViewPage> {
           backgroundColor: customColors['green'],
           elevation: 0,
           automaticallyImplyLeading: true,
+          foregroundColor: Colors.white,
           actions: [
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: PopupMenuButton(
                 iconSize: 45,
+                color: Colors.white,
                 onSelected: (value) {
                   setState(() {});
                 },

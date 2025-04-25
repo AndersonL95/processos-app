@@ -200,7 +200,7 @@ class AddUserPageState extends State<AddUserPage> {
                           Padding(
                             padding: EdgeInsets.all(10),
                             child: Text(
-                              "Adicionar contrato",
+                              "Adicionar usuario",
                               style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.black,

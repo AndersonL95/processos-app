@@ -46,10 +46,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
                 itemCount: widget.notifications.length,
                 itemBuilder: (context, index) {
                   final notification = widget.notifications[index];
-                  final contract = widget.data.firstWhere(
-                    (c) => c['id'] == notification['contractId'],
-                    orElse: () => null,
-                  );
+
                   return Column(
                     children: [
                       Card(
@@ -61,11 +58,23 @@ class _NotificationWidgetState extends State<NotificationWidget> {
                         shadowColor: Colors.black,
                         child: InkWell(
                           onTap: () {
-                            print("Data ${notification['id']}");
-                            widget.onNotificationTap(notification['id']);
-                            Navigator.of(context).push(MaterialPageRoute(
+                            final contractId = notification['contractId'];
+                            print("NOTIFICATION READ: $notification['read']");
+
+                            final contract = widget.data.firstWhere(
+                              (c) =>
+                                  c['id'].toString() ==
+                                  contractId.toString(), // compara como string
+                              orElse: () => null,
+                            );
+
+                            if (contract != null) {
+                              widget.onNotificationTap(notification['id']);
+                              Navigator.of(context).push(MaterialPageRoute(
                                 builder: (_) => ContractDetailPage(
-                                    contractDetail: contract)));
+                                    contractDetail: contract),
+                              ));
+                            } else {}
                           },
                           child: SizedBox(
                             width: 280,
