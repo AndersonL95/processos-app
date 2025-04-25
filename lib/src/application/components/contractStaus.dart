@@ -15,7 +15,7 @@ class Contractstaus extends StatelessWidget {
       'revisão': data.where((c) => c['contractStatus'] == 'review').toList(),
       'pendente': data.where((c) => c['contractStatus'] == 'pendent').toList(),
     };
-
+    print("DATA: ${data.map((e) => e['contractStatus'])}");
     final colors = {
       'aprovado': Colors.green,
       'revisão': Colors.orange,

@@ -32,6 +32,8 @@ class _HomePageState extends State<HomePage> {
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
+  List<dynamic> dataStatus = [];
+
   List<dynamic> notificationData = [];
 
   int notificationCount = 0;
@@ -46,6 +48,7 @@ class _HomePageState extends State<HomePage> {
     markAsViewdNotificationApi =
         MarkAsViewdNotificationApi(apiNotificationService);
     getContracts();
+    getContractsStatus();
     super.initState();
   }
 
@@ -85,19 +88,18 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> getContractsStatus() async {
     try {
-      await getContractsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            data = value;
-            _loading = false;
-          });
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
-        }
-      });
+      final value = await getContractsInfoApi.execute();
+      if (mounted) {
+        setState(() {
+          dataStatus = value;
+          _loading = false;
+        });
+      } else {
+        setState(() {
+          _error = "Erro ao carregar informações";
+          _loading = false;
+        });
+      }
       getNotification();
     } catch (e) {
       _loading = false;
@@ -251,7 +253,8 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           Padding(
                                             padding: EdgeInsets.only(top: 30),
-                                            child: Contractstaus(data: data),
+                                            child:
+                                                Contractstaus(data: dataStatus),
                                           ),
                                           Padding(
                                               padding: EdgeInsets.only(
