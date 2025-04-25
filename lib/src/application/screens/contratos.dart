@@ -89,8 +89,6 @@ class _ContractPageState extends State<ContractPage> {
             final bActive = b['active'] == 'yes' ? 0 : 1;
             return aActive.compareTo(bActive);
           });
-
-        // Salvar os dados iniciais e filtrados
         setState(() {
           data = sortedContracts;
           filtereData = FilterDataComponent.filterData(data: sortedContracts);
@@ -584,7 +582,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                   children: [
                                                                     Icon(
                                                                       Icons
-                                                                          .delete,
+                                                                          .check_circle,
                                                                       color: customColors[
                                                                           'green'],
                                                                     ),

@@ -19,6 +19,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     if (tenantJson != null) {
       tenantId = json.decode(tenantJson);
     }
+
     try {
       var bytes = File(contracts.file).readAsBytesSync();
       contracts.file = base64Encode(bytes);
@@ -37,14 +38,21 @@ class ApiContractService implements RepositoryInterface<Contracts> {
             body: body);
       });
 
+      print("RESPONSE: ${response.body}");
+
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
-        return responseBody['id'];
+        if (responseBody != null && responseBody['id'] != null) {
+          return responseBody['id'];
+        } else {
+          throw Exception("Resposta sem campo ID: ${response.body}");
+        }
       } else {
         throw Exception("Erro ao cadastrar: ${response.body}");
       }
     } catch (e) {
-      throw Exception("Não foi possível cadastrar, $e");
+      print("Erro no createContract: $e");
+      return -1; // <- ou lançar de novo se quiser tratar fora
     }
   }
 

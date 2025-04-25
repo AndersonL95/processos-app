@@ -7,13 +7,21 @@ class FilterDataComponent {
     String? selectSortOption,
     int? selectedDaysLeft,
     bool showOnlyInactive = false,
+    String? selectedContractStatus,
+    String? selectedCompanySituation,
   }) {
     List<dynamic> temp = data.where((e) {
       final sector = e['sector'];
       final finalDateStr = e['finalDate'];
-      final isActive = e['active'] == 'yes'; // Determina se está ativo
-      bool sectorSelect = selectedSector == null || sector == selectedSector;
+      final isActive = e['active'] == 'yes';
+      final contractStatus = e['contractStatus'];
+      final companySituation = e['companySituation'];
 
+      bool sectorSelect = selectedSector == null || sector == selectedSector;
+      bool contractStatusSelect = selectedContractStatus == null ||
+          contractStatus == selectedContractStatus;
+      bool companySituationSelect = selectedCompanySituation == null ||
+          companySituation == selectedCompanySituation;
       bool daysFilter = true;
       if (selectedDaysLeft != null && finalDateStr != null) {
         try {
@@ -29,7 +37,10 @@ class FilterDataComponent {
         return !isActive;
       }
 
-      return sectorSelect && daysFilter;
+      return sectorSelect &&
+          daysFilter &&
+          contractStatusSelect &&
+          companySituationSelect;
     }).toList();
 
     if (selectSortOption != null) {

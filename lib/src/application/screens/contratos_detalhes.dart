@@ -341,7 +341,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             Text(
                                                                           "Data Inicial: ",
                                                                           style:
-                                                                              TextStyle(fontSize: 15),
+                                                                              TextStyle(fontSize: 14),
                                                                         ),
                                                                       ),
                                                                       Text(
