@@ -7,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthManager with ChangeNotifier {
   String? _token;
   String? _refresh_token;
-  final baseUrl = "http://10.0.2.2:3000/api";
+  //final baseUrl = "http://10.0.2.2:3000/api";
+  final baseUrl = "http://192.168.0.108:3000/api";
   String? get token => _token;
 
   Future<Map<String, dynamic>> login(String email, String password) async {

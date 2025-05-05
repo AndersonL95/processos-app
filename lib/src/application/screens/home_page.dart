@@ -48,7 +48,6 @@ class _HomePageState extends State<HomePage> {
     markAsViewdNotificationApi =
         MarkAsViewdNotificationApi(apiNotificationService);
     getContracts();
-    getContractsStatus();
     super.initState();
   }
 
@@ -80,6 +79,7 @@ class _HomePageState extends State<HomePage> {
         }
       });
       getNotification();
+      getContractsStatus();
     } catch (e) {
       _loading = false;
       _error = e.toString();
@@ -89,9 +89,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> getContractsStatus() async {
     try {
       final value = await getContractsInfoApi.execute();
+
       if (mounted) {
         setState(() {
           dataStatus = value;
+          if (dataStatus.isEmpty) {
+            _error = "Nenhum contrato encontrado";
+          }
           _loading = false;
         });
       } else {
@@ -100,7 +104,6 @@ class _HomePageState extends State<HomePage> {
           _loading = false;
         });
       }
-      getNotification();
     } catch (e) {
       _loading = false;
       _error = e.toString();

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:input_quantity/input_quantity.dart';
@@ -76,6 +77,8 @@ class AddContractPageState extends State<AddContractPage> {
   bool showTextFieldF = false;
   File? _selectPDF;
   String? base64Pdf;
+  List<AddTerm>? _selectAddTerm;
+
   List<String> managerUser = [];
   List<String> supervisorUsers = [];
   final formKey = GlobalKey<FormState>();
@@ -171,6 +174,22 @@ class AddContractPageState extends State<AddContractPage> {
     }
   }
 
+  Future<void> _pickAddTerm() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null) {
+      setState(() {
+        _selectAddTerm = result.paths
+            .whereType<String>()
+            .map((path) => AddTerm(file: path, name: ''))
+            .toList();
+      });
+    }
+  }
+
   Future<void> _loadUsers() async {
     try {
       var usersData = await getUsersCargoApi.execute();
@@ -186,29 +205,29 @@ class AddContractPageState extends State<AddContractPage> {
 
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
-
     String? idJson = datas.getString('id');
 
     try {
       Contracts contract = Contracts(
-          name: nameController.text,
-          numProcess: numProcessController.text,
-          numContract: numContractController.text,
-          manager: managerController.text.toString(),
-          supervisor: supervisorController.text.toString(),
-          initDate: initDate.toString(),
-          finalDate: finalDate.toString(),
-          contractLaw: contractLawController.text,
-          contractStatus: statusContractController?.statusValue.toString(),
-          balance: balanceController.text,
-          todo: todoController.text,
-          addTerm: addTermController.text,
-          addQuant: addQuantController.text,
-          companySituation: companySituationController.text.toString(),
-          sector: sectorContractController?.toString(),
-          active: active == true ? "yes" : "no",
-          userId: int.parse(idJson!),
-          file: _selectPDF?.path ?? "");
+        name: nameController.text,
+        numProcess: numProcessController.text,
+        numContract: numContractController.text,
+        manager: managerController.text.toString(),
+        supervisor: supervisorController.text.toString(),
+        initDate: initDate.toString(),
+        finalDate: finalDate.toString(),
+        contractLaw: contractLawController.text,
+        contractStatus: statusContractController?.statusValue.toString(),
+        balance: balanceController.text,
+        todo: todoController.text,
+        addQuant: addQuantController.text,
+        companySituation: companySituationController.text.toString(),
+        sector: sectorContractController?.toString(),
+        active: active == true ? "yes" : "no",
+        userId: int.parse(idJson!),
+        file: _selectPDF?.path ?? "",
+        addTerm: _selectAddTerm ?? [],
+      );
 
       await createContract.execute(contract);
       toastification.show(
@@ -843,27 +862,31 @@ class AddContractPageState extends State<AddContractPage> {
                                             ),
                                             Padding(
                                               padding: EdgeInsets.all(10),
-                                              child: InputQty(
-                                                maxVal: 100,
-                                                initVal: 0,
-                                                decoration: QtyDecorationProps(
-                                                    border: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Color.fromRGBO(
-                                                          1, 76, 45, 1),
-                                                      width: 2),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(5),
-                                                  ),
-                                                )),
-                                                onQtyChanged: (val) {
-                                                  addTermController.text =
-                                                      val.toString();
-                                                  print("VALOR: $val");
+                                              child: ElevatedButton(
+                                                child: Icon(
+                                                  Icons.library_add,
+                                                  size: 35,
+                                                  color: customColors['white'],
+                                                ),
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        customColors["crismon"],
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    minimumSize:
+                                                        const Size(80, 40)),
+                                                onPressed: () {
+                                                  _pickAddTerm();
                                                 },
                                               ),
                                             ),
+                                            if (_selectAddTerm != null)
+                                              Text(
+                                                  "Arquivo selecionado: ${_selectAddTerm!.toString().substring(0, 20)}")
                                           ],
                                         ),
                                       ),

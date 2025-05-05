@@ -1,3 +1,5 @@
+import 'package:docInHand/src/domain/entities/addTerms.dart';
+
 class Contracts {
   late int? id;
   late int? tenantId;
@@ -12,13 +14,13 @@ class Contracts {
   String contractStatus = "";
   String balance = "";
   String todo = "";
-  String addTerm = "";
   String addQuant = "";
   String companySituation = "";
   String sector = "";
   String active = "";
   late int userId;
   String file = "";
+  List<AddTerm>? addTerm;
 
   Contracts(
       {this.id,
@@ -34,7 +36,7 @@ class Contracts {
       required contractStatus,
       required balance,
       required todo,
-      required addTerm,
+      this.addTerm,
       required addQuant,
       required companySituation,
       required userId,
@@ -52,7 +54,6 @@ class Contracts {
     setContractStatus(contractStatus);
     setBalance(balance);
     setTodo(todo);
-    setAddTerm(addTerm);
     setAddQuant(addQuant);
     setCompanySituation(companySituation);
     setSector(sector);
@@ -143,13 +144,6 @@ class Contracts {
     this.todo = todo;
   }
 
-  void setAddTerm(addTerm) {
-    if (addTerm == "") {
-      throw Exception("addTerm está vazio ou é invalido.");
-    }
-    this.addTerm = addTerm;
-  }
-
   void setAddQuant(addQuant) {
     if (addQuant == "") {
       throw Exception("addQuant está vazio ou é invalido.");
@@ -193,7 +187,7 @@ class Contracts {
       'contractStatus': contractStatus,
       'balance': balance,
       'todo': todo,
-      'addTerm': addTerm,
+      'addTerms': addTerm?.map((e) => e.toJson()).toList() ?? [],
       'addQuant': addQuant,
       'companySituation': companySituation,
       'userId': userId,
@@ -217,7 +211,11 @@ class Contracts {
         contractStatus: json['contractStatus'],
         balance: json['balance'],
         todo: json['todo'],
-        addTerm: json['addTerm'],
+        addTerm: json['addTerms'] != null
+            ? (json['addTerms'] as List)
+                .map((e) => AddTerm.fromJson(e))
+                .toList()
+            : [],
         addQuant: json['addQuant'],
         companySituation: json['companySituation'],
         sector: json['sector'],

@@ -160,19 +160,6 @@ class _UsuariosPageState extends State<UsuariosPage> {
           backgroundColor: customColors['green'],
           elevation: 0,
           automaticallyImplyLeading: false,
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: IconButton(
-                icon: Icon(
-                  Icons.notification_important,
-                  size: 30,
-                  color: customColors['white'],
-                ),
-                onPressed: () {},
-              ),
-            ),
-          ],
         ),
         body: _loading
             ? const Center(

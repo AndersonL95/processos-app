@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:docInHand/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,8 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
-  final baseUrl = "http://10.0.2.2:3000/api";
+  //final baseUrl = "http://10.0.2.2:3000/api";
+  final baseUrl = "http://192.168.0.108:3000/api";
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;
@@ -23,6 +25,14 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     try {
       var bytes = File(contracts.file).readAsBytesSync();
       contracts.file = base64Encode(bytes);
+      List<String> encodedAddTerm = [];
+      if (contracts.addTerm != null && contracts.addTerm!.isNotEmpty) {
+        for (var path in contracts.addTerm!) {
+          var termBytes = File(path as String).readAsBytesSync();
+          encodedAddTerm.add(base64Encode(termBytes));
+        }
+        contracts.addTerm = encodedAddTerm.cast<AddTerm>();
+      }
 
       String body = jsonEncode(contracts.toJson());
 
@@ -172,6 +182,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       if (tenantJson != null) {
         tenantId = json.decode(tenantJson);
       }
+
       if (contracts.file.isNotEmpty) {
         final base64Pattern =
             RegExp(r'^(data:image/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$');
