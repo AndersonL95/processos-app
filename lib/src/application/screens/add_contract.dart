@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:docInHand/src/application/components/termsModal_Widget.dart';
+import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
+import 'package:docInHand/src/infrastucture/addTerm.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:input_quantity/input_quantity.dart';
@@ -36,13 +39,17 @@ class AddContractPageState extends State<AddContractPage> {
   late ApiService apiService;
   late CreateContract createContract;
   late GetUsersCargoApi getUsersCargoApi;
+  late ApiAddTermService apiAddTermService;
+  late CreateTerms createTerms;
+
   TextEditingController nameController = TextEditingController();
   TextEditingController numContractController = TextEditingController();
   TextEditingController numProcessController = TextEditingController();
   TextEditingController contractLawController = TextEditingController();
   TextEditingController addQuantController = TextEditingController();
-  TextEditingController addTermController = TextEditingController();
   TextEditingController balanceController = TextEditingController();
+  TextEditingController addTermDescontroller = TextEditingController();
+
   TextEditingController initDateController = TextEditingController();
   TextEditingController finalDateController = TextEditingController();
   TextEditingController todoController = TextEditingController();
@@ -174,22 +181,6 @@ class AddContractPageState extends State<AddContractPage> {
     }
   }
 
-  Future<void> _pickAddTerm() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (result != null) {
-      setState(() {
-        _selectAddTerm = result.paths
-            .whereType<String>()
-            .map((path) => AddTerm(file: path, name: ''))
-            .toList();
-      });
-    }
-  }
-
   Future<void> _loadUsers() async {
     try {
       var usersData = await getUsersCargoApi.execute();
@@ -206,6 +197,11 @@ class AddContractPageState extends State<AddContractPage> {
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
     String? idJson = datas.getString('id');
+    if (_selectAddTerm != null && _selectAddTerm!.isNotEmpty) {
+      for (var term in _selectAddTerm!) {
+        await createTerms.execute(term);
+      }
+    }
 
     try {
       Contracts contract = Contracts(
@@ -220,7 +216,7 @@ class AddContractPageState extends State<AddContractPage> {
         contractStatus: statusContractController?.statusValue.toString(),
         balance: balanceController.text,
         todo: todoController.text,
-        addQuant: addQuantController.text,
+        addQuant: "5",
         companySituation: companySituationController.text.toString(),
         sector: sectorContractController?.toString(),
         active: active == true ? "yes" : "no",
@@ -262,6 +258,8 @@ class AddContractPageState extends State<AddContractPage> {
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getUsersCargoApi = GetUsersCargoApi(apiService);
     createContract = CreateContract(apiContractService);
+    apiAddTermService = ApiAddTermService(authManager);
+    createTerms = CreateTerms(apiAddTermService);
     getContracts();
 
     super.initState();
@@ -850,88 +848,6 @@ class AddContractPageState extends State<AddContractPage> {
                                   child: Row(
                                     children: [
                                       Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              "Aditivo de prazo",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: customColors['green']),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(10),
-                                              child: ElevatedButton(
-                                                child: Icon(
-                                                  Icons.library_add,
-                                                  size: 35,
-                                                  color: customColors['white'],
-                                                ),
-                                                style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        customColors["crismon"],
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                    minimumSize:
-                                                        const Size(80, 40)),
-                                                onPressed: () {
-                                                  _pickAddTerm();
-                                                },
-                                              ),
-                                            ),
-                                            if (_selectAddTerm != null)
-                                              Text(
-                                                  "Arquivo selecionado: ${_selectAddTerm!.toString().substring(0, 20)}")
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
-                                            Text("Aumentar quantitativo",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        customColors['green'])),
-                                            Padding(
-                                              padding: EdgeInsets.all(10),
-                                              child: InputQty(
-                                                maxVal: 100,
-                                                initVal: 0,
-                                                decoration: QtyDecorationProps(
-                                                    border: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Color.fromRGBO(
-                                                          1, 76, 45, 1),
-                                                      width: 2),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(5),
-                                                  ),
-                                                )),
-                                                onQtyChanged: (val) {
-                                                  addQuantController.text =
-                                                      val.toString();
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
                                           flex: 1,
                                           child: Padding(
                                               padding: EdgeInsets.only(
@@ -959,16 +875,76 @@ class AddContractPageState extends State<AddContractPage> {
                                                             ),
                                                             minimumSize:
                                                                 const Size(
-                                                                    120, 60)),
+                                                                    120, 70)),
                                                     onPressed: () {
                                                       _pickPDF();
                                                     },
                                                   ),
                                                   if (_selectPDF != null)
                                                     Text(
-                                                        "Arquivo selecionado: ${_selectPDF!.path.toString().substring(0, 20)}")
+                                                        "${_selectPDF!.toString().length > 1 ? "Arquivo selecionado" : "Nenhum arquivo selecionado"}"),
                                                 ],
                                               ))),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Aditivo de prazo",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: customColors['green']),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(10),
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        AddTermModal(
+                                                      onAddTerm: (term) {
+                                                        setState(() {
+                                                          _selectAddTerm = [
+                                                            ...?_selectAddTerm,
+                                                            term
+                                                          ];
+                                                        });
+                                                      },
+                                                    ),
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  Icons.picture_as_pdf,
+                                                  size: 35,
+                                                  color: customColors['white'],
+                                                ),
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        customColors["green"],
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    minimumSize:
+                                                        const Size(60, 40)),
+                                              ),
+                                            ),
+                                            if (_selectAddTerm != null)
+                                              Text(
+                                                  "Arquivo selecionado: ${_selectAddTerm!.length}")
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
                                       Expanded(
                                         flex: 1,
                                         child: Padding(
@@ -1050,3 +1026,38 @@ class DropdownItem {
   String statusValue;
   DropdownItem({required this.displayValue, required this.statusValue});
 }
+/** Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            Text("Aumentar quantitativo",
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        customColors['green'])),
+                                            Padding(
+                                              padding: EdgeInsets.all(10),
+                                              child: InputQty(
+                                                maxVal: 100,
+                                                initVal: 0,
+                                                decoration: QtyDecorationProps(
+                                                    border: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Color.fromRGBO(
+                                                          1, 76, 45, 1),
+                                                      width: 2),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(5),
+                                                  ),
+                                                )),
+                                                onQtyChanged: (val) {
+                                                  addQuantController.text =
+                                                      val.toString();
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ) */

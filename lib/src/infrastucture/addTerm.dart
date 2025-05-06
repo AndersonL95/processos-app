@@ -23,29 +23,21 @@ class ApiAddTermService implements RepositoryInterface<AddTerm> {
     try {
       var bytes = File(addTerm.file.toString()).readAsBytesSync();
       addTerm.file = base64Encode(bytes);
-      List<String> encodedAddTerm = [];
-      if (addTerm.file != null &&
-          addTerm.file is List<String> &&
-          addTerm.file!.isNotEmpty) {
-        for (var path in addTerm.file as List<String>) {
-          var termBytes = File(path).readAsBytesSync();
-          encodedAddTerm.add(base64Encode(termBytes));
-        }
-        addTerm.file = encodedAddTerm as String?;
-      }
 
       String body = jsonEncode(addTerm.toJson());
 
       final response = await authManager.sendAuthenticate(() async {
-        return http.post(Uri.parse("$baseUrl/contract"),
-            headers: authManager.token != null
-                ? {
-                    'Authorization': 'Bearer ${authManager.token}',
-                    'Content-Type': 'application/json',
-                    'x-tenant-id': tenantId.toString()
-                  }
-                : {'Content-type': 'application/json'},
-            body: body);
+        return http.post(
+          Uri.parse("$baseUrl/contract"),
+          headers: authManager.token != null
+              ? {
+                  'Authorization': 'Bearer ${authManager.token}',
+                  'Content-Type': 'application/json',
+                  'x-tenant-id': tenantId.toString()
+                }
+              : {'Content-Type': 'application/json'},
+          body: body,
+        );
       });
 
       print("RESPONSE: ${response.body}");
@@ -61,7 +53,7 @@ class ApiAddTermService implements RepositoryInterface<AddTerm> {
         throw Exception("Erro ao cadastrar: ${response.body}");
       }
     } catch (e) {
-      print("Erro no createContract: $e");
+      print("Erro no createTerm: $e");
       return -1;
     }
   }

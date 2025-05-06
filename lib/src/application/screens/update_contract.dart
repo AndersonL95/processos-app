@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
+import 'package:docInHand/src/infrastucture/addTerm.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:input_quantity/input_quantity.dart';
@@ -10,10 +12,8 @@ import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getSector_api.dart';
 import 'package:docInHand/src/application/use-case/getUsers.Cargo.dart';
-import 'package:docInHand/src/application/use-case/getUsers.api.dart';
 import 'package:docInHand/src/application/use-case/update_contract_api.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
-import 'package:docInHand/src/domain/entities/users.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:docInHand/src/infrastucture/sector.dart';
@@ -37,8 +37,10 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   late GetContractsInfoApi getContractsInfoApi;
   late GetUsersCargoApi getUsersCargoApi;
   late ApiContractService apiContractService;
+  late ApiAddTermService apiAddTermService;
   late ApiService apiService;
   late UpdateContract updateContract;
+  late CreateTerms createTerms;
   late ApiSectorService apiSectorService;
   late GetSectorsInfoApi getSectorsInfoApi;
   late TextEditingController nameController;
@@ -101,6 +103,9 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     apiSectorService = ApiSectorService(authManager);
     getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     updateContract = UpdateContract(apiContractService);
+    apiAddTermService = ApiAddTermService(authManager);
+    createTerms = CreateTerms(apiAddTermService);
+
     getSectors();
     _loadUsers();
     nameController = TextEditingController(text: widget.contractData['name']);
@@ -240,19 +245,39 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     }
   }
 
-  void _addTerm() {
-    setState(() {
-      _terms.add(AddTerm(name: "Novo termo", file: _selectTermPDF!.path));
-    });
-  }
-
   void _removeTerm(int index) {
     setState(() {
       _terms.removeAt(index);
     });
   }
 
-  Future<void> submitAddTerm() async {}
+  Future<void> submitAddTerm() async {
+    try {
+      AddTerm addTerm = AddTerm(
+        name: addTermDescontroller.text,
+        file: _selectTermPDF!.path,
+      );
+      await createTerms.execute(addTerm);
+      toastification.show(
+        type: ToastificationType.success,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Cadastrado com sucesso."),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+      setState(() {
+        _loading = false;
+      });
+    } catch (e) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Erro ao cadastrar"),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+    }
+  }
 
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
