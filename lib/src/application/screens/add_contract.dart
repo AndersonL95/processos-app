@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:docInHand/src/application/components/termsModal_Widget.dart';
@@ -6,7 +7,6 @@ import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/infrastucture/addTerm.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:input_quantity/input_quantity.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
@@ -154,6 +154,7 @@ class AddContractPageState extends State<AddContractPage> {
             _loading = false;
           });
         }
+        print("LIST: ${data[0].addTerms}");
       });
     } catch (e) {
       _loading = false;
@@ -197,9 +198,18 @@ class AddContractPageState extends State<AddContractPage> {
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
     String? idJson = datas.getString('id');
+
+    List<AddTerm> encodedTerms = [];
+
     if (_selectAddTerm != null && _selectAddTerm!.isNotEmpty) {
       for (var term in _selectAddTerm!) {
-        await createTerms.execute(term);
+        if (term.file != null && File(term.file!).existsSync()) {
+          final termBytes = File(term.file!).readAsBytesSync();
+          final base64Term = base64Encode(termBytes);
+          encodedTerms.add(AddTerm(nameTerm: term.nameTerm, file: base64Term));
+        } else {
+          throw Exception("Termo inválido ou não encontrado: ${term.file}");
+        }
       }
     }
 
@@ -216,16 +226,17 @@ class AddContractPageState extends State<AddContractPage> {
         contractStatus: statusContractController?.statusValue.toString(),
         balance: balanceController.text,
         todo: todoController.text,
-        addQuant: "5",
+        addQuant: "6",
         companySituation: companySituationController.text.toString(),
         sector: sectorContractController?.toString(),
         active: active == true ? "yes" : "no",
         userId: int.parse(idJson!),
         file: _selectPDF?.path ?? "",
-        addTerm: _selectAddTerm ?? [],
+        addTerm: encodedTerms,
       );
 
       await createContract.execute(contract);
+
       toastification.show(
         type: ToastificationType.success,
         style: ToastificationStyle.fillColored,
@@ -233,12 +244,15 @@ class AddContractPageState extends State<AddContractPage> {
         title: const Text("Cadastrado com sucesso."),
         autoCloseDuration: const Duration(seconds: 8),
       );
+
       setState(() {
         _loading = false;
       });
+
       Navigator.pushNamed(context, '/menuItem');
     } catch (e) {
       print("ERROR: $e");
+
       toastification.show(
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,

@@ -187,7 +187,7 @@ class Contracts {
       'contractStatus': contractStatus,
       'balance': balance,
       'todo': todo,
-      'addTerms': addTerm?.map((e) => e.toJson()).toList() ?? [],
+      'addTerm': addTerm?.map((e) => e.toJson()).toList() ?? [],
       'addQuant': addQuant,
       'companySituation': companySituation,
       'userId': userId,
@@ -197,7 +197,7 @@ class Contracts {
     };
   }
 
-  factory Contracts.froJson(Map<String, dynamic> json) {
+  factory Contracts.fromJson(Map<String, dynamic> json) {
     return Contracts(
         id: json['id'],
         name: json['name'],
@@ -211,10 +211,8 @@ class Contracts {
         contractStatus: json['contractStatus'],
         balance: json['balance'],
         todo: json['todo'],
-        addTerm: json['addTerms'] != null
-            ? (json['addTerms'] as List)
-                .map((e) => AddTerm.fromJson(e))
-                .toList()
+        addTerm: json['addTerm'] != null
+            ? (json['addTerm'] as List).map((e) => AddTerm.fromJson(e)).toList()
             : [],
         addQuant: json['addQuant'],
         companySituation: json['companySituation'],

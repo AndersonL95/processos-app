@@ -140,7 +140,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     todoController = TextEditingController(text: widget.contractData['todo']);
     companySituationController =
         TextEditingController(text: widget.contractData['companySituation']);
-    contractEdit = Contracts.froJson(widget.contractData);
+    contractEdit = Contracts.fromJson(widget.contractData);
     sector = widget.contractData['sector'];
     active = widget.contractData['active'] == 'yes' ? true : false;
     print("SECRETARIA: ${widget.contractData['sector']}");
@@ -254,7 +254,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   Future<void> submitAddTerm() async {
     try {
       AddTerm addTerm = AddTerm(
-        name: addTermDescontroller.text,
+        nameTerm: addTermDescontroller.text,
         file: _selectTermPDF!.path,
       );
       await createTerms.execute(addTerm);

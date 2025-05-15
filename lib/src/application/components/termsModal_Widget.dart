@@ -33,8 +33,8 @@ class _AddTermModalState extends State<AddTermModal> {
   void _addTerm() {
     if (_nameController.text.isNotEmpty && selectedFilePath != null) {
       final newTerm = AddTerm(
-        name: _nameController.text,
-        file: selectedFilePath,
+        nameTerm: _nameController.text,
+        file: selectedFilePath!,
       );
 
       widget.onAddTerm(newTerm);
@@ -94,7 +94,7 @@ class _AddTermModalState extends State<AddTermModal> {
             const SizedBox(height: 20),
             const Text('Aditivos adicionados:'),
             ...localTerms.map((term) => ListTile(
-                  title: Text(term.name ?? 'Sem nome'),
+                  title: Text(term.nameTerm ?? 'Sem nome'),
                 )),
           ],
         ),

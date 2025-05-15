@@ -1,19 +1,20 @@
 class AddTerm {
-  int? id;
-  String name;
-  String? file;
+  final String nameTerm;
+  late final String file;
 
-  AddTerm({this.id, required this.name, this.file});
+  AddTerm({required this.nameTerm, required this.file});
 
-  Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
-        'name': name,
-        'file': file,
-      };
+  factory AddTerm.fromJson(Map<String, dynamic> json) {
+    return AddTerm(
+      nameTerm: json['name'].toString(),
+      file: json['file'].toString(),
+    );
+  }
 
-  factory AddTerm.fromJson(Map<String, dynamic> json) => AddTerm(
-        id: json['id'],
-        name: json['name'],
-        file: json['file'],
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'name': nameTerm,
+      'file': file,
+    };
+  }
 }
