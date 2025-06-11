@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:docInHand/src/domain/repository/interface_rep.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,8 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
-  final baseUrl = "http://10.0.2.2:3000/api";
+  //final baseUrl = "http://10.0.2.2:3000/api";
+  final baseUrl = "http://192.168.0.124:3000/api";
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;
@@ -21,11 +23,19 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
 
     try {
-      var bytes = File(contracts.file).readAsBytesSync();
-      contracts.file = base64Encode(bytes);
+      String filePath = contracts.file;
+
+      String base64File = "";
+      if (File(filePath).existsSync()) {
+        var bytes = File(filePath).readAsBytesSync();
+        base64File = base64Encode(bytes);
+      } else {
+        throw Exception("Arquivo não encontrado: $filePath");
+      }
+
+      contracts.file = base64File;
 
       String body = jsonEncode(contracts.toJson());
-
       final response = await authManager.sendAuthenticate(() async {
         return http.post(Uri.parse("$baseUrl/contract"),
             headers: authManager.token != null
@@ -37,13 +47,12 @@ class ApiContractService implements RepositoryInterface<Contracts> {
                 : {'Content-type': 'application/json'},
             body: body);
       });
-
-      print("RESPONSE: ${response.body}");
-
+    
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
-        if (responseBody != null && responseBody['id'] != null) {
-          return responseBody['id'];
+          
+        if (responseBody != null && responseBody['contract']['id'] != null) {
+          return responseBody['contract']['id'];
         } else {
           throw Exception("Resposta sem campo ID: ${response.body}");
         }
@@ -52,7 +61,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       }
     } catch (e) {
       print("Erro no createContract: $e");
-      return -1; // <- ou lançar de novo se quiser tratar fora
+      return -1;
     }
   }
 
@@ -172,6 +181,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       if (tenantJson != null) {
         tenantId = json.decode(tenantJson);
       }
+
       if (contracts.file.isNotEmpty) {
         final base64Pattern =
             RegExp(r'^(data:image/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$');
@@ -223,3 +233,5 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     throw UnimplementedError();
   }
 }
+
+

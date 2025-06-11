@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:docInHand/src/application/use-case/createTerms_api.dart';
+import 'package:docInHand/src/domain/entities/addTerms.dart';
+import 'package:docInHand/src/infrastucture/addTerm.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:input_quantity/input_quantity.dart';
@@ -9,10 +12,8 @@ import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getSector_api.dart';
 import 'package:docInHand/src/application/use-case/getUsers.Cargo.dart';
-import 'package:docInHand/src/application/use-case/getUsers.api.dart';
 import 'package:docInHand/src/application/use-case/update_contract_api.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
-import 'package:docInHand/src/domain/entities/users.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:docInHand/src/infrastucture/sector.dart';
@@ -36,8 +37,10 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   late GetContractsInfoApi getContractsInfoApi;
   late GetUsersCargoApi getUsersCargoApi;
   late ApiContractService apiContractService;
+  late ApiAddTermService apiAddTermService;
   late ApiService apiService;
   late UpdateContract updateContract;
+  late CreateTerms createTerms;
   late ApiSectorService apiSectorService;
   late GetSectorsInfoApi getSectorsInfoApi;
   late TextEditingController nameController;
@@ -45,7 +48,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   late TextEditingController numProcessController;
   late TextEditingController contractLawController;
   late TextEditingController addQuantController;
-  late TextEditingController addTermController;
   late TextEditingController balanceController;
   late TextEditingController initDateController;
   late TextEditingController finalDateController;
@@ -54,6 +56,8 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   late TextEditingController companySituationController;
   late TextEditingController supervisorController;
   late TextEditingController todoController;
+  late TextEditingController addTermDescontroller;
+  List<AddTerm> _terms = [];
 
   List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
   DropdownItem? statusContractController;
@@ -78,6 +82,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   List<dynamic> supervisor = [];
   bool showTextField = false;
   File? _selectPDF;
+  File? _selectTermPDF;
   String? base64Pdf;
   final formKey = GlobalKey<FormState>();
   String sector = "";
@@ -98,6 +103,9 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     apiSectorService = ApiSectorService(authManager);
     getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     updateContract = UpdateContract(apiContractService);
+    apiAddTermService = ApiAddTermService(authManager);
+    createTerms = CreateTerms(apiAddTermService);
+
     getSectors();
     _loadUsers();
     nameController = TextEditingController(text: widget.contractData['name']);
@@ -107,6 +115,8 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         TextEditingController(text: widget.contractData['numProcess']);
     contractLawController =
         TextEditingController(text: widget.contractData['contractLaw']);
+    addTermDescontroller = TextEditingController(
+        text: widget.contractData['addTermDescontroller']);
     String? statuscontracts = widget.contractData['contractStatus'];
     if (statuscontracts != null) {
       statusContractController = statusItem.firstWhere(
@@ -114,8 +124,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         orElse: () => statusItem[0],
       );
 
-      addTermController =
-          TextEditingController(text: widget.contractData['addTerm']);
       addQuantController =
           TextEditingController(text: widget.contractData['addQuant']);
     }
@@ -132,7 +140,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     todoController = TextEditingController(text: widget.contractData['todo']);
     companySituationController =
         TextEditingController(text: widget.contractData['companySituation']);
-    contractEdit = Contracts.froJson(widget.contractData);
+    contractEdit = Contracts.fromJson(widget.contractData);
     sector = widget.contractData['sector'];
     active = widget.contractData['active'] == 'yes' ? true : false;
     print("SECRETARIA: ${widget.contractData['sector']}");
@@ -206,6 +214,16 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     }
   }
 
+  Future<void> _pickTermPDF() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+    if (result != null) {
+      setState(() {
+        _selectTermPDF = File(result.files.single.path!);
+      });
+    }
+  }
+
   void onActive(bool value) {
     setState(() {
       active = value;
@@ -223,8 +241,41 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         print("Gestor : $manager");
       });
     } catch (e) {
-      // Tratar erro
       print('Erro ao carregar usuários: $e');
+    }
+  }
+
+  void _removeTerm(int index) {
+    setState(() {
+      _terms.removeAt(index);
+    });
+  }
+
+  Future<void> submitAddTerm() async {
+    try {
+      AddTerm addTerm = AddTerm(
+        nameTerm: addTermDescontroller.text,
+        file: _selectTermPDF!.path,
+      );
+      await createTerms.execute(addTerm);
+      toastification.show(
+        type: ToastificationType.success,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Cadastrado com sucesso."),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
+      setState(() {
+        _loading = false;
+      });
+    } catch (e) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        context: context,
+        title: const Text("Erro ao cadastrar"),
+        autoCloseDuration: const Duration(seconds: 8),
+      );
     }
   }
 
@@ -245,12 +296,12 @@ class UpdateContractPageState extends State<UpdateContractPage> {
           statusContractController!.statusValue.toString();
       contractEdit?.balance = balanceController.text;
       contractEdit?.todo = todoController.text;
-      contractEdit?.addTerm = addTermController.text;
       contractEdit?.addQuant = addQuantController.text;
       contractEdit?.sector = sectorContractController!;
       contractEdit?.active = active == true ? 'yes' : "no";
       contractEdit?.companySituation =
           companySituationController.text.toString();
+      contractEdit?.addTerm = _terms;
       contractEdit?.userId = int.parse(idJson!);
 
       if (_selectPDF != null && _selectPDF!.path.isNotEmpty) {
@@ -874,43 +925,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         flex: 1,
                                         child: Column(
                                           children: [
-                                            Text(
-                                              "Aditivo de prazo",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: customColors['green']),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(10),
-                                              child: InputQty(
-                                                maxVal: 100,
-                                                initVal: double.parse(widget
-                                                    .contractData['addTerm']),
-                                                decoration: QtyDecorationProps(
-                                                    border: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Color.fromRGBO(
-                                                          1, 76, 45, 1),
-                                                      width: 2),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(5),
-                                                  ),
-                                                )),
-                                                onQtyChanged: (val) {
-                                                  addTermController.text =
-                                                      val.toString();
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
                                             Text("Aumentar quantitativo",
                                                 style: TextStyle(
                                                     fontSize: 16,
@@ -1067,6 +1081,51 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                       ),
                                     ],
                                   )),
+                              Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 20),
+                                    const Text("Adicionar Aditivo",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 10),
+                                    TextField(
+                                      controller: addTermDescontroller,
+                                      decoration: const InputDecoration(
+                                          labelText:
+                                              "Descrição do Termo Aditivo"),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        _pickTermPDF();
+                                      },
+                                      child: const Text("Selecionar PDF"),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ElevatedButton.icon(
+                                      onPressed: () async {
+                                        if (addTermDescontroller.text.isEmpty ||
+                                            _selectTermPDF == null) {
+                                          toastification.show(
+                                            context: context,
+                                            type: ToastificationType.warning,
+                                            title: const Text(
+                                                "Preencha a descrição e selecione o PDF."),
+                                          );
+                                          return;
+                                        }
+
+                                        await submitAddTerm();
+                                      },
+                                      icon: const Icon(Icons.upload_file),
+                                      label: const Text("Salvar Aditivo"),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               Padding(
                                 padding: EdgeInsets.only(top: 20, bottom: 30),
                                 child: ElevatedButton(

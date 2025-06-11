@@ -65,7 +65,7 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
           DropdownButtonFormField(
             value: contractStatusController,
             hint: Text("Status do contrato"),
-            items: ['ok', 'review', 'pendent'].map((status) {
+            items: ['ok', 'Revisão', 'pendent'].map((status) {
               return DropdownMenuItem(
                 child: Text(status),
                 value: status,

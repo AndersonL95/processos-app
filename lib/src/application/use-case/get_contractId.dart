@@ -11,7 +11,7 @@ class GetContractIdInfoApi {
     try {
       var contractData = await apiService.findContractId(id);
       if (contractData != null) {
-        Contracts contracts = Contracts.froJson(contractData);
+        Contracts contracts = Contracts.fromJson(contractData);
         print("CONTRACTS: $contracts");
 
         return contracts;
