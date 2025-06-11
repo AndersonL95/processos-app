@@ -11,14 +11,12 @@ import 'package:docInHand/src/application/screens/contratos_detalhes.dart';
 import 'package:docInHand/src/application/screens/update_contract.dart';
 import 'package:docInHand/src/application/use-case/delet_contract.api.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
-import 'package:docInHand/src/application/use-case/getNotification_api.dart';
 import 'package:docInHand/src/application/use-case/getSector_api.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:docInHand/src/application/use-case/update_contract_api.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
-import 'package:docInHand/src/infrastucture/notifications.dart';
 import 'package:docInHand/src/infrastucture/sector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -271,6 +269,7 @@ class _ContractPageState extends State<ContractPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("LOADING: ${_loading}");
     return Scaffold(
         appBar: AppBar(
           title: Padding(

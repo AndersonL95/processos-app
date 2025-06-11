@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiAddTermService implements RepositoryInterface<AddTerm> {
-  final baseUrl = "http://192.168.0.109:3000/api";
+  final baseUrl = "http://192.168.0.124:3000/api";
   final AuthManager authManager;
   ApiAddTermService(this.authManager);
   late int tenantId;
@@ -40,10 +40,11 @@ class ApiAddTermService implements RepositoryInterface<AddTerm> {
         );
       });
 
-      print("RESPONSE: ${response.body}");
+   
 
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
+      
         if (responseBody != null && responseBody['id'] != null) {
           return responseBody['id'];
         } else {

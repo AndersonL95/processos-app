@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
   //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.109:3000/api";
+  final baseUrl = "http://192.168.0.124:3000/api";
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;
@@ -36,8 +36,6 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       contracts.file = base64File;
 
       String body = jsonEncode(contracts.toJson());
-      print("BODY: ${body}");
-
       final response = await authManager.sendAuthenticate(() async {
         return http.post(Uri.parse("$baseUrl/contract"),
             headers: authManager.token != null
@@ -49,12 +47,12 @@ class ApiContractService implements RepositoryInterface<Contracts> {
                 : {'Content-type': 'application/json'},
             body: body);
       });
-      print("RESPONSE: ${response.body}");
-
+    
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
-        if (responseBody != null && responseBody['id'] != null) {
-          return responseBody['id'];
+          
+        if (responseBody != null && responseBody['contract']['id'] != null) {
+          return responseBody['contract']['id'];
         } else {
           throw Exception("Resposta sem campo ID: ${response.body}");
         }
@@ -235,3 +233,5 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     throw UnimplementedError();
   }
 }
+
+

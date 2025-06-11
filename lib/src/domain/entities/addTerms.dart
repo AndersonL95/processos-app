@@ -6,14 +6,14 @@ class AddTerm {
 
   factory AddTerm.fromJson(Map<String, dynamic> json) {
     return AddTerm(
-      nameTerm: json['name'].toString(),
+      nameTerm: json['nameTerm'].toString(),
       file: json['file'].toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'name': nameTerm,
+      'nameTerm': nameTerm,
       'file': file,
     };
   }

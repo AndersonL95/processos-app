@@ -187,7 +187,7 @@ class Contracts {
       'contractStatus': contractStatus,
       'balance': balance,
       'todo': todo,
-      'addTerm': addTerm?.map((e) => e.toJson()).toList() ?? [],
+      'add_term': addTerm?.map((e) => e.toJson()).toList() ?? [],
       'addQuant': addQuant,
       'companySituation': companySituation,
       'userId': userId,
@@ -211,8 +211,8 @@ class Contracts {
         contractStatus: json['contractStatus'],
         balance: json['balance'],
         todo: json['todo'],
-        addTerm: json['addTerm'] != null
-            ? (json['addTerm'] as List).map((e) => AddTerm.fromJson(e)).toList()
+        addTerm: json['add_term'] != null
+            ? (json['add_term'] as List).map((e) => AddTerm.fromJson(e)).toList()
             : [],
         addQuant: json['addQuant'],
         companySituation: json['companySituation'],
