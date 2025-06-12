@@ -8,7 +8,7 @@ class AuthManager with ChangeNotifier {
   String? _token;
   String? _refresh_token;
   //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.124:3000/api";
+  final baseUrl = "http://192.168.0.113:3000/api";
   String? get token => _token;
 
   Future<Map<String, dynamic>> login(String email, String password) async {

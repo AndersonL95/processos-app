@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
   //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.124:3000/api";
+  final baseUrl = "http://192.168.0.113:3000/api";
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;
@@ -120,7 +120,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     return bodyList;
   }
 
-  Future<Map<String, dynamic>> findContractId(int id) async {
+  Future<Object> findContractId(int id) async {
     print("IDD: $id");
 
     final SharedPreferences data = await SharedPreferences.getInstance();
@@ -130,19 +130,27 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
     try {
       final response = await authManager.sendAuthenticate(() async {
-        return await http.get(Uri.parse("$baseUrl/contract/$id"), headers: {
-          'Authorization': 'Bearer ${authManager.token}',
-          'x-tenant-id': tenantId.toString()
-        }
-            // : {}
-            );
+        return await http.get(Uri.parse("$baseUrl/contract/$id"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString()
+                  }
+                : {});
       });
-      print("RES: ${response.body}");
+     
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
+     if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+         print('DECODE: $data');
+         final contract = Contracts.fromJson(data);
+      print('Contrato carregado: ${contract.name}');
+      return contract;
+      } else {
+        print("Erro ao buscar contrato: ${response.statusCode}");
+        return {};
       }
-      return json.decode(response.body);
+
     } catch (e) {
       throw Exception("$e");
     }

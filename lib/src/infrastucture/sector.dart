@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiSectorService implements RepositoryInterface<Sector> {
   //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.124:3000/api";
+  final baseUrl = "http://192.168.0.113:3000/api";
   final AuthManager authManager;
   ApiSectorService(this.authManager);
   late int tenantId;

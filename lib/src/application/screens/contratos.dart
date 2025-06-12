@@ -220,7 +220,7 @@ class _ContractPageState extends State<ContractPage> {
 
   Future<void> inactiveUser(int id, String value) async {
     try {
-      Contracts? contractEdit = await getContractIdInfoApi.execute(id);
+      Contracts? contractEdit = (await getContractIdInfoApi.execute(id)) as Contracts?;
 
       if (contractEdit == null) {
         print("Contrato não encontrado.");
@@ -228,7 +228,7 @@ class _ContractPageState extends State<ContractPage> {
           type: ToastificationType.error,
           style: ToastificationStyle.fillColored,
           context: context,
-          title: const Text("Usuário não encontrado."),
+          title: const Text("Contrato não encontrado."),
           autoCloseDuration: const Duration(seconds: 8),
         );
         return;

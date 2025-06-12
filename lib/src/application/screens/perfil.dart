@@ -50,11 +50,12 @@ class _PerfilPageState extends State<PerfilPage> {
           dataUser.add(json.decode(userInfoJson));
         });
 
-        if (dataUser.isNotEmpty) {
+        if (dataUser.isNotEmpty && dataUser[0]['photo'] != null) {
           String photoBase64 = dataUser[0]['photo'];
           List<int> imageBytes = await _base64StringToBytes(photoBase64);
           userImage = MemoryImage(Uint8List.fromList(imageBytes));
-        }
+}
+
 
         setState(() {
           _loading = false;
@@ -213,7 +214,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                               width: 130,
                                               decoration: const BoxDecoration(),
                                               child: dataUser[index]['photo'] ==
-                                                      ""
+                                                      null
                                                   ? Image.asset(
                                                       'Assets/images/user.png')
                                                   : Image(

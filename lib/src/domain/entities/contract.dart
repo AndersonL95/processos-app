@@ -41,7 +41,7 @@ class Contracts {
       required companySituation,
       required userId,
       required sector,
-      required active,
+      required this.active,
       required this.file}) {
     setName(name);
     setNumProcess(numProcess);
