@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:docInHand/src/application/service/http.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:docInHand/src/application/components/loginError.dart';
@@ -7,14 +8,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthManager with ChangeNotifier {
   String? _token;
   String? _refresh_token;
-  //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.113:3000/api";
+  
   String? get token => _token;
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/login"),
+        HttpService.buildUri("/login"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -61,7 +61,7 @@ class AuthManager with ChangeNotifier {
     }
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/refresh_token"),
+        HttpService.buildUri("/refresh_token"),
         headers: <String, String>{
           'Content-type': 'application/json; charset=UTF-8',
         },

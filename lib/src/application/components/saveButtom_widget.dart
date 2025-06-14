@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class SaveButton extends StatefulWidget {
   final VoidCallback onPressed;
-  const SaveButton({required this.onPressed, Key? key}) : super(key: key);
+  const SaveButton({required this.onPressed, super.key});
 
   @override
   State<SaveButton> createState() => _SaveButtonState();

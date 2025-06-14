@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/application/service/http.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/repository/interface_rep.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
@@ -8,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiAddTermService implements RepositoryInterface<AddTerm> {
-  final baseUrl = "http://192.168.0.113:3000/api";
   final AuthManager authManager;
   ApiAddTermService(this.authManager);
   late int tenantId;
@@ -28,7 +28,7 @@ class ApiAddTermService implements RepositoryInterface<AddTerm> {
 
       final response = await authManager.sendAuthenticate(() async {
         return http.post(
-          Uri.parse("$baseUrl/contract"),
+          HttpService.buildUri("/contract"),
           headers: authManager.token != null
               ? {
                   'Authorization': 'Bearer ${authManager.token}',

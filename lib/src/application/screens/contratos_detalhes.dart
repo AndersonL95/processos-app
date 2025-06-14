@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/application/components/AddTermModal.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
+import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -34,6 +36,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   String pathPDF = "";
   String status = "";
   final dateFormat = DateFormat('yyyy-MM-dd');
+  List<AddTerm> dataTerm = [];
 
   
 
@@ -64,7 +67,6 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
 
   Future<void> getContractId() async {
     try {
-      print("MEUID: ${widget.contractDetail['id']}");
       await getContractIdInfoApi.execute(widget.contractDetail['id']).then((value) {
         if (mounted) {
           setState(() {
@@ -72,8 +74,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
             _loading = false;
           });
             statusResul();
-
-         print("CONTRACTID: ${dataId?.addTerm}");
+          dataTerm = dataId!.addTerm!;
+         print("CONTRACTID: ${dataTerm.map((e)=> e.nameTerm)}");
         } else {
           setState(() {
             _error = "Erro ao carregar informações";
@@ -258,7 +260,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                           ),
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                                MainAxisAlignment.spaceAround,
                                             children: [
                                               Padding(
                                                   padding: EdgeInsets.only(
@@ -306,6 +308,37 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                   scale: 5.0,
                                                                 ),
                                                               ),
+                                                            ),
+                                                          ],
+                                                        )),
+                                                  )),
+                                                  Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: 30, left: 0),
+                                                  child: Card(
+                                                    shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10))),
+                                                    clipBehavior:
+                                                        Clip.antiAlias,
+                                                    color:
+                                                        customColors['white'],
+                                                    elevation: 10,
+                                                    shadowColor: Colors.black,
+                                                    child: SizedBox(
+                                                        width: 110,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(5),
+                                                              child: AddTermModalButton(dataTerm: dataTerm)
                                                             ),
                                                           ],
                                                         )),
