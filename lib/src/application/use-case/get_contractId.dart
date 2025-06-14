@@ -7,21 +7,24 @@ class GetContractIdInfoApi {
   final ApiContractService apiService;
   GetContractIdInfoApi(this.apiService);
 
-  Future execute(int id) async {
-    try {
-      var contractData = await apiService.findContractId(id);
-      if (contractData != null) {
-        Contracts contracts = Contracts.fromJson(contractData);
-        print("CONTRACTS: $contracts");
+Future<Object?> execute(int id) async {
+  try {
+    var contractData = await apiService.findContractId(id);
 
-        return contracts;
-      } else {
-        print("Nenhum contrato foi encontrado com o id: $id");
-        return null;
-      }
-    } catch (e) {
-      print("Error: $e");
+    print("Contrato carregado: ${contractData}");
+    print("Tipo: ${contractData.runtimeType}");
+
+    if (contractData != null) {
+      return contractData;
+    } else {
+      print("Contrato não encontrado.");
       return null;
     }
+  } catch (e) {
+    print("Erro no execute: $e");
+    return null;
   }
+}
+
+
 }

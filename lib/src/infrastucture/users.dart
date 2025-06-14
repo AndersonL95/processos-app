@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:docInHand/src/application/service/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:docInHand/src/domain/entities/users.dart';
 import 'package:docInHand/src/domain/repository/interface_rep.dart';
@@ -7,8 +8,6 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService implements RepositoryInterface<Users> {
-  //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.124:3000/api";
   final AuthManager authManager;
   ApiService(this.authManager);
   late int tenantId;
@@ -22,7 +21,7 @@ class ApiService implements RepositoryInterface<Users> {
     }
     try {
       final response = await authManager.sendAuthenticate(() async {
-        return await http.get(Uri.parse("$baseUrl/users/$id"),
+        return await http.get(HttpService.buildUri("/users/$id"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -65,7 +64,7 @@ class ApiService implements RepositoryInterface<Users> {
       String body = jsonEncode(user.toJson());
       final response = await authManager.sendAuthenticate(() async {
         return await http.put(
-          Uri.parse("$baseUrl/users/${user.id}"),
+          HttpService.buildUri("/users/${user.id}"),
           headers: authManager.token != null
               ? {
                   'Authorization': 'Bearer ${authManager.token}',
@@ -117,7 +116,7 @@ class ApiService implements RepositoryInterface<Users> {
       String body = jsonEncode(user.toJson());
       final response = await authManager.sendAuthenticate(() async {
         return await http.post(
-          Uri.parse("$baseUrl/users"),
+         HttpService.buildUri("/users"),
           headers: {
             'Authorization': 'Bearer ${authManager.token}',
             'Content-Type': 'application/json',
@@ -160,7 +159,7 @@ class ApiService implements RepositoryInterface<Users> {
       try {
         final response = await authManager.sendAuthenticate(() async {
           return await http.get(
-            Uri.parse("$baseUrl/users"),
+            HttpService.buildUri("/users"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -196,7 +195,7 @@ class ApiService implements RepositoryInterface<Users> {
       try {
         final response = await authManager.sendAuthenticate(() async {
           return await http.get(
-            Uri.parse("$baseUrl/users_admin"),
+            HttpService.buildUri("/users_admin"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',

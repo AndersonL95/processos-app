@@ -2,6 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/application/components/AddTermModal.dart';
+import 'package:docInHand/src/application/use-case/get_contractId.dart';
+import 'package:docInHand/src/application/utils/pdfRead.dart';
+import 'package:docInHand/src/domain/entities/addTerms.dart';
+import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,61 +27,19 @@ class ContractDetailPage extends StatefulWidget {
 class _ContractDetailPageState extends State<ContractDetailPage> {
   AuthManager authManager = AuthManager();
   late GetContractsInfoApi getContractsInfoApi;
+  late GetContractIdInfoApi getContractIdInfoApi;
   late ApiContractService apiContractService;
 
   bool _loading = true;
   String? _error;
-  List<dynamic> data = [];
+  
+  Contracts? dataId;
   String pathPDF = "";
   String status = "";
   final dateFormat = DateFormat('yyyy-MM-dd');
+  List<AddTerm> dataTerm = [];
 
-  @override
-  void initState() {
-    apiContractService = ApiContractService(authManager);
-    getContractsInfoApi = GetContractsInfoApi(apiContractService);
-
-    getContracts();
-    statusResul();
-    pathFile().then((v) {
-      pathPDF = v.path;
-    });
-
-    super.initState();
-  }
-
-  void statusResul() {
-    switch (widget.contractDetail['contractStatus']) {
-      case 'ok':
-        status = "Aprovado";
-        break;
-      case 'review':
-        status = "Revisando";
-        break;
-      case 'pendent':
-        status = "Reprovado";
-        break;
-      default:
-        status = "Nenhum";
-    }
-  }
-
-  Future<File> pathFile() async {
-    Completer<File> completer = Completer();
-    try {
-      var url = widget.contractDetail['id'];
-      var bytes = base64Decode(
-          widget.contractDetail['file'].toString().replaceAll('\n', ''));
-      final dir = await getApplicationDocumentsDirectory();
-      File file = File("${dir.path}/${url.toString()}.pdf");
-      await file.writeAsBytes(bytes.buffer.asUint8List());
-
-      completer.complete(file);
-    } catch (e) {
-      print("Erro: $e");
-    }
-    return completer.future;
-  }
+  
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
@@ -102,14 +65,18 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     return lines.join('\n');
   }
 
-  Future<void> getContracts() async {
+
+  Future<void> getContractId() async {
     try {
-      await getContractsInfoApi.execute().then((value) {
-        if (this.mounted) {
+      await getContractIdInfoApi.execute(widget.contractDetail['id']).then((value) {
+        if (mounted) {
           setState(() {
-            data = value;
+            dataId = value as Contracts?;
             _loading = false;
           });
+            statusResul();
+          dataTerm = dataId!.addTerm!;
+         print("CONTRACTID: ${dataTerm.map((e)=> e.nameTerm)}");
         } else {
           setState(() {
             _error = "Erro ao carregar informações";
@@ -123,9 +90,47 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
       throw Exception(e);
     }
   }
+  
+
+
+  void initState() {
+    super.initState();
+    apiContractService = ApiContractService(authManager);
+    getContractsInfoApi = GetContractsInfoApi(apiContractService);
+    getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
+    getContractId();
+
+    pathFile(
+      fileBase64: widget.contractDetail['file'],
+      fileName: widget.contractDetail['id'].toString(),
+    ).then((v) {
+      setState(() {
+        pathPDF = v.path;
+      });
+    });
+  }
+
+
+  void statusResul() {
+    switch (dataId!.contractStatus) {
+      case 'ok':
+        status = "Aprovado";
+        break;
+      case 'review':
+        status = "Revisando";
+        break;
+      case 'pendent':
+        status = "Reprovado";
+        break;
+      default:
+        status = "Nenhum";
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
         appBar: AppBar(
           title: Align(
@@ -170,7 +175,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                 ? Center(
                     child: Text("ERROR: $_error"),
                   )
-                : data != null
+                : dataId != null
                     ? SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Padding(
@@ -228,8 +233,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             10),
                                                                 child: Text(
                                                                   breakLinesEvery10Characters(
-                                                                      widget.contractDetail[
-                                                                          'name']),
+                                                                      dataId!.name),
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           20,
@@ -248,7 +252,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                           ),
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                                MainAxisAlignment.spaceAround,
                                             children: [
                                               Padding(
                                                   padding: EdgeInsets.only(
@@ -286,7 +290,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                           MaterialPageRoute(
                                                                               builder: (context) => PdfViewPage(
                                                                                     pdfPath: pathPDF,
-                                                                                    pdfBytes: widget.contractDetail,
+                                                                                    pdfBytes: dataId,
                                                                                   )))
                                                                     }
                                                                 },
@@ -300,13 +304,42 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                           ],
                                                         )),
                                                   )),
-                                              Column(
+                                                  Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: 30, left: 0),
+                                                  child: Card(
+                                                    shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10))),
+                                                    clipBehavior:
+                                                        Clip.antiAlias,
+                                                    color:
+                                                        customColors['white'],
+                                                    elevation: 10,
+                                                    shadowColor: Colors.black,
+                                                    child: SizedBox(
+                                                        width: 100,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            AddTermModalButton(dataTerm: dataTerm)
+                                                          ],
+                                                        )),
+                                                  )),
+                                         
+                                            ],
+                                          ),
+                                               Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Padding(
                                                       padding: EdgeInsets.only(
-                                                          top: 10, right: 10),
+                                                          top: 10, right: 10, left: 10),
                                                       child: Card(
                                                         shape: RoundedRectangleBorder(
                                                             borderRadius:
@@ -322,7 +355,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                         shadowColor:
                                                             Colors.black,
                                                         child: SizedBox(
-                                                            width: 195,
+                                                            
                                                             child: Padding(
                                                               padding:
                                                                   EdgeInsets
@@ -346,7 +379,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       ),
                                                                       Text(
                                                                         DateFormat('dd-MM-yyyy')
-                                                                            .format(DateFormat("yyyy-MM-dd").parse(widget.contractDetail['initDate'])),
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(dataId!.initDate)),
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -368,7 +401,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       ),
                                                                       Text(
                                                                         DateFormat('dd-MM-yyyy')
-                                                                            .format(DateFormat("yyyy-MM-dd").parse(widget.contractDetail['finalDate'])),
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(dataId!.finalDate)),
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -389,7 +422,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             "Saldo: "),
                                                                       ),
                                                                       Text(
-                                                                        "${widget.contractDetail['balance']} R\$",
+                                                                        "${dataId!.balance} R\$",
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -410,8 +443,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             "Add. de Quantitativo: "),
                                                                       ),
                                                                       Text(
-                                                                        widget.contractDetail[
-                                                                            'addQuant'],
+                                                                        dataId!.addQuant,
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -420,36 +452,13 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       )
                                                                     ],
                                                                   ),
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: [
-                                                                      Padding(
-                                                                        padding:
-                                                                            EdgeInsets.only(top: 5),
-                                                                        child: Text(
-                                                                            "Add. Prazo: "),
-                                                                      ),
-                                                                      Text(
-                                                                        widget.contractDetail[
-                                                                            'addTerm'],
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                15,
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      )
-                                                                    ],
-                                                                  )
+                                                                  
                                                                 ],
                                                               ),
                                                             )),
                                                       )),
                                                 ],
-                                              )
-                                            ],
-                                          ),
+                                              ),
                                           Padding(
                                               padding: EdgeInsets.only(top: 20),
                                               child: Card(
@@ -489,8 +498,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                 ),
                                                               ),
                                                               Text(
-                                                                widget.contractDetail[
-                                                                    'numContract'],
+                                                               dataId!.numContract
+                                                                    ,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -516,8 +525,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                                widget.contractDetail[
-                                                                    'numProcess'],
+                                                               dataId!.numProcess,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -543,8 +551,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                                widget.contractDetail[
-                                                                    'contractLaw'],
+                                                               dataId!.contractLaw,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -570,8 +577,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                                widget.contractDetail[
-                                                                    'supervisor'],
+                                                               dataId!.supervisor,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         13,
@@ -597,8 +603,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                                widget.contractDetail[
-                                                                    'manager'],
+                                                               dataId!.manager,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         13,
@@ -634,60 +639,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                               )
                                                             ],
                                                           ),
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Padding(
-                                                                padding: EdgeInsets
-                                                                    .only(
-                                                                        top: 5),
-                                                                child: Text(
-                                                                    "Aditivo de prazo: ",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            17)),
-                                                              ),
-                                                              Text(
-                                                                widget.contractDetail[
-                                                                    'addTerm'],
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        17,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              )
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Padding(
-                                                                padding: EdgeInsets
-                                                                    .only(
-                                                                        top: 5),
-                                                                child: Text(
-                                                                    "Aditivo de quantitativo: ",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            17)),
-                                                              ),
-                                                              Text(
-                                                                widget.contractDetail[
-                                                                    'addQuant'],
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        17,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              )
-                                                            ],
-                                                          ),
+                                                         
+                                                          
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
@@ -704,8 +657,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                                widget.contractDetail[
-                                                                    'companySituation'],
+                                                               dataId!.companySituation,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,

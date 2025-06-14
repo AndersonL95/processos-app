@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/application/service/http.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:docInHand/src/domain/repository/interface_rep.dart';
@@ -9,8 +10,6 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiContractService implements RepositoryInterface<Contracts> {
-  //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.124:3000/api";
   final AuthManager authManager;
   ApiContractService(this.authManager);
   late int tenantId;
@@ -37,7 +36,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
 
       String body = jsonEncode(contracts.toJson());
       final response = await authManager.sendAuthenticate(() async {
-        return http.post(Uri.parse("$baseUrl/contract"),
+        return http.post(HttpService.buildUri("/contract"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -79,7 +78,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       tenantId = json.decode(tenantJson);
     }
     final response = await authManager.sendAuthenticate(() async {
-      return http.delete(Uri.parse("$baseUrl/contract/$id"),
+      return http.delete(Uri.parse("/contract/$id"),
           headers: authManager.token != null
               ? {
                   'Authorization': 'Bearer ${authManager.token}',
@@ -103,7 +102,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
     try {
       final response = await authManager.sendAuthenticate(() async {
-        return await http.get(Uri.parse("$baseUrl/contract"),
+        return await http.get(HttpService.buildUri("/contract"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -120,7 +119,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     return bodyList;
   }
 
-  Future<Map<String, dynamic>> findContractId(int id) async {
+  Future<Object> findContractId(int id) async {
     print("IDD: $id");
 
     final SharedPreferences data = await SharedPreferences.getInstance();
@@ -130,19 +129,26 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
     try {
       final response = await authManager.sendAuthenticate(() async {
-        return await http.get(Uri.parse("$baseUrl/contract/$id"), headers: {
-          'Authorization': 'Bearer ${authManager.token}',
-          'x-tenant-id': tenantId.toString()
-        }
-            // : {}
-            );
+        return await http.get(HttpService.buildUri("/contract/$id"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString()
+                  }
+                : {});
       });
-      print("RES: ${response.body}");
+     
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
+     if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+         final contract = Contracts.fromJson(data);
+      print('Contrato carregado: ${contract.name}');
+      return contract;
+      } else {
+        print("Erro ao buscar contrato: ${response.statusCode}");
+        return {};
       }
-      return json.decode(response.body);
+
     } catch (e) {
       throw Exception("$e");
     }
@@ -157,7 +163,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
         tenantId = json.decode(tenantJson);
       }
       final response = await authManager.sendAuthenticate(() async {
-        return http.get(Uri.parse("$baseUrl/contract/recent/order"),
+        return http.get(HttpService.buildUri("/contract/recent/order"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -199,7 +205,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
       }
       String body = jsonEncode(contracts.toJson());
       final response = await authManager.sendAuthenticate(() async {
-        return http.put(Uri.parse("$baseUrl/contract/${contracts.id}"),
+        return http.put(HttpService.buildUri("/contract/${contracts.id}"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:docInHand/src/application/components/saveButtom_widget.dart';
 import 'package:docInHand/src/application/components/termsModal_Widget.dart';
 import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
@@ -229,7 +230,7 @@ class AddContractPageState extends State<AddContractPage> {
         addQuant: "6",
         companySituation: companySituationController.text.toString(),
         sector: sectorContractController?.toString(),
-        active: active == true ? "yes" : "no",
+        active: "yes",
         userId: int.parse(idJson!),
         file: _selectPDF?.path ?? "",
         addTerm: encodedTerms,
@@ -1006,23 +1007,14 @@ class AddContractPageState extends State<AddContractPage> {
                                       )
                                     ],
                                   )),
-                              Padding(
-                                padding: EdgeInsets.only(top: 20, bottom: 30),
-                                child: ElevatedButton(
-                                  child: Icon(
-                                    Icons.save_as_rounded,
-                                    size: 35,
-                                    color: customColors['white'],
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: customColors["green"],
-                                      shape: CircleBorder(),
-                                      minimumSize: const Size(140, 65)),
-                                  onPressed: () {
-                                    submitForm();
+                             
+                                 SaveButton(
+                                  onPressed: () async {
+                                    await submitForm();
                                   },
-                                ),
-                              )
+                                )
+
+                              
                             ],
                           )),
                     )

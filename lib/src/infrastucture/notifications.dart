@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:docInHand/src/application/service/http.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:docInHand/src/domain/repository/interface_rep.dart';
@@ -6,8 +7,7 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiNotificationService implements RepositoryInterface<Notification> {
-  //final baseUrl = "http://10.0.2.2:3000/api";
-  final baseUrl = "http://192.168.0.124:3000/api";
+
   final AuthManager authManager;
   ApiNotificationService(this.authManager);
   late int tenantId;
@@ -78,7 +78,7 @@ class ApiNotificationService implements RepositoryInterface<Notification> {
 
       try {
         final response = await authManager.sendAuthenticate(() async {
-          return await http.get(Uri.parse("$baseUrl/notification/$userId"),
+          return await http.get(HttpService.buildUri("/notification/$userId"),
               headers: authManager.token != null
                   ? {
                       'Authorization': 'Bearer ${authManager.token}',
@@ -113,7 +113,7 @@ class ApiNotificationService implements RepositoryInterface<Notification> {
 
       try {
         final response = await authManager.sendAuthenticate(() async {
-          return await http.post(Uri.parse("$baseUrl/notification/viwed/$id"),
+          return await http.post(HttpService.buildUri("/notification/viwed/$id"),
               headers: authManager.token != null
                   ? {
                       'Authorization': 'Bearer ${authManager.token}',
