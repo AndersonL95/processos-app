@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:docInHand/src/application/components/AddTermModal.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
+import 'package:docInHand/src/application/utils/pdfRead.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:flutter/material.dart';
@@ -89,35 +90,26 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
       throw Exception(e);
     }
   }
-  Future<File> pathFile() async {
-    Completer<File> completer = Completer();
-    try {
-      var url = widget.contractDetail['id'];
-      var bytes = base64Decode(
-          widget.contractDetail['file'].toString().replaceAll('\n', ''));
-      final dir = await getApplicationDocumentsDirectory();
-      File file = File("${dir.path}/${url.toString()}.pdf");
-      await file.writeAsBytes(bytes.buffer.asUint8List());
+  
 
-      completer.complete(file);
-    } catch (e) {
-      print("Erro: $e");
-    }
-    return completer.future;
-  }
 
-@override
   void initState() {
+    super.initState();
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
     getContractId();
-    pathFile().then((v) {
-      pathPDF = v.path;
+  
+    pathFile(
+      fileBase64: widget.contractDetail['file'],
+      fileName: widget.contractDetail['id'].toString(),
+    ).then((v) {
+      setState(() {
+        pathPDF = v.path;
+      });
     });
-
-    super.initState();
   }
+
 
   void statusResul() {
     switch (dataId!.contractStatus) {

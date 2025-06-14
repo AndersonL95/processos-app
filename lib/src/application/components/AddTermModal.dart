@@ -1,15 +1,19 @@
+import 'package:docInHand/src/application/screens/pdfView.dart';
+import 'package:docInHand/src/application/utils/pdfRead.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:flutter/material.dart';
 
 class AddTermModalButton extends StatelessWidget {
   final List<AddTerm> dataTerm;
-
+ 
   const AddTermModalButton({
     super.key,
     required this.dataTerm,
+    
   });
 
   void _openModal(BuildContext context) {
+     String pathPDF = "";
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -36,14 +40,38 @@ class AddTermModalButton extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final term = dataTerm[index];
                     return ListTile(
-                      title: Text(term.nameTerm ?? "Sem nome"),
-                      subtitle: Text("ID: ${term.id}, Contrato: ${term.contractId}"),
-                      onTap: () {
-                       
-                        Navigator.pop(context); // Fecha o modal
-                      
-                        print("Selecionado: ${term.nameTerm}");
-                      },
+                      title: Row(
+                        children: [
+                          Padding(padding: EdgeInsets.all(10),
+                            child: Image.asset('Assets/images/pdf.png',scale: 10.0,)
+                          ),
+                          Text(term.nameTerm ?? "Sem nome"),
+                        
+                        ],
+                      ),
+                      onTap: () async {
+                     Navigator.of(context).pop();
+                     try {
+                      final file = await pathFile(
+                        fileBase64: term.file,
+                        fileName: 'aditivo_${term.id}', 
+                      );
+                  
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PdfViewPage(
+                            pdfPath: file.path,
+                            pdfBytes: null, 
+                          ),
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Erro ao abrir PDF: $e")),
+                      );
+                    }                                         
+                                        },
                     );
                   },
                 ),
@@ -58,13 +86,24 @@ class AddTermModalButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(5),
-      child: InkWell(
-        onTap: () => _openModal(context),
-        child: Image.asset(
-          'Assets/images/aditivos.png',
-          scale: 9.0,
-        ),
-      ),
+      child: Column(
+        children: [
+          if(dataTerm.isNotEmpty)
+          Padding(padding: EdgeInsets.all(0),
+          child: InkWell(
+            onTap: () => _openModal(context),
+            child: Image.asset(
+              'Assets/images/aditivos.png',
+              scale: 9.0,
+            ),
+      ),),
+      if(dataTerm.isEmpty)
+        Image.asset(
+              'Assets/images/empty.png',
+              scale: 9.0,
+            ),
+        ],
+      )
     );
   }
 }
