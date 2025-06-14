@@ -50,28 +50,31 @@ class AddTermModalButton extends StatelessWidget {
                         ],
                       ),
                       onTap: () async {
-                     Navigator.of(context).pop();
-                     try {
-                      final file = await pathFile(
-                        fileBase64: term.file,
-                        fileName: 'aditivo_${term.id}', 
-                      );
-                  
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PdfViewPage(
-                            pdfPath: file.path,
-                            pdfBytes: null, 
-                          ),
-                        ),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Erro ao abrir PDF: $e")),
-                      );
-                    }                                         
-                                        },
+                        final currentContext = context;
+                      
+                        Navigator.of(currentContext).pop();
+                      
+                        try {
+                          final file = await pathFile(
+                            fileBase64: term.file,
+                            fileName: 'aditivo_${term.id}',
+                          );
+                          Navigator.push(
+                            currentContext,
+                            MaterialPageRoute(
+                              builder: (_) => PdfViewPage(
+                                pdfPath: file.path,
+                                pdfBytes: null,
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(currentContext).showSnackBar(
+                            SnackBar(content: Text("Erro ao abrir PDF: $e")),
+                          );
+                        }
+                      }
+
                     );
                   },
                 ),

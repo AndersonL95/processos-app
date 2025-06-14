@@ -99,7 +99,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
     getContractId();
-  
+
     pathFile(
       fileBase64: widget.contractDetail['file'],
       fileName: widget.contractDetail['id'].toString(),
@@ -320,18 +320,13 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                     elevation: 10,
                                                     shadowColor: Colors.black,
                                                     child: SizedBox(
-                                                        width: 110,
+                                                        width: 100,
                                                         child: Row(
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
                                                                   .center,
                                                           children: [
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .all(5),
-                                                              child: AddTermModalButton(dataTerm: dataTerm)
-                                                            ),
+                                                            AddTermModalButton(dataTerm: dataTerm)
                                                           ],
                                                         )),
                                                   )),
