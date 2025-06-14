@@ -214,7 +214,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                               width: 130,
                                               decoration: const BoxDecoration(),
                                               child: dataUser[index]['photo'] ==
-                                                      "" || dataUser[index]['photoo'] == null
+                                                      "" || dataUser[index]['photo'] == null
                                                   ? Image.asset(
                                                       'Assets/images/user.png')
                                                   : Image(
