@@ -151,7 +151,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     contractEdit = Contracts.fromJson(widget.contractData);
     sector = widget.contractData['sector'];
     active = widget.contractData['active'] == 'yes' ? true : false;
-    print("SECRETARIA: ${widget.contractData['sector']}");
     super.initState();
   }
 
@@ -279,7 +278,14 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       contractEdit?.active = active == true ? 'yes' : "no";
       contractEdit?.companySituation =
           companySituationController.text.toString();
-      contractEdit?.addTerm = _terms;
+      contractEdit?.addTerm = _terms.map((term) {
+        return AddTerm(
+          nameTerm: term.nameTerm,
+          file: term.file,
+          contractId: contractEdit?.id, 
+        );
+}).toList();
+
       contractEdit?.userId = int.parse(idJson!);
 
       if (_selectPDF != null && _selectPDF!.path.isNotEmpty) {

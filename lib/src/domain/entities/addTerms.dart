@@ -19,8 +19,8 @@ class AddTerm {
     return {
       'nameTerm': nameTerm,
       'file': file,
-      'contractId': contractId,
-      'id': id
+      if(contractId != null) 'contractId': contractId,
+      if(id != null) 'id': id
     };
   }
 }
