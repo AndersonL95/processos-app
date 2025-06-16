@@ -212,8 +212,10 @@ class Contracts {
         balance: json['balance'],
         todo: json['todo'],
         addTerm: json['add_term'] != null
-            ? (json['add_term'] as List).map((e) => AddTerm.fromJson(e)).toList()
-            : [],
+          ? (json['add_term'] as List)
+              .map((e) => AddTerm.fromJson(e))
+              .toList()
+          : [],
         addQuant: json['addQuant'],
         companySituation: json['companySituation'],
         sector: json['sector'],
