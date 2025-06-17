@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:file_picker/file_picker.dart';
@@ -41,20 +44,26 @@ class _EditTermModalState extends State<EditTermModal> {
     }
   }
 
-  void _addTerm() {
-    if (_nameController.text.isNotEmpty && selectedFilePath != null) {
-      final newTerm = AddTerm(
-        nameTerm: _nameController.text,
-        file: selectedFilePath!,
-      );
 
-      setState(() {
-        localTerms.add(newTerm);
-        _nameController.clear();
-        selectedFilePath = null;
-      });
-    }
+
+void _addTerm() async {
+  if (_nameController.text.isNotEmpty && selectedFilePath != null) {
+    final fileBytes = await File(selectedFilePath!).readAsBytes();
+    final base64File = base64Encode(fileBytes);
+
+    final newTerm = AddTerm(
+      nameTerm: _nameController.text,
+      file: base64File, // Agora o arquivo é base64
+    );
+
+    setState(() {
+      localTerms.add(newTerm);
+      _nameController.clear();
+      selectedFilePath = null;
+    });
   }
+}
+
 
   void _removeTerm(AddTerm term) {
     setState(() {
@@ -65,6 +74,7 @@ class _EditTermModalState extends State<EditTermModal> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       title: const Text('Editar Aditivos'),
       content: SingleChildScrollView(
         child: Column(
@@ -91,118 +101,132 @@ class _EditTermModalState extends State<EditTermModal> {
                )),
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
-               child: Icon(
-                  Icons.picture_as_pdf,
-                  size: 25,
-                  color:
-                      customColors['white'],
+           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+                Padding(padding: EdgeInsets.all(1),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                  child: Icon(
+                     Icons.picture_as_pdf,
+                     size: 25,
+                     color:
+                         customColors['white'],
+                   ),
+                  style: ElevatedButton
+                   .styleFrom(
+                       backgroundColor: selectedFilePath != null ?
+                           Colors.green :customColors[
+                               "crismon"],
+                       shape:
+                           RoundedRectangleBorder(
+                         borderRadius:
+                             BorderRadius
+                                 .circular(
+                                     10),
+                       ),
+                       minimumSize:
+                           const Size(
+                               100, 40)),
+                    onPressed: _pickFile,
                 ),
-               style: ElevatedButton
-                .styleFrom(
-                    backgroundColor:
-                        customColors[
-                            "crismon"],
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                                  10),
-                    ),
-                    minimumSize:
-                        const Size(
-                            160, 40)),
-              onPressed: _pickFile,
+                  ],
+                ),),
+               ElevatedButton(
+                style: ElevatedButton
+                  .styleFrom(
+                      backgroundColor:
+                          customColors[
+                              "green"],
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                                    10),
+                      ),
+                      minimumSize:
+                          const Size(
+                              100, 40)),
+                onPressed: _addTerm,
+                child: Icon(
+                    Icons.playlist_add,
+                    size: 25,
+                    color:
+                        customColors['white'],
+                  ),
+                ),
+            ],
+           ),
+            Padding(padding: EdgeInsets.only(top: 20),
+              child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(10))),
+              clipBehavior: Clip.antiAlias,
+              elevation: 2,
+              color: Colors.white,
+              
+              child: SizedBox(
+                  width: 290,
+                  child: Column(
+                    children: [
+                       ...localTerms.map((term) {
+                          return ListTile(
+                            title: Text(term.nameTerm ?? 'Sem nome'),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                              onPressed: () => _removeTerm(term),
+                            ),
+                          );
+                        }).toList(),
+                    ],
+                  ),
+                )
             ),
-            if (selectedFilePath != null)
-              Text('Selecionado: ${selectedFilePath!.split('/').last}'),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              style: ElevatedButton
-                .styleFrom(
-                    backgroundColor:
-                        customColors[
-                            "green"],
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                                  10),
-                    ),
-                    minimumSize:
-                        const Size(
-                            160, 40)),
-              onPressed: _addTerm,
-              child: Icon(
-                  Icons.playlist_add,
-                  size: 25,
-                  color:
-                      customColors['white'],
-                ),
             ),
-            const SizedBox(height: 20),
-            const Text("Aditivos atuais:",
-            
-            style: TextStyle(fontSize: 20),),
-            ...localTerms.map((term) {
-              return ListTile(
-                title: Text(term.nameTerm ?? 'Sem nome'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_sweep, color: Colors.red),
-                  onPressed: () => _removeTerm(term),
-                ),
-              );
-            }).toList(),
+           
           ],
         ),
       ),
       actions: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ElevatedButton(
+            Padding(padding: EdgeInsets.only(left: 35),
+              child: ElevatedButton(
               style: ElevatedButton
                 .styleFrom(
                     backgroundColor:
-                        customColors[
-                            "crismon"],
+                       Colors.red,
                     shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                                  10),
-                    ),
+                        CircleBorder(),
                     minimumSize:
                         const Size(
-                            100, 40)),
+                            10, 40)),
               onPressed: (){ Navigator.pop(context);},
-              child: Text("Cancelar", style: TextStyle(color: customColors['white']),)
+              child: Icon(Icons.cancel, size: 20, color: customColors['white'],)
             ),
-        ElevatedButton(
-          style: ElevatedButton
-                .styleFrom(
-                    backgroundColor:
-                        customColors[
-                            "green"],
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                                  10),
-                    ),
-                    minimumSize:
-                        const Size(
-                            90, 40)),
-          onPressed: () {
-            widget.onTermsUpdated(localTerms);
-            Navigator.pop(context);
-          },
-          child: Text('Salvar', style: TextStyle(color: customColors['white']),),
-        ),
+            ),
+            Padding(padding: EdgeInsets.only(right: 0),
+              child: ElevatedButton(
+                      child: Icon(Icons.save, size: 25, color: customColors['white'],),
+                      style: ElevatedButton
+                            .styleFrom(
+                                backgroundColor:
+                                    Colors.green,
+                                shape:
+                                  CircleBorder(),
+                                minimumSize:
+                                    const Size(
+                                        10, 40)),
+                      onPressed: () {
+                        widget.onTermsUpdated(localTerms);
+                        Navigator.pop(context);
+                      },
+                ),
+            ),
           ],
         )
       ],

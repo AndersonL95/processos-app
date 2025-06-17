@@ -46,7 +46,11 @@ class _AddTermModalState extends State<AddTermModal> {
       });
     }
   }
-
+ void _removeTerm(AddTerm term) {
+    setState(() {
+      localTerms.remove(term);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -55,55 +59,130 @@ class _AddTermModalState extends State<AddTermModal> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+           TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nome:'),
+              decoration: InputDecoration(
+               iconColor: customColors['green'],
+               prefixIconColor: customColors['green'],
+               fillColor: Colors.white60,
+               hoverColor: customColors['green'],
+               filled: true,
+               focusColor: customColors['green'],
+               labelText: "Nome",
+               hintText: "Cadastrar nome",
+               prefixIcon: const Icon(Icons.abc_rounded),
+               enabledBorder: new OutlineInputBorder(
+                 borderSide: BorderSide(
+                     color: Color.fromRGBO(1, 76, 45, 1),
+                     width: 2),
+                 borderRadius: BorderRadius.all(
+                   Radius.circular(10),
+                 ),
+               )),
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
+           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+               ElevatedButton(
               onPressed: _pickFile,
-              child: const Text(
-                'Selecionar Arquivo PDF',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                backgroundColor: customColors['green']!,
-              ),
+              child: Icon(
+                     Icons.picture_as_pdf,
+                     size: 25,
+                     color:
+                         customColors['white'],
+                   ),
+                  style: ElevatedButton
+                   .styleFrom(
+                       backgroundColor: selectedFilePath != null ?
+                           Colors.green :customColors[
+                               "crismon"],
+                       shape:
+                           RoundedRectangleBorder(
+                         borderRadius:
+                             BorderRadius
+                                 .circular(
+                                     10),
+                       ),
+                       minimumSize:
+                           const Size(
+                               100, 40)),
+             
             ),
-            if (selectedFilePath != null)
-              Text(
-                'Arquivo selecionado: ${selectedFilePath!.split('/').last}',
-              ),
-            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _addTerm,
-              child: const Text(
-                'Adicionar à Lista',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                backgroundColor: customColors['green']!,
-              ),
+            style: ElevatedButton
+                  .styleFrom(
+                      backgroundColor:
+                          customColors[
+                              "green"],
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                                    10),
+                      ),
+                      minimumSize:
+                          const Size(
+                              100, 40)),
+                child: Icon(
+                    Icons.playlist_add,
+                    size: 25,
+                    color:
+                        customColors['white'],
+                  ),
             ),
-            const SizedBox(height: 20),
-            const Text('Aditivos adicionados:'),
-            ...localTerms.map((term) => ListTile(
-                  title: Text(term.nameTerm ?? 'Sem nome'),
-                )),
+            ],
+           ),
+            Padding(padding: EdgeInsets.only(top: 20),
+              child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(10))),
+              clipBehavior: Clip.antiAlias,
+              elevation: 2,
+              color: Colors.white,
+              
+              child: SizedBox(
+                  width: 290,
+                  child: Column(
+                    children: [
+                        const Text('Aditivos adicionados:'),
+                       ...localTerms.map((term) {
+                          return ListTile(
+                            title: Text(term.nameTerm ?? 'Sem nome'),
+                             trailing: IconButton(
+                              icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                              onPressed: () => _removeTerm(term),
+                            ),
+                          );
+                        }).toList(),
+                    ],
+                  ),
+                )
+            ),
+            ),
+           
+      
+           
           ],
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Fechar'),
-        ),
+        ElevatedButton(
+              style: ElevatedButton
+                .styleFrom(
+                    backgroundColor:
+                       Colors.red,
+                    shape:
+                        CircleBorder(),
+                    minimumSize:
+                        const Size(
+                            10, 40)),
+              onPressed: (){ Navigator.pop(context);},
+              child: Icon(Icons.cancel, size: 20, color: customColors['white'],)
+            ),
       ],
     );
   }

@@ -221,15 +221,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     }
   }
 
-  Future<void> _pickTermPDF() async {
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-    if (result != null) {
-      setState(() {
-        _selectTermPDF = File(result.files.single.path!);
-      });
-    }
-  }
 
   void onActive(bool value) {
     setState(() {
@@ -663,7 +654,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         Text(
                                           "Data inicial: ${initDate != null ? dateFormat.format(initDate!) : "Selecione"}",
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 15,
                                               color: customColors['blue'],
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -683,7 +674,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         Text(
                                             "Data Final: ${finalDate != null ? dateFormat.format(finalDate!) : "Selecione"}",
                                             style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 15,
                                                 color: customColors['crismon'],
                                                 fontWeight: FontWeight.bold)),
                                         IconButton(

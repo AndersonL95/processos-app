@@ -478,6 +478,7 @@ class _ContractPageState extends State<ContractPage> {
                                                           PopupMenuItem(
                                                             child: InkWell(
                                                               onTap: () async {
+                                                                 Navigator.pop(context);
                                                                 bool? result =
                                                                     await Navigator.of(
                                                                             context)
