@@ -46,11 +46,26 @@ class _AddTermModalState extends State<AddTermModal> {
       });
     }
   }
+
  void _removeTerm(AddTerm term) {
     setState(() {
       localTerms.remove(term);
     });
   }
+
+  String breakLines(String input) {
+    List<String> lines = [];
+    for (int i = 0; i < input.length; i += 20) {
+      int endIndex = i + 20;
+      if (endIndex > input.length) {
+        endIndex = input.length;
+      }
+      lines.add(input.substring(i, endIndex));
+    }
+    return lines.join('\n');
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -151,7 +166,7 @@ class _AddTermModalState extends State<AddTermModal> {
                         const Text('Aditivos adicionados:'),
                        ...localTerms.map((term) {
                           return ListTile(
-                            title: Text(term.nameTerm ?? 'Sem nome'),
+                            title: Text(breakLines(term.nameTerm) ?? 'Sem nome'),
                              trailing: IconButton(
                               icon: const Icon(Icons.delete_sweep, color: Colors.red),
                               onPressed: () => _removeTerm(term),
@@ -164,13 +179,8 @@ class _AddTermModalState extends State<AddTermModal> {
             ),
             ),
            
-      
-           
-          ],
-        ),
-      ),
-      actions: [
-        ElevatedButton(
+       Padding(padding: EdgeInsets.only(top: 20),
+          child: ElevatedButton(
               style: ElevatedButton
                 .styleFrom(
                     backgroundColor:
@@ -183,7 +193,12 @@ class _AddTermModalState extends State<AddTermModal> {
               onPressed: (){ Navigator.pop(context);},
               child: Icon(Icons.cancel, size: 20, color: customColors['white'],)
             ),
-      ],
+        ),
+           
+          ],
+        ),
+      ),
+      
     );
   }
 }

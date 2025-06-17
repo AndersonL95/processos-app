@@ -70,6 +70,17 @@ void _addTerm() async {
       localTerms.remove(term);
     });
   }
+   String breakLines(String input) {
+    List<String> lines = [];
+    for (int i = 0; i < input.length; i += 20) {
+      int endIndex = i + 20;
+      if (endIndex > input.length) {
+        endIndex = input.length;
+      }
+      lines.add(input.substring(i, endIndex));
+    }
+    return lines.join('\n');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +185,7 @@ void _addTerm() async {
                     children: [
                        ...localTerms.map((term) {
                           return ListTile(
-                            title: Text(term.nameTerm ?? 'Sem nome'),
+                            title: Text(breakLines(term.nameTerm) ?? 'Sem nome'),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete_sweep, color: Colors.red),
                               onPressed: () => _removeTerm(term),
@@ -192,10 +203,9 @@ void _addTerm() async {
       ),
       actions: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(padding: EdgeInsets.only(left: 35),
-              child: ElevatedButton(
+            ElevatedButton(
               style: ElevatedButton
                 .styleFrom(
                     backgroundColor:
@@ -208,7 +218,7 @@ void _addTerm() async {
               onPressed: (){ Navigator.pop(context);},
               child: Icon(Icons.cancel, size: 20, color: customColors['white'],)
             ),
-            ),
+            
             Padding(padding: EdgeInsets.only(right: 0),
               child: ElevatedButton(
                       child: Icon(Icons.save, size: 25, color: customColors['white'],),
