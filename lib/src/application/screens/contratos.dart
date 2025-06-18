@@ -123,9 +123,11 @@ class _ContractPageState extends State<ContractPage> {
         }
       });
     } catch (e) {
-      setState(() {
+     if(mounted){
+       setState(() {
         _error = e.toString();
       });
+     }
     }
   }
 

@@ -666,11 +666,53 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             .bold),
                                                               )
                                                             ],
-                                                          )
+                                                          ),
+                                                          
                                                         ],
                                                       ),
                                                     )),
                                               )),
+                                             Padding(padding: EdgeInsets.only(top: 20),
+                                              child:  Card(
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      clipBehavior:
+                                                          Clip.antiAlias,
+                                                      elevation: 10,
+                                                      color:
+                                                          customColors['white'],
+                                                      shadowColor: Colors.black,
+                                                      child: SizedBox(
+                                                          width: 350,
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Padding(padding: EdgeInsets.only(top: 15, left: 15),
+                                                                child: Text("A fazer:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                                                              ),
+                                                              Padding(padding: EdgeInsets.only(top:10, left: 20, bottom: 15),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Text(
+                                                               dataId!.todo,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                        ),
+                                                              ),
+                                                                  ],
+                                                                )
+                                                              ),
+                                                            ],
+                                                          ),
+                                                      )
+                                                          ),
+                                             ),
+
                                           if (widget.contractDetail[
                                                   'contractStatus'] ==
                                               'ok')

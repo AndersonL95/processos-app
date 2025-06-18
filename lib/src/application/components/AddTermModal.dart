@@ -59,20 +59,24 @@ class AddTermModalButton extends StatelessWidget {
                             fileBase64: term.file,
                             fileName: 'aditivo_${term.id}',
                           );
-                          Navigator.push(
-                            currentContext,
-                            MaterialPageRoute(
-                              builder: (_) => PdfViewPage(
-                                pdfPath: file.path,
-                                pdfBytes: null,
-                              ),
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(currentContext).showSnackBar(
+                          if (!context.mounted) return; 
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PdfViewPage(
+                                    pdfPath: file.path,
+                                    pdfBytes: null,
+                                  ),
+                                ),
+                              );
+                        }catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Erro ao abrir PDF: $e")),
                           );
                         }
+
                       }
 
                     );
