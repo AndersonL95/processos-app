@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:docInHand/src/application/components/EditTermModal.dart';
 import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/infrastucture/addTerm.dart';
@@ -57,7 +58,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   late TextEditingController supervisorController;
   late TextEditingController todoController;
   late TextEditingController addTermDescontroller;
-  List<AddTerm> _terms = [];
+
 
   List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
   DropdownItem? statusContractController;
@@ -93,6 +94,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   List<String> supervisorUsers = [];
   List<DropdownMenuItem<String>> sectorsData = [];
   String? sectorContractController;
+  List<AddTerm> _terms = [];
 
   @override
   void initState() {
@@ -105,6 +107,12 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     updateContract = UpdateContract(apiContractService);
     apiAddTermService = ApiAddTermService(authManager);
     createTerms = CreateTerms(apiAddTermService);
+   final addTerms = widget.contractData['add_term'] as List<dynamic>?;
+   if (addTerms != null) {
+     _terms = addTerms.map((e) => AddTerm.fromJson(e)).toList();
+   } else {
+     _terms = [];
+   }
 
     getSectors();
     _loadUsers();
@@ -143,7 +151,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     contractEdit = Contracts.fromJson(widget.contractData);
     sector = widget.contractData['sector'];
     active = widget.contractData['active'] == 'yes' ? true : false;
-    print("SECRETARIA: ${widget.contractData['sector']}");
     super.initState();
   }
 
@@ -214,15 +221,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     }
   }
 
-  Future<void> _pickTermPDF() async {
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-    if (result != null) {
-      setState(() {
-        _selectTermPDF = File(result.files.single.path!);
-      });
-    }
-  }
 
   void onActive(bool value) {
     setState(() {
@@ -245,39 +243,9 @@ class UpdateContractPageState extends State<UpdateContractPage> {
     }
   }
 
-  void _removeTerm(int index) {
-    setState(() {
-      _terms.removeAt(index);
-    });
-  }
+  
 
-  Future<void> submitAddTerm() async {
-    try {
-      AddTerm addTerm = AddTerm(
-        nameTerm: addTermDescontroller.text,
-        file: _selectTermPDF!.path,
-      );
-      await createTerms.execute(addTerm);
-      toastification.show(
-        type: ToastificationType.success,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Cadastrado com sucesso."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-      setState(() {
-        _loading = false;
-      });
-    } catch (e) {
-      toastification.show(
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Erro ao cadastrar"),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-    }
-  }
+ 
 
   Future<void> submitForm() async {
     final SharedPreferences datas = await SharedPreferences.getInstance();
@@ -301,7 +269,14 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       contractEdit?.active = active == true ? 'yes' : "no";
       contractEdit?.companySituation =
           companySituationController.text.toString();
-      contractEdit?.addTerm = _terms;
+      contractEdit?.addTerm = _terms.map((term) {
+        return AddTerm(
+          nameTerm: term.nameTerm,
+          file: term.file,
+          contractId: contractEdit?.id, 
+        );
+}).toList();
+
       contractEdit?.userId = int.parse(idJson!);
 
       if (_selectPDF != null && _selectPDF!.path.isNotEmpty) {
@@ -679,7 +654,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         Text(
                                           "Data inicial: ${initDate != null ? dateFormat.format(initDate!) : "Selecione"}",
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 15,
                                               color: customColors['blue'],
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -699,7 +674,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         Text(
                                             "Data Final: ${finalDate != null ? dateFormat.format(finalDate!) : "Selecione"}",
                                             style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 15,
                                                 color: customColors['crismon'],
                                                 fontWeight: FontWeight.bold)),
                                         IconButton(
@@ -831,7 +806,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                           filled: true,
                                           focusColor: customColors['green'],
                                           labelText: widget.contractData[
-                                              'supervisor'], // Label do dropdown
+                                              'supervisor'],
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
@@ -916,7 +891,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         ),
                                     ],
                                   ),
-                                ),*/
+                                ),
                               Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Row(
@@ -970,6 +945,70 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                         ),
                                       )
                                     ],
+                                  )),*/
+                                   Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Text(
+                                          "Ativar contrato: ",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 40,
+                                        child: Switch(
+                                          value: active,
+                                          onChanged: onActive,
+                                        ),
+                                      ),
+                                      Padding(
+                                            padding: EdgeInsets.only(left:15),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                DropdownMenu(
+                                                    initialSelection:
+                                                        'Situação da empresa',
+                                                    inputDecorationTheme:
+                                                        InputDecorationTheme(
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: Color.fromRGBO(
+                                                              1, 76, 45, 1),
+                                                          width: 2),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(5),
+                                                      ),
+                                                    )),
+                                                    label: Text(
+                                                        "${widget.contractData['companySituation']}"),
+                                                    onSelected:
+                                                        (String? value) {
+                                                      setState(() {
+                                                        companySituationController
+                                                            .text = value!;
+                                                      });
+                                                    },
+                                                    dropdownMenuEntries:
+                                                        situationCompanyList.map<
+                                                            DropdownMenuEntry<
+                                                                String>>((String
+                                                            value) {
+                                                      return DropdownMenuEntry(
+                                                          value: value,
+                                                          label: value);
+                                                    }).toList()),
+                                              ],
+                                            )),
+                                    ],
                                   )),
                               Padding(
                                   padding: EdgeInsets.all(10),
@@ -1013,119 +1052,56 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                                         "Arquivo selecionado: ${_selectPDF!.path.toString().substring(0, 20)}")
                                                 ],
                                               ))),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Padding(
-                                            padding: EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                DropdownMenu(
-                                                    initialSelection:
-                                                        'Situação da empresa',
-                                                    inputDecorationTheme:
-                                                        InputDecorationTheme(
-                                                            enabledBorder:
-                                                                OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Color.fromRGBO(
-                                                              1, 76, 45, 1),
-                                                          width: 2),
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(5),
-                                                      ),
-                                                    )),
-                                                    label: Text(
-                                                        "${widget.contractData['companySituation']}"),
-                                                    onSelected:
-                                                        (String? value) {
-                                                      setState(() {
-                                                        companySituationController
-                                                            .text = value!;
-                                                      });
+                                                 Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 10, right: 10, top: 10),
+                                              child: Column(
+                                                children: [
+                                                  ElevatedButton(
+                                                    child: Icon(
+                                                      Icons.picture_as_pdf_outlined,
+                                                      size: 30,
+                                                      color:
+                                                          customColors['white'],
+                                                    ),
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                            backgroundColor:
+                                                                customColors[
+                                                                    "green"],
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                            ),
+                                                            minimumSize:
+                                                                const Size(
+                                                                    85, 50)),
+                                                    onPressed: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (_) => EditTermModal(
+                                                          existingTerms: _terms,
+                                                          onTermsUpdated: (updatedTerms) {
+                                                            setState(() {
+                                                              _terms = updatedTerms;
+                                                            });
+                                                          },
+                                                        ),
+                                                      );
                                                     },
-                                                    dropdownMenuEntries:
-                                                        situationCompanyList.map<
-                                                            DropdownMenuEntry<
-                                                                String>>((String
-                                                            value) {
-                                                      return DropdownMenuEntry(
-                                                          value: value,
-                                                          label: value);
-                                                    }).toList()),
-                                              ],
-                                            )),
-                                      ),
+                                  ),
+                                ],
+                              ))),
+                                      
                                     ],
                                   )),
-                              Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: Text(
-                                          "Ativar contrato: ",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        child: Switch(
-                                          value: active,
-                                          onChanged: onActive,
-                                        ),
-                                      ),
-                                    ],
-                                  )),
-                              Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Column(
-                                  children: [
-                                    const SizedBox(height: 20),
-                                    const Text("Adicionar Aditivo",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 10),
-                                    TextField(
-                                      controller: addTermDescontroller,
-                                      decoration: const InputDecoration(
-                                          labelText:
-                                              "Descrição do Termo Aditivo"),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        _pickTermPDF();
-                                      },
-                                      child: const Text("Selecionar PDF"),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    ElevatedButton.icon(
-                                      onPressed: () async {
-                                        if (addTermDescontroller.text.isEmpty ||
-                                            _selectTermPDF == null) {
-                                          toastification.show(
-                                            context: context,
-                                            type: ToastificationType.warning,
-                                            title: const Text(
-                                                "Preencha a descrição e selecione o PDF."),
-                                          );
-                                          return;
-                                        }
-
-                                        await submitAddTerm();
-                                      },
-                                      icon: const Icon(Icons.upload_file),
-                                      label: const Text("Salvar Aditivo"),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                             
+                                  
                               Padding(
                                 padding: EdgeInsets.only(top: 20, bottom: 30),
                                 child: ElevatedButton(

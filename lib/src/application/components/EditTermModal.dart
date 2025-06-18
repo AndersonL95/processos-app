@@ -1,21 +1,35 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-class AddTermModal extends StatefulWidget {
-  final Function(AddTerm) onAddTerm;
+class EditTermModal extends StatefulWidget {
+  final List<AddTerm> existingTerms;
+  final Function(List<AddTerm>) onTermsUpdated;
 
-  const AddTermModal({super.key, required this.onAddTerm});
+  const EditTermModal({
+    super.key,
+    required this.existingTerms,
+    required this.onTermsUpdated,
+  });
 
   @override
-  State<AddTermModal> createState() => _AddTermModalState();
+  State<EditTermModal> createState() => _EditTermModalState();
 }
 
-class _AddTermModalState extends State<AddTermModal> {
+class _EditTermModalState extends State<EditTermModal> {
   final TextEditingController _nameController = TextEditingController();
   String? selectedFilePath;
-  List<AddTerm> localTerms = [];
+  late List<AddTerm> localTerms;
+
+  @override
+  void initState() {
+    super.initState();
+    localTerms = List.from(widget.existingTerms);
+  }
 
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -30,30 +44,33 @@ class _AddTermModalState extends State<AddTermModal> {
     }
   }
 
-  void _addTerm() {
-    if (_nameController.text.isNotEmpty && selectedFilePath != null) {
-      final newTerm = AddTerm(
-        nameTerm: _nameController.text,
-        file: selectedFilePath!,
-      );
 
-      widget.onAddTerm(newTerm);
 
-      setState(() {
-        localTerms.add(newTerm);
-        _nameController.clear();
-        selectedFilePath = null;
-      });
-    }
+void _addTerm() async {
+  if (_nameController.text.isNotEmpty && selectedFilePath != null) {
+    final fileBytes = await File(selectedFilePath!).readAsBytes();
+    final base64File = base64Encode(fileBytes);
+
+    final newTerm = AddTerm(
+      nameTerm: _nameController.text,
+      file: base64File, // Agora o arquivo é base64
+    );
+
+    setState(() {
+      localTerms.add(newTerm);
+      _nameController.clear();
+      selectedFilePath = null;
+    });
   }
+}
 
- void _removeTerm(AddTerm term) {
+
+  void _removeTerm(AddTerm term) {
     setState(() {
       localTerms.remove(term);
     });
   }
-
-  String breakLines(String input) {
+   String breakLines(String input) {
     List<String> lines = [];
     for (int i = 0; i < input.length; i += 20) {
       int endIndex = i + 20;
@@ -65,21 +82,20 @@ class _AddTermModalState extends State<AddTermModal> {
     return lines.join('\n');
   }
 
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Adicionar Aditivo'),
+      backgroundColor: Colors.white,
+      title: const Text('Editar Aditivos'),
       content: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-           TextField(
+            TextField(
               controller: _nameController,
               decoration: InputDecoration(
                iconColor: customColors['green'],
                prefixIconColor: customColors['green'],
-               fillColor: Colors.white60,
+               fillColor: customColors['white'],
                hoverColor: customColors['green'],
                filled: true,
                focusColor: customColors['green'],
@@ -99,9 +115,11 @@ class _AddTermModalState extends State<AddTermModal> {
            Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-               ElevatedButton(
-              onPressed: _pickFile,
-              child: Icon(
+                Padding(padding: EdgeInsets.all(1),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                  child: Icon(
                      Icons.picture_as_pdf,
                      size: 25,
                      color:
@@ -122,11 +140,12 @@ class _AddTermModalState extends State<AddTermModal> {
                        minimumSize:
                            const Size(
                                100, 40)),
-             
-            ),
-            ElevatedButton(
-              onPressed: _addTerm,
-            style: ElevatedButton
+                    onPressed: _pickFile,
+                ),
+                  ],
+                ),),
+               ElevatedButton(
+                style: ElevatedButton
                   .styleFrom(
                       backgroundColor:
                           customColors[
@@ -141,13 +160,14 @@ class _AddTermModalState extends State<AddTermModal> {
                       minimumSize:
                           const Size(
                               100, 40)),
+                onPressed: _addTerm,
                 child: Icon(
                     Icons.playlist_add,
                     size: 25,
                     color:
                         customColors['white'],
                   ),
-            ),
+                ),
             ],
            ),
             Padding(padding: EdgeInsets.only(top: 20),
@@ -163,11 +183,10 @@ class _AddTermModalState extends State<AddTermModal> {
                   width: 290,
                   child: Column(
                     children: [
-                        const Text('Aditivos adicionados:'),
                        ...localTerms.map((term) {
                           return ListTile(
                             title: Text(breakLines(term.nameTerm) ?? 'Sem nome'),
-                             trailing: IconButton(
+                            trailing: IconButton(
                               icon: const Icon(Icons.delete_sweep, color: Colors.red),
                               onPressed: () => _removeTerm(term),
                             ),
@@ -179,8 +198,14 @@ class _AddTermModalState extends State<AddTermModal> {
             ),
             ),
            
-       Padding(padding: EdgeInsets.only(top: 20),
-          child: ElevatedButton(
+          ],
+        ),
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
               style: ElevatedButton
                 .styleFrom(
                     backgroundColor:
@@ -193,12 +218,28 @@ class _AddTermModalState extends State<AddTermModal> {
               onPressed: (){ Navigator.pop(context);},
               child: Icon(Icons.cancel, size: 20, color: customColors['white'],)
             ),
-        ),
-           
+            
+            Padding(padding: EdgeInsets.only(right: 0),
+              child: ElevatedButton(
+                      child: Icon(Icons.save, size: 25, color: customColors['white'],),
+                      style: ElevatedButton
+                            .styleFrom(
+                                backgroundColor:
+                                    Colors.green,
+                                shape:
+                                  CircleBorder(),
+                                minimumSize:
+                                    const Size(
+                                        10, 40)),
+                      onPressed: () {
+                        widget.onTermsUpdated(localTerms);
+                        Navigator.pop(context);
+                      },
+                ),
+            ),
           ],
-        ),
-      ),
-      
+        )
+      ],
     );
   }
 }

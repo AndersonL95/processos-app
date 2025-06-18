@@ -123,9 +123,11 @@ class _ContractPageState extends State<ContractPage> {
         }
       });
     } catch (e) {
-      setState(() {
+     if(mounted){
+       setState(() {
         _error = e.toString();
       });
+     }
     }
   }
 
@@ -478,6 +480,7 @@ class _ContractPageState extends State<ContractPage> {
                                                           PopupMenuItem(
                                                             child: InkWell(
                                                               onTap: () async {
+                                                                 Navigator.pop(context);
                                                                 bool? result =
                                                                     await Navigator.of(
                                                                             context)

@@ -86,10 +86,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
         });
       }
     } catch (e) {
-      setState(() {
-        _error = "Erro ao carregar informações: ${e.toString()}";
-        _loading = false;
+      if(mounted){
+        setState(() {
+          _error = "Erro ao carregar informações: ${e.toString()}";
+          _loading = false;
       });
+      }
+    
     }
   }
 
