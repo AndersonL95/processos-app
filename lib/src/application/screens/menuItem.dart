@@ -63,36 +63,75 @@ class _MenuItemState extends State<MenuItem> {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
         systemNavigationBarColor: customColors['green'],
         systemNavigationBarIconBrightness: Brightness.light));
-    final bottomNavItems = [
-      const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-      const BottomNavigationBarItem(
-          icon: Icon(Icons.article), label: "Contratos"),
-      const BottomNavigationBarItem(
-          icon: Icon(Icons.person_2), label: "Perfil"),
-    ];
-    if (userRole == 'admin' || userRole == 'superAdmin') {
-      bottomNavItems.add(const BottomNavigationBarItem(
-          icon: Icon(Icons.people), label: "Usuarios"));
-    }
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+        
+      if (isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
     return Scaffold(
       body: _screens(userId ?? 0, userRole)[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 10,
-        backgroundColor: customColors['green'],
-        type: BottomNavigationBarType.fixed,
-        iconSize: 25,
-        unselectedItemColor: customColors['white'],
-        selectedItemColor: customColors['grey'],
-        unselectedFontSize: 12,
-        selectedFontSize: 16,
-        currentIndex: currentIndex,
-        onTap: _onTab,
-        items: bottomNavItems,
-      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: customColors['green']!.withValues(),
+          border: Border(
+            top: BorderSide(
+              color: Colors.black.withValues(),
+              width: 1,
+            ),
+          ),
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(),
+              blurRadius: 5,
+              offset: Offset(0, -3),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          currentIndex: currentIndex,
+          onTap: _onTab,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          selectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            letterSpacing: 0.5,
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 12,
+          ),
+          selectedIconTheme: IconThemeData(size: 30),
+          unselectedIconTheme: IconThemeData(size: 22),
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.article_outlined),
+              activeIcon: Icon(Icons.article),
+              label: "Contratos",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_2_outlined),
+              activeIcon: Icon(Icons.person),
+              label: "Perfil",
+            ),
+            if (userRole == 'admin' || userRole == 'superAdmin')
+              BottomNavigationBarItem(
+                icon: Icon(Icons.people_alt_outlined),
+                activeIcon: Icon(Icons.people_alt),
+                label: "Usuários",
+              ),
+          ],
+        ),
+      ),      
     );
   }
 }
