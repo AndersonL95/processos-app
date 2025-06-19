@@ -46,6 +46,7 @@ class _ContractPageState extends State<ContractPage> {
   List<DropdownMenuItem<String>> sectorsData = [];
   int? selectedDaysLeft;
   String? userRole;
+  bool _showSearch = false;
 
   @override
   void initState() {
@@ -303,6 +304,7 @@ class _ContractPageState extends State<ContractPage> {
             ),
           ],
         ),
+        backgroundColor: Colors.grey.shade100,
         body: _loading
             ? const Center(
                 child: CircularProgressIndicator(
@@ -316,33 +318,76 @@ class _ContractPageState extends State<ContractPage> {
                   )
                 : Column(
                     children: [
+                      if (_showSearch)
                       Padding(
                         padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                         child: TextField(
                           controller: searchController,
-                          onChanged: (value) {
-                            searchData(value);
-                          },
+                          onChanged: (value) => searchData(value),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
                           decoration: InputDecoration(
-                              iconColor: customColors['green'],
-                              prefixIconColor: customColors['green'],
-                              fillColor: customColors['white'],
-                              hoverColor: customColors['green'],
-                              filled: true,
-                              focusColor: customColors['green'],
-                              labelText: "Pesquisar",
-                              hintText: "Digite para pesquisar",
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Buscar...',
+                            hintStyle: TextStyle(color: Colors.grey[500]),
+                            prefixIcon: Icon(Icons.search, color: customColors['green']),
+                            suffixIcon: searchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(Icons.clear, color: Colors.grey[500]),
+                                    onPressed: () {
+                                      searchController.clear();
+                                      searchData('');
+                                    },
+                                  )
+                                : null,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
                                 ),
-                              )),
-                        ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: customColors['green'] ?? Colors.green, width: 2),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                           ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          Padding(padding: EdgeInsets.only(top: 20),
+                              child: Row(
+                                children: [
+                                  ElevatedButton(
+                                    child: Icon(
+                                      _showSearch ? Icons.close : Icons.search,
+                                      color: customColors['white'],
+                                      size: 30,
+                                    ),                        
+                                    style: ElevatedButton.styleFrom(
+                                        shape: CircleBorder(),
+                                        backgroundColor: _showSearch ?
+                                            customColors['crismon'] : customColors['green'],
+                                        minimumSize: Size(85, 60)),
+                                     onPressed: () {
+                                        setState(() {
+                                          _showSearch = !_showSearch;
+                                          if (!_showSearch) {
+                                            searchController.clear();
+                                            searchData("");
+                                          }
+                                        });}
+                                                
+                                  )
+                                ],
+                              ),
+                            ),
                           if (userRole == "admin" || userRole == "superAdmin")
                             Padding(
                               padding: EdgeInsets.only(top: 20),

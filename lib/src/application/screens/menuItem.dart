@@ -70,6 +70,7 @@ class _MenuItemState extends State<MenuItem> {
 
     return Scaffold(
       body: _screens(userId ?? 0, userRole)[currentIndex],
+      backgroundColor: Colors.grey.shade100,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: customColors['green']!.withValues(),
@@ -105,7 +106,7 @@ class _MenuItemState extends State<MenuItem> {
             fontWeight: FontWeight.w400,
             fontSize: 12,
           ),
-          selectedIconTheme: IconThemeData(size: 30),
+          selectedIconTheme: IconThemeData(size: 35),
           unselectedIconTheme: IconThemeData(size: 22),
           items: [
             BottomNavigationBarItem(

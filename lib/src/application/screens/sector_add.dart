@@ -133,6 +133,7 @@ class AddSectorPagePageState extends State<AddSectorPage> {
             ),
           ),
         ),
+        backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
           child: Column(
             children: [

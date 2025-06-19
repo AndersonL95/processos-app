@@ -176,6 +176,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
             ),
           ),
         ),
+        backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Padding(

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:docInHand/src/application/components/contractCarrocelStatus.dart';
 import 'package:docInHand/src/application/components/contractStaus.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
@@ -197,7 +198,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      backgroundColor: customColors['white'],
+      backgroundColor: Colors.grey.shade100,
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(
@@ -257,7 +258,7 @@ class _HomePageState extends State<HomePage> {
                                           Padding(
                                             padding: EdgeInsets.only(top: 30),
                                             child:
-                                                Contractstaus(data: dataStatus),
+                                                ContractStatusCard(data: dataStatus),
                                           ),
                                           Padding(
                                               padding: EdgeInsets.only(
@@ -460,8 +461,14 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                   );
                                                 }),
-                                          )
+                                          ),
+                                           
+                                         Padding(padding: EdgeInsets.only(top: 30),
+                                          child:  ContractStatsCarousel(data: data),
+                                         ),
+                                         
                                         ],
+
                                       ))
                           ],
                         ),

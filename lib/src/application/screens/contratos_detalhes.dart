@@ -164,6 +164,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
             ),
           ),
         ),
+        backgroundColor: Colors.grey.shade100,
         body: _loading
             ? const Center(
                 child: CircularProgressIndicator(
