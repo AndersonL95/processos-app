@@ -73,9 +73,11 @@ class _LoginPageState extends State<LoginPage> {
           );
 
       } finally {
-        setState(() {
+        if(!mounted){
+          setState(() {
           isLoading = false;
         });
+        }
       }
     }
   }
