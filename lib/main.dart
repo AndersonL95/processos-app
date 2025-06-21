@@ -1,5 +1,12 @@
 import 'dart:convert';
 
+import 'package:docInHand/src/application/providers/home_provider.dart';
+import 'package:docInHand/src/application/use-case/getContract_api.dart';
+import 'package:docInHand/src/application/use-case/getLast3.dart';
+import 'package:docInHand/src/application/use-case/getNotification_api.dart';
+import 'package:docInHand/src/application/use-case/viwed_notification.dart';
+import 'package:docInHand/src/infrastucture/contracts.dart';
+import 'package:docInHand/src/infrastucture/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,51 +17,75 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Future<bool> _checkLogin() async {
-    SharedPreferences datas = await SharedPreferences.getInstance();
-    return datas.getString('accessToken') != null;
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+
+  bool isLoggedIn = false;
+  try {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    isLoggedIn = token != null && token.isNotEmpty;
+  } catch (e) {
+    print("Erro ao checar login: $e");
   }
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) {
-    runApp((ChangeNotifierProvider(
-      create: (BuildContext context) => AuthManager(),
-      child: MaterialApp(
-        home: FutureBuilder<bool>(
-          future: _checkLogin(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Color.fromRGBO(1, 76, 45, 1),
-                  strokeWidth: 6.0,
-                ),
-              );
-            } else if (snapshot.hasData && snapshot.data!) {
-              return MenuItem();
-            } else {
-              return LoginPage();
-            }
-          },
+  final authManager = AuthManager();
+  final contractService = ApiContractService(authManager);
+  final notificationService = ApiNotificationService(authManager);
+  
+
+  final get3LastContractsInfoApi = Get3LastContractsInfoApi(contractService);
+  final getContractsInfoApi = GetContractsInfoApi(contractService);
+  final getNotificationInfoApi = GetNotificationInfoApi(notificationService);
+  final markAsViewdNotificationApi = MarkAsViewdNotificationApi(notificationService);
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => authManager),
+        ChangeNotifierProvider(
+          create: (_) => ContractProvider(
+            get3LastContractsInfoApi: get3LastContractsInfoApi,
+            getContractsInfoApi: getContractsInfoApi,
+            getNotificationInfoApi: getNotificationInfoApi,
+            notificationService: notificationService, 
+            markAsViewdNotificationApi: markAsViewdNotificationApi,
+          ),
         ),
-        title: 'DocInHand',
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate
-        ],
-        supportedLocales: const [Locale("pt", "BR")],
-        routes: <String, WidgetBuilder>{
-          //'/menuItem': (context) => MenuItem(),
-          '/home': (context) => const HomePage(),
-          '/login': (context) => LoginPage(),
-          '/menuItem': (context) => MenuItem()
-        },
-      ),
-    )));
-  });
+      ],
+      child: MyApp(isLoggedIn: isLoggedIn),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  final bool isLoggedIn;
+
+  const MyApp({super.key, required this.isLoggedIn});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'DocInHand',
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale("pt", "BR")],
+      routes: <String, WidgetBuilder>{
+        '/home': (context) => const HomePage(),
+        '/login': (context) => LoginPage(),
+        '/menuItem': (context) => MenuItem(),
+      },
+      home: isLoggedIn ? MenuItem() : LoginPage(),
+    );
+  }
 }
