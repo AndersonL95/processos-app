@@ -323,6 +323,7 @@ class AddContractPageState extends State<AddContractPage> {
             ),
           ),
         ),
+        backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
           child: Column(
             children: [

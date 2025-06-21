@@ -1,116 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class Contractstaus extends StatelessWidget {
+class ContractStatusCard extends StatelessWidget {
   final List<dynamic> data;
 
-  const Contractstaus({Key? key, required this.data}) : super(key: key);
+  const ContractStatusCard({Key? key, required this.data}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final total = data.length;
 
     final statusMap = {
-      'aprovado': data.where((c) => c['contractStatus'] == 'ok').toList(),
-      'revisão': data.where((c) => c['contractStatus'] == 'review').toList(),
-      'pendente': data.where((c) => c['contractStatus'] == 'pendent').toList(),
+      'Aprovado': data.where((c) => c['contractStatus'] == 'ok').toList(),
+      'Revisão': data.where((c) => c['contractStatus'] == 'review').toList(),
+      'Pendente': data.where((c) => c['contractStatus'] == 'pendent').toList(),
     };
-    print("DATA: ${data.map((e) => e['contractStatus'])}");
+
     final colors = {
-      'aprovado': Colors.green,
-      'revisão': Colors.orange,
-      'pendente': Colors.red,
+      'Aprovado': Colors.green,
+      'Revisão': Colors.orange,
+      'Pendente': Colors.red,
     };
 
-    final statusWidgets = statusMap.entries.map((entry) {
-      final status = entry.key;
-      final count = entry.value.length;
-      final percentage = total == 0 ? 0 : (count / total) * 100;
-
-      return _buildStatusContainer(
-        label: status.toUpperCase(),
-        count: count,
-        percentage: percentage.toDouble(),
-        color: colors[status]!,
-      );
-    }).toList();
-
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: SingleChildScrollView(
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: statusWidgets
-              .map((widget) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: widget,
-                  ))
-              .toList(),
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: statusMap.entries.map((entry) {
+            final label = entry.key;
+            final count = entry.value.length;
+            final percentage = total == 0 ? 0.0 : (count / total) * 100.0;
+            final color = colors[label]!;
+
+            return _buildStatusItem(
+              label: label,
+              count: count,
+              percentage: percentage,
+              color: color,
+            );
+          }).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildStatusContainer({
+  Widget _buildStatusItem({
     required String label,
     required int count,
     required double percentage,
     required Color color,
   }) {
-    return Container(
-      width: 110,
-      height: 170,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: .15),
-            blurRadius: 6,
-            offset: Offset(2, 3),
-          )
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(label,
-              style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-          SizedBox(height: 10),
-          SizedBox(
-            width: 60,
-            height: 60,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 0,
-                centerSpaceRadius: 20,
-                startDegreeOffset: 270,
-                sections: [
-                  PieChartSectionData(
-                    value: percentage,
-                    color: color,
-                    radius: 14,
-                    showTitle: false,
-                  ),
-                  PieChartSectionData(
-                    value: 100 - percentage,
-                    color: Colors.grey.shade300,
-                    radius: 14,
-                    showTitle: false,
-                  ),
-                ],
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 16, color: color)),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: 60,
+          height: 60,
+          child: PieChart(
+            PieChartData(
+              sectionsSpace: 0,
+              centerSpaceRadius: 18,
+              startDegreeOffset: 270,
+              sections: [
+                PieChartSectionData(
+                  value: percentage,
+                  color: color,
+                  radius: 14,
+                  showTitle: false,
+                ),
+                PieChartSectionData(
+                  value: 100 - percentage,
+                  color: Colors.grey.shade300,
+                  radius: 14,
+                  showTitle: false,
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 10),
-          Text("$count ${count == 1 ? 'contrato' : 'contratos'}",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          Text('${percentage.toStringAsFixed(1)}%',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ],
-      ),
+        ),
+        const SizedBox(height: 6),
+        Text("$count contrato${count != 1 ? 's' : ''}",
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        Text("${percentage.toStringAsFixed(1)}%",
+            style: TextStyle(fontSize: 14, color: color)),
+      ],
     );
   }
 }

@@ -73,9 +73,11 @@ class _LoginPageState extends State<LoginPage> {
           );
 
       } finally {
-        setState(() {
+        if(!mounted){
+          setState(() {
           isLoading = false;
         });
+        }
       }
     }
   }
@@ -83,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: customColors["beige"],
+       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
         child: Column(children: [
           Padding(

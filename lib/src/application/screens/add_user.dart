@@ -177,6 +177,7 @@ class AddUserPageState extends State<AddUserPage> {
           ),
         ),
       ),
+      backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
           child: Column(children: [
         const Padding(

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:docInHand/src/application/components/contractStatsOverView.dart';
 import 'package:docInHand/src/application/components/contractStaus.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
@@ -33,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   String? _error;
   List<dynamic> data = [];
   List<dynamic> dataStatus = [];
+  List<dynamic> dataTerm = [];
 
   List<dynamic> notificationData = [];
 
@@ -93,9 +95,10 @@ class _HomePageState extends State<HomePage> {
       if (mounted) {
         setState(() {
           dataStatus = value;
+          
           if (dataStatus.isEmpty) {
-            _error = "Nenhum contrato encontrado";
-          }
+           _error = "Nenhum contrato encontrado";
+          } 
           _loading = false;
         });
       } else {
@@ -197,7 +200,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      backgroundColor: customColors['white'],
+      backgroundColor: Colors.grey.shade100,
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(
@@ -257,8 +260,11 @@ class _HomePageState extends State<HomePage> {
                                           Padding(
                                             padding: EdgeInsets.only(top: 30),
                                             child:
-                                                Contractstaus(data: dataStatus),
+                                                ContractStatusCard(data: dataStatus),
                                           ),
+                                          Padding(padding: EdgeInsets.only(top: 30),
+                                          child:  ContractStatsOverview(data: dataStatus),
+                                         ),
                                           Padding(
                                               padding: EdgeInsets.only(
                                                   top: 30, left: 15),
@@ -275,7 +281,8 @@ class _HomePageState extends State<HomePage> {
                                                   ),
                                                 ],
                                               )),
-                                          SizedBox(
+                                          Padding(padding: EdgeInsets.only(bottom: 20),
+                                            child: SizedBox(
                                             height: 250,
                                             child: ListView.builder(
                                                 scrollDirection:
@@ -297,7 +304,7 @@ class _HomePageState extends State<HomePage> {
                                                                           20))),
                                                           clipBehavior:
                                                               Clip.antiAlias,
-                                                          elevation: 10,
+                                                        elevation: 5,
                                                           shadowColor:
                                                               Colors.black,
                                                           child: InkWell(
@@ -460,8 +467,10 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                   );
                                                 }),
+                                          ),
                                           )
                                         ],
+
                                       ))
                           ],
                         ),

@@ -164,6 +164,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
           elevation: 0,
           automaticallyImplyLeading: false,
         ),
+        backgroundColor: Colors.grey.shade100,
         body: _loading
             ? const Center(
                 child: CircularProgressIndicator(
