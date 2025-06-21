@@ -25,13 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  AuthManager authManager = AuthManager();
-  late Get3LastContractsInfoApi get3ContractsInfoApi;
-  late GetContractsInfoApi getContractsInfoApi;
-  late GetNotificationInfoApi getNotificationInfoApi;
-  late ApiNotificationService apiNotificationService;
-  late ApiContractService apiContractService;
-  late MarkAsViewdNotificationApi markAsViewdNotificationApi;
+ 
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
@@ -44,15 +38,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    apiContractService = ApiContractService(authManager);
-    apiNotificationService = ApiNotificationService(authManager);
-    getNotificationInfoApi = GetNotificationInfoApi(apiNotificationService);
-    get3ContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
-    getContractsInfoApi = GetContractsInfoApi(apiContractService);
-    markAsViewdNotificationApi =
-        MarkAsViewdNotificationApi(apiNotificationService);
-
+    
     super.initState();
+    
   }
 
   String breakLinesEvery10Characters(String input) {
@@ -67,12 +55,6 @@ class _HomePageState extends State<HomePage> {
     return lines.join('\n');
   }
 
-
-
-  
-
- 
-  
 
  void showNotification(BuildContext context, ContractProvider provider) {
   showDialog(
@@ -91,15 +73,10 @@ class _HomePageState extends State<HomePage> {
   );
 }
 
-
-  void markAsView(int id) async {
-    await markAsViewdNotificationApi.execute(id);
-  
-  }
-
   @override
   Widget build(BuildContext context) {
   final provider = Provider.of<ContractProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Padding(
@@ -143,9 +120,9 @@ class _HomePageState extends State<HomePage> {
                 ],
               ]),
               onPressed: () {
-    final provider = Provider.of<ContractProvider>(context, listen: false);
-    showNotification(context, provider);
-  },
+                final provider = Provider.of<ContractProvider>(context);
+                showNotification(context, provider);
+              },
             ),
           ),
         ],
@@ -163,9 +140,9 @@ class _HomePageState extends State<HomePage> {
                   child: Text("ERROR: $_error"),
                 )
               // ignore: unnecessary_null_comparison
-              : provider != null
+              : provider.data != null
                   ? RefreshIndicator(
-                     onRefresh: provider.fetchAllData,
+                     onRefresh: () async {await provider.fetchAllData();},
                      child: SingleChildScrollView(
                        physics: const AlwaysScrollableScrollPhysics(),
                        child: Column(
@@ -175,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                                child: provider == null
+                                child: provider.data.isEmpty
                                     ? const SizedBox(
                                         height: 400,
                                         child: Column(
@@ -240,7 +217,7 @@ class _HomePageState extends State<HomePage> {
                                             child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
-                                                itemCount: provider.toString().length,
+                                                itemCount: provider.data.length,
                                                 itemBuilder: (context, index) {
                                                   return SizedBox(
                                                     child: Padding(

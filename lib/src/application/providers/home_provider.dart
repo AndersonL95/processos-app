@@ -28,8 +28,12 @@ class ContractProvider with ChangeNotifier {
 
   bool isLoading = false;
   String error = '';
-
+  bool _fetched = false;
   Future<void> fetchAllData() async {
+     if (_fetched) return;
+        _fetched = true;
+      print("Chamando fetchContracts()");
+
     try {
       isLoading = true;
       notifyListeners();

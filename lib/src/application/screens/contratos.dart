@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/screens/sector_add.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
@@ -18,6 +19,7 @@ import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:docInHand/src/infrastucture/sector.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -52,12 +54,10 @@ class _ContractPageState extends State<ContractPage> {
   void initState() {
     apiContractService = ApiContractService(authManager);
     apiSectorService = ApiSectorService(authManager);
-    getContractsInfoApi = GetContractsInfoApi(apiContractService);
-    getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
     deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
     getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
     updateContract = UpdateContract(apiContractService);
-    getContracts();
+
     super.initState();
   }
 
@@ -67,70 +67,9 @@ class _ContractPageState extends State<ContractPage> {
     "Data fin. - Cresc.",
     "Data fin. - Decrs."
   ];
-  Future<void> getContracts() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    String? roleJson = pref.getString('role');
-    setState(() {
-      _loading = true;
-      userRole = roleJson != null ? json.decode(roleJson) : null;
-      _error = null;
-    });
+  
 
-    try {
-      final value = await getContractsInfoApi.execute();
-      if (mounted) {
-        final filteredByRole = userRole == 'admin'
-            ? value
-            : value.where((contract) => contract['active'] == 'yes').toList();
-        final sortedContracts = filteredByRole
-          ..sort((a, b) {
-            final aActive = a['active'] == 'yes' ? 0 : 1;
-            final bActive = b['active'] == 'yes' ? 0 : 1;
-            return aActive.compareTo(bActive);
-          });
-        setState(() {
-          data = sortedContracts;
-          filtereData = FilterDataComponent.filterData(data: sortedContracts);
-          _loading = false;
-        });
-      }
-      getSectors();
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = "Erro ao carregar informações: $e";
-          _loading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> getSectors() async {
-    try {
-      await getSectorsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            sectorsData = value.map<DropdownMenuItem<String>>((sector) {
-              return DropdownMenuItem<String>(
-                value: sector.name.toString(),
-                child: Text(sector.name),
-              );
-            }).toList();
-          });
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-          });
-        }
-      });
-    } catch (e) {
-     if(mounted){
-       setState(() {
-        _error = e.toString();
-      });
-     }
-    }
-  }
+  
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
@@ -194,7 +133,6 @@ class _ContractPageState extends State<ContractPage> {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     String? roleJson = pref.getString('role');
     String userRole = roleJson != null ? json.decode(roleJson) : null;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -206,9 +144,8 @@ class _ContractPageState extends State<ContractPage> {
           isAdmin: userRole == 'admin' ? true : false,
           data: data,
           onFilterApplied: (filteredData) {
-            setState(() {
-              filtereData = filteredData;
-            });
+            Provider.of<ListContractProvider>(context, listen: false).applyFilter(filteredData);
+            
           },
           customColors: customColors,
           selectedSector: selectedSector,
@@ -221,58 +158,15 @@ class _ContractPageState extends State<ContractPage> {
     );
   }
 
-  Future<void> inactiveUser(int id, String value) async {
-    try {
-      Contracts? contractEdit = (await getContractIdInfoApi.execute(id)) as Contracts?;
-
-      if (contractEdit == null) {
-        print("Contrato não encontrado.");
-        toastification.show(
-          type: ToastificationType.error,
-          style: ToastificationStyle.fillColored,
-          context: context,
-          title: const Text("Contrato não encontrado."),
-          autoCloseDuration: const Duration(seconds: 8),
-        );
-        return;
-      }
-
-      contractEdit.active = value;
-      var response = await updateContract.execute(contractEdit);
-
-      if (response != 0) {
-        getContracts();
-        toastification.show(
-          type: ToastificationType.success,
-          style: ToastificationStyle.fillColored,
-          context: context,
-          title: const Text("Modificado com sucesso."),
-          autoCloseDuration: const Duration(seconds: 8),
-        );
-      } else {
-        toastification.show(
-          type: ToastificationType.error,
-          style: ToastificationStyle.fillColored,
-          context: context,
-          title: const Text("Erro ao modificar."),
-          autoCloseDuration: const Duration(seconds: 8),
-        );
-      }
-    } catch (e) {
-      print("ERROR $e");
-      toastification.show(
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Erro ao modificar usuário."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
-    print("LOADING: ${_loading}");
+   final listcContractProvider = Provider.of<ListContractProvider>(context);
+    final dataToShow = listcContractProvider.filtereData.isNotEmpty
+      ? listcContractProvider.filtereData
+      : listcContractProvider.data;
+    
     return Scaffold(
         appBar: AppBar(
           title: Padding(
@@ -305,7 +199,7 @@ class _ContractPageState extends State<ContractPage> {
           ],
         ),
         backgroundColor: Colors.grey.shade100,
-        body: _loading
+        body: listcContractProvider.loading
             ? const Center(
                 child: CircularProgressIndicator(
                   color: Color.fromRGBO(1, 76, 45, 1),
@@ -444,8 +338,10 @@ class _ContractPageState extends State<ContractPage> {
                       Expanded(
                         flex: 1,
                         child: ListView.builder(
-                          itemCount: filtereData.length,
+                          itemCount: dataToShow.length,
                           itemBuilder: (context, index) {
+                            final contract = dataToShow[index];
+                           
                             return Column(
                               children: [
                                 Padding(
@@ -465,13 +361,11 @@ class _ContractPageState extends State<ContractPage> {
                                           MaterialPageRoute(
                                             builder: (_) => ContractDetailPage(
                                               contractDetail:
-                                                  filtereData[index],
+                                                  contract,
                                             ),
                                           ),
                                         );
-                                        if (result == true) {
-                                          getContracts();
-                                        }
+                                        
                                       },
                                       child: SizedBox(
                                           width: 350,
@@ -482,7 +376,7 @@ class _ContractPageState extends State<ContractPage> {
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  if (filtereData[index]
+                                                  if (contract
                                                           ['active'] ==
                                                       'yes')
                                                     Padding(
@@ -495,10 +389,10 @@ class _ContractPageState extends State<ContractPage> {
                                                             'green'],
                                                       ),
                                                     ),
-                                                  if (filtereData[index]
+                                                  if (contract
                                                               ['active'] ==
                                                           'no' ||
-                                                      filtereData[index]
+                                                      contract
                                                               ['active'] ==
                                                           "")
                                                     Padding(
@@ -534,13 +428,10 @@ class _ContractPageState extends State<ContractPage> {
                                                                     builder: (_) =>
                                                                         UpdateContractPage(
                                                                             contractData:
-                                                                                filtereData[index]),
+                                                                                contract),
                                                                   ),
                                                                 );
-                                                                if (result ==
-                                                                    true) {
-                                                                  getContracts();
-                                                                }
+                                                                
                                                               },
                                                               child: Row(
                                                                 mainAxisAlignment:
@@ -564,18 +455,18 @@ class _ContractPageState extends State<ContractPage> {
                                                               ),
                                                             ),
                                                           ),
-                                                          if (filtereData[index]
+                                                          if (contract
                                                                   ['active'] ==
                                                               'yes')
                                                             PopupMenuItem(
                                                               child: InkWell(
                                                                 onTap: () => {
-                                                                  inactiveUser(
-                                                                      filtereData[
-                                                                              index]
-                                                                          [
-                                                                          'id'],
-                                                                      'no'),
+                                                                
+                                                                  listcContractProvider.toggleContractStatus(
+                                                                    context,
+                                                                     contract['id'],
+                                                                      'no'                                                                     
+                                                                      ),
                                                                   Navigator.pop(
                                                                       context)
                                                                 },
@@ -602,20 +493,20 @@ class _ContractPageState extends State<ContractPage> {
                                                                 ),
                                                               ),
                                                             ),
-                                                          if (filtereData[index]
+                                                          if (contract
                                                                       [
                                                                       'active'] ==
                                                                   'no' ||
-                                                              filtereData[index]
+                                                              contract
                                                                       [
                                                                       'active'] ==
                                                                   "")
                                                             PopupMenuItem(
                                                               child: InkWell(
                                                                 onTap: () => {
-                                                                  inactiveUser(
-                                                                      filtereData[
-                                                                              index]
+                                                                  listcContractProvider.toggleContractStatus(
+                                                                    context,
+                                                                      contract
                                                                           [
                                                                           'id'],
                                                                       'yes'),
@@ -679,7 +570,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 right: 15),
                                                         child: Text(
                                                           breakLinesEvery10Characters(
-                                                              filtereData[index]
+                                                             contract
                                                                   ['name']),
                                                           style: const TextStyle(
                                                               fontSize: 18,
@@ -695,7 +586,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 top: 1,
                                                                 right: 15),
                                                         child: Text(
-                                                          "Contrato Nº: ${filtereData[index]['numContract'].toString().substring(0, min(filtereData[index]['numContract'].toString().length, 10))}",
+                                                          "Contrato Nº: ${contract['numContract'].toString().substring(0, min(contract['numContract'].toString().length, 10))}",
                                                           style:
                                                               const TextStyle(
                                                             fontSize: 14,
@@ -709,7 +600,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 top: 5,
                                                                 right: 15),
                                                         child: Text(
-                                                          "Processo Nº: ${filtereData[index]['numProcess']}",
+                                                          "Processo Nº: ${contract['numProcess']}",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14),
@@ -722,7 +613,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 top: 5,
                                                                 right: 15),
                                                         child: Text(
-                                                          "Gestor: ${filtereData[index]['manager'].toString().substring(0, min(filtereData[index]['manager'].toString().length, 10))}",
+                                                          "Gestor: ${contract['manager'].toString().substring(0, min(contract['manager'].toString().length, 10))}",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14),
@@ -735,7 +626,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 top: 5,
                                                                 right: 15),
                                                         child: Text(
-                                                          "Fiscal: ${filtereData[index]['supervisor'].toString().substring(0, min(filtereData[index]['supervisor'].toString().length, 10))}",
+                                                          "Fiscal: ${contract['supervisor'].toString().substring(0, min(contract['supervisor'].toString().length, 10))}",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14),
@@ -748,7 +639,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 top: 5,
                                                                 right: 15),
                                                         child: Text(
-                                                          "Secretaria: ${filtereData[index]['sector'].toString().substring(0, min(filtereData[index]['sector'].toString().length, 10))}",
+                                                          "Secretaria: ${contract['sector'].toString().substring(0, min(contract['sector'].toString().length, 10))}",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14),
@@ -762,7 +653,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 right: 15),
                                                         child: Text(
                                                           calculateDays(
-                                                              filtereData[index]
+                                                             contract
                                                                   [
                                                                   'finalDate']),
                                                           style:
@@ -775,7 +666,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                       .red),
                                                         ),
                                                       ),
-                                                      if (filtereData[index][
+                                                      if (contract[
                                                               'contractStatus'] ==
                                                           'ok')
                                                         Padding(
@@ -790,7 +681,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 'green'],
                                                           ),
                                                         ),
-                                                      if (filtereData[index][
+                                                      if (contract[
                                                               'contractStatus'] ==
                                                           'pendent')
                                                         Padding(
@@ -805,7 +696,7 @@ class _ContractPageState extends State<ContractPage> {
                                                                 'crismon'],
                                                           ),
                                                         ),
-                                                      if (filtereData[index][
+                                                      if (contract[
                                                               'contractStatus'] ==
                                                           'review')
                                                         Padding(

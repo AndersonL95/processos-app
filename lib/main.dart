@@ -1,12 +1,17 @@
 import 'dart:convert';
 
 import 'package:docInHand/src/application/providers/home_provider.dart';
+import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getLast3.dart';
 import 'package:docInHand/src/application/use-case/getNotification_api.dart';
+import 'package:docInHand/src/application/use-case/getSector_api.dart';
+import 'package:docInHand/src/application/use-case/get_contractId.dart';
+import 'package:docInHand/src/application/use-case/update_contract_api.dart';
 import 'package:docInHand/src/application/use-case/viwed_notification.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:docInHand/src/infrastucture/notifications.dart';
+import 'package:docInHand/src/infrastucture/sector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -16,6 +21,7 @@ import 'package:docInHand/src/application/screens/menuItem.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 
 
 
@@ -39,16 +45,22 @@ void main() async {
   final authManager = AuthManager();
   final contractService = ApiContractService(authManager);
   final notificationService = ApiNotificationService(authManager);
+  final apiSectorService = ApiSectorService(authManager);
+  final getContractIdInfoApi = GetContractIdInfoApi(contractService);
   
 
   final get3LastContractsInfoApi = Get3LastContractsInfoApi(contractService);
   final getContractsInfoApi = GetContractsInfoApi(contractService);
   final getNotificationInfoApi = GetNotificationInfoApi(notificationService);
   final markAsViewdNotificationApi = MarkAsViewdNotificationApi(notificationService);
+  final updateContract = UpdateContract(contractService);
+  final getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
   runApp(
-    MultiProvider(
+    ToastificationWrapper(
+    child: MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => authManager),
+
         ChangeNotifierProvider(
           create: (_) => ContractProvider(
             get3LastContractsInfoApi: get3LastContractsInfoApi,
@@ -56,11 +68,22 @@ void main() async {
             getNotificationInfoApi: getNotificationInfoApi,
             notificationService: notificationService, 
             markAsViewdNotificationApi: markAsViewdNotificationApi,
-          ),
+          )..fetchAllData()..fetchNotifications()
         ),
+        
+        ChangeNotifierProvider(
+          create: (_) => ListContractProvider(
+            getContractsInfoApi: getContractsInfoApi,
+            getSectorsInfoApi: getSectorsInfoApi,
+            updateContract: updateContract,
+            getContractIdInfoApi: getContractIdInfoApi
+          )..fetchContracts()..fetchSectors(),
+        ),
+
       ],
       child: MyApp(isLoggedIn: isLoggedIn),
     ),
+    )
   );
 }
 
