@@ -132,4 +132,23 @@ class ListContractProvider with ChangeNotifier {
   filtereData = filteredData;
   notifyListeners();
 }
+
+  void searchData(String query) {
+    final lowerQuery = query.toLowerCase();
+
+    filtereData = data.where((item) {
+      return item['name'].toString().toLowerCase().contains(lowerQuery) ||
+             item['numContract'].toString().contains(query) ||
+             item['numProcess'].toString().contains(query) ||
+             item['manager'].toString().toLowerCase().contains(lowerQuery) ||
+             item['supervisor'].toString().toLowerCase().contains(lowerQuery);
+    }).toList();
+
+    notifyListeners();
+  }
+
+  void clearSearch() {
+    filtereData = [...data];
+    notifyListeners();
+  }
 }

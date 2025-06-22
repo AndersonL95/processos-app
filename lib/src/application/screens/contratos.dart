@@ -37,15 +37,14 @@ class _ContractPageState extends State<ContractPage> {
   late ApiSectorService apiSectorService;
   late DeleteContractsInfoApi deleteContractsInfoApi;
   late UpdateContract updateContract;
-  bool _loading = true;
   String? selectSortOption;
   String? selectedSector;
   String? _error;
-  List<dynamic> data = [];
-  List<dynamic> filtereData = [];
+ 
+  
   TextEditingController searchController = TextEditingController();
   String? sectorContractController;
-  List<DropdownMenuItem<String>> sectorsData = [];
+
   int? selectedDaysLeft;
   String? userRole;
   bool _showSearch = false;
@@ -53,11 +52,10 @@ class _ContractPageState extends State<ContractPage> {
   @override
   void initState() {
     apiContractService = ApiContractService(authManager);
-    apiSectorService = ApiSectorService(authManager);
     deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
     getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
     updateContract = UpdateContract(apiContractService);
-
+    getRole();
     super.initState();
   }
 
@@ -68,7 +66,11 @@ class _ContractPageState extends State<ContractPage> {
     "Data fin. - Decrs."
   ];
   
-
+  Future<void>getRole()async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    String? roleJson = pref.getString('role');
+    userRole = roleJson != null ? json.decode(roleJson) : null;
+  }
   
 
   String breakLinesEvery10Characters(String input) {
@@ -95,21 +97,6 @@ class _ContractPageState extends State<ContractPage> {
     return lines.join('\n');
   }
 
-  void searchData(String query) {
-    List<dynamic> temp = [];
-    for (var item in data) {
-      if (item['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
-          item['numContract'].toString().contains(query) ||
-          item['numProcess'].toString().contains(query) ||
-          item['manager'].toString().contains(query) ||
-          item['supervisor'].toString().contains(query)) {
-        temp.add(item);
-      }
-    }
-    setState(() {
-      filtereData = temp;
-    });
-  }
 
   String calculateDays(String finalDate) {
     try {
@@ -133,6 +120,7 @@ class _ContractPageState extends State<ContractPage> {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     String? roleJson = pref.getString('role');
     String userRole = roleJson != null ? json.decode(roleJson) : null;
+    final contract = Provider.of<ListContractProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -142,31 +130,26 @@ class _ContractPageState extends State<ContractPage> {
       builder: (context) {
         return OpenModalComponent(
           isAdmin: userRole == 'admin' ? true : false,
-          data: data,
+          data: contract.data,
           onFilterApplied: (filteredData) {
             Provider.of<ListContractProvider>(context, listen: false).applyFilter(filteredData);
-            
           },
           customColors: customColors,
           selectedSector: selectedSector,
           selectSortOption: selectSortOption,
           selectedDaysLeft: selectedDaysLeft,
-          sectorsData: sectorsData,
+          sectorsData: contract.sectorsData,
           sortOptions: sortOptions,
         );
       },
     );
   }
-
-  
-
   @override
   Widget build(BuildContext context) {
    final listcContractProvider = Provider.of<ListContractProvider>(context);
     final dataToShow = listcContractProvider.filtereData.isNotEmpty
       ? listcContractProvider.filtereData
       : listcContractProvider.data;
-    
     return Scaffold(
         appBar: AppBar(
           title: Padding(
@@ -217,7 +200,7 @@ class _ContractPageState extends State<ContractPage> {
                         padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                         child: TextField(
                           controller: searchController,
-                          onChanged: (value) => searchData(value),
+                          onChanged: (value) => listcContractProvider.searchData(value),
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.black87,
@@ -233,7 +216,7 @@ class _ContractPageState extends State<ContractPage> {
                                     icon: Icon(Icons.clear, color: Colors.grey[500]),
                                     onPressed: () {
                                       searchController.clear();
-                                      searchData('');
+                                      listcContractProvider.searchData('');
                                     },
                                   )
                                 : null,
@@ -274,7 +257,7 @@ class _ContractPageState extends State<ContractPage> {
                                           _showSearch = !_showSearch;
                                           if (!_showSearch) {
                                             searchController.clear();
-                                            searchData("");
+                                            listcContractProvider.searchData("");
                                           }
                                         });}
                                                 
@@ -282,6 +265,7 @@ class _ContractPageState extends State<ContractPage> {
                                 ],
                               ),
                             ),
+                           
                           if (userRole == "admin" || userRole == "superAdmin")
                             Padding(
                               padding: EdgeInsets.only(top: 20),

@@ -1,3 +1,4 @@
+import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
 
@@ -181,7 +182,7 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
                   widget.onFilterApplied(filteredData);
                   Navigator.pop(context);
                 },
-                child: Text("Aplicar"),
+                child: Text("Aplicar", style: TextStyle(color: customColors['white']),),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
