@@ -49,6 +49,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);
+        
           
         if (responseBody != null && responseBody['contract']['id'] != null) {
           return responseBody['contract']['id'];
@@ -93,31 +94,53 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
   }
 
-  Future<dynamic> findAllContracts() async {
-    var bodyList = [];
-    final SharedPreferences data = await SharedPreferences.getInstance();
-    String? tenantJson = data.getString('tenantId');
-    if (tenantJson != null) {
-      tenantId = json.decode(tenantJson);
-    }
-    try {
-      final response = await authManager.sendAuthenticate(() async {
-        return await http.get(HttpService.buildUri("/contract"),
-            headers: authManager.token != null
-                ? {
-                    'Authorization': 'Bearer ${authManager.token}',
-                    'x-tenant-id': tenantId.toString()
-                  }
-                : {});
-      });
-      if (response.statusCode == 200) {
-        bodyList = json.decode(response.body);
-      }
-    } catch (e) {
-      throw Exception("Não foi possivel buscar os dados, $e");
-    }
-    return bodyList;
+  Future<dynamic> findAllContracts({
+  int page = 1,
+  int limit = 20,
+  bool useLightRoute = false,
+}) async {
+  var bodyList = [];
+  final SharedPreferences data = await SharedPreferences.getInstance();
+  String? tenantJson = data.getString('tenantId');
+  if (tenantJson != null) {
+    tenantId = json.decode(tenantJson);
   }
+
+  try {
+    final route = useLightRoute ? "/contractNotTerm" : "/contract";
+    final response = await authManager.sendAuthenticate(() async {
+      return await http.get(
+        HttpService.buildUri("$route?page=$page&limit=$limit"),
+        headers: authManager.token != null
+            ? {
+                'Authorization': 'Bearer ${authManager.token}',
+                'x-tenant-id': tenantId.toString()
+              }
+            : {},
+      );
+    });
+
+    if (response.statusCode == 200) {
+    
+      if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      if (jsonData is Map<String, dynamic>) {
+        return jsonData;
+      } else {
+        throw Exception("Formato de resposta inesperado: não é um Map.");
+      }
+    } else {
+      throw Exception("Erro na resposta: ${response.statusCode}");
+    }
+     
+    }
+  } catch (e) {
+    throw Exception("Não foi possível buscar os dados, $e");
+  }
+
+  return bodyList;
+}
+
 
   Future<Object> findContractId(int id) async {
     print("IDD: $id");

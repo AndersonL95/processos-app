@@ -28,12 +28,9 @@ class ContractProvider with ChangeNotifier {
 
   bool isLoading = false;
   String error = '';
-  bool _fetched = false;
-  Future<void> fetchAllData() async {
-     if (_fetched) return;
-        _fetched = true;
-      print("Chamando fetchContracts()");
 
+
+  Future<void> fetchAllData() async {
     try {
       isLoading = true;
       notifyListeners();
@@ -41,13 +38,13 @@ class ContractProvider with ChangeNotifier {
       final lastContracts = await get3LastContractsInfoApi.execute();
       final allContracts = await getContractsInfoApi.execute();
       final allNotifications = await getNotificationInfoApi.execute();
-
+      
       data = lastContracts;
-      dataStatus = allContracts;
+      dataStatus = allContracts['data'];
       notifications = allNotifications;
       notificationCount =
           allNotifications.where((n) => !n['read']).toList().length;
-
+        
       error = '';
     } catch (e) {
       error = e.toString();
@@ -55,6 +52,7 @@ class ContractProvider with ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+    
   }
   Future<void> fetchNotifications() async {
   try {

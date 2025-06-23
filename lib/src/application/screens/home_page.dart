@@ -40,7 +40,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     
     super.initState();
-    
+    final provider = Provider.of<ContractProvider>(context, listen: false);
+    provider.fetchNotifications();
   }
 
   String breakLinesEvery10Characters(String input) {
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   size: 30,
                   color: customColors['white'],
                 ),
-                if (notificationCount > 0) ...[
+                if (provider.notificationCount > 0) ...[
                   Positioned(
                     right: 0,
                     child: Container(
@@ -112,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                         shape: BoxShape.circle,
                       ),
                       child: Text(
-                        '$notificationCount',
+                        '${provider.notificationCount}',
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -120,9 +121,10 @@ class _HomePageState extends State<HomePage> {
                 ],
               ]),
               onPressed: () {
-                final provider = Provider.of<ContractProvider>(context);
+                final provider = Provider.of<ContractProvider>(context, listen: false);
                 showNotification(context, provider);
               },
+
             ),
           ),
         ],
@@ -142,7 +144,7 @@ class _HomePageState extends State<HomePage> {
               // ignore: unnecessary_null_comparison
               : provider.data != null
                   ? RefreshIndicator(
-                     onRefresh: () async {await provider.fetchAllData();},
+                     onRefresh: provider.fetchAllData,
                      child: SingleChildScrollView(
                        physics: const AlwaysScrollableScrollPhysics(),
                        child: Column(

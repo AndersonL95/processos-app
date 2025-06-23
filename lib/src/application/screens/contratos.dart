@@ -1,27 +1,16 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/screens/sector_add.dart';
 import 'package:flutter/material.dart';
-import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
 import 'package:docInHand/src/application/components/Modal_Widget.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/add_contract.dart';
 import 'package:docInHand/src/application/screens/contratos_detalhes.dart';
 import 'package:docInHand/src/application/screens/update_contract.dart';
-import 'package:docInHand/src/application/use-case/delet_contract.api.dart';
-import 'package:docInHand/src/application/use-case/getContract_api.dart';
-import 'package:docInHand/src/application/use-case/getSector_api.dart';
-import 'package:docInHand/src/application/use-case/get_contractId.dart';
-import 'package:docInHand/src/application/use-case/update_contract_api.dart';
-import 'package:docInHand/src/domain/entities/contract.dart';
-import 'package:docInHand/src/infrastucture/authManager.dart';
-import 'package:docInHand/src/infrastucture/contracts.dart';
-import 'package:docInHand/src/infrastucture/sector.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toastification/toastification.dart';
+
 
 class ContractPage extends StatefulWidget {
   @override
@@ -29,34 +18,18 @@ class ContractPage extends StatefulWidget {
 }
 
 class _ContractPageState extends State<ContractPage> {
-  AuthManager authManager = AuthManager();
-  late GetContractsInfoApi getContractsInfoApi;
-  late GetContractIdInfoApi getContractIdInfoApi;
-  late GetSectorsInfoApi getSectorsInfoApi;
-  late ApiContractService apiContractService;
-  late ApiSectorService apiSectorService;
-  late DeleteContractsInfoApi deleteContractsInfoApi;
-  late UpdateContract updateContract;
   String? selectSortOption;
   String? selectedSector;
   String? _error;
- 
-  
   TextEditingController searchController = TextEditingController();
   String? sectorContractController;
-
   int? selectedDaysLeft;
-  String? userRole;
   bool _showSearch = false;
 
   @override
   void initState() {
-    apiContractService = ApiContractService(authManager);
-    deleteContractsInfoApi = DeleteContractsInfoApi(apiContractService);
-    getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
-    updateContract = UpdateContract(apiContractService);
-    getRole();
     super.initState();
+     
   }
 
   List<String> sortOptions = [
@@ -66,13 +39,6 @@ class _ContractPageState extends State<ContractPage> {
     "Data fin. - Decrs."
   ];
   
-  Future<void>getRole()async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    String? roleJson = pref.getString('role');
-    userRole = roleJson != null ? json.decode(roleJson) : null;
-  }
-  
-
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
     for (int i = 0; i < input.length; i += 20) {
@@ -147,9 +113,10 @@ class _ContractPageState extends State<ContractPage> {
   @override
   Widget build(BuildContext context) {
    final listcContractProvider = Provider.of<ListContractProvider>(context);
-    final dataToShow = listcContractProvider.filtereData.isNotEmpty
+    final dataToShow = listcContractProvider.data.isNotEmpty
       ? listcContractProvider.filtereData
       : listcContractProvider.data;
+         
     return Scaffold(
         appBar: AppBar(
           title: Padding(
@@ -215,7 +182,7 @@ class _ContractPageState extends State<ContractPage> {
                                 ? IconButton(
                                     icon: Icon(Icons.clear, color: Colors.grey[500]),
                                     onPressed: () {
-                                      searchController.clear();
+                                      listcContractProvider.clearSearch();
                                       listcContractProvider.searchData('');
                                     },
                                   )
@@ -256,7 +223,7 @@ class _ContractPageState extends State<ContractPage> {
                                         setState(() {
                                           _showSearch = !_showSearch;
                                           if (!_showSearch) {
-                                            searchController.clear();
+                                            listcContractProvider.clearSearch();
                                             listcContractProvider.searchData("");
                                           }
                                         });}
@@ -266,7 +233,7 @@ class _ContractPageState extends State<ContractPage> {
                               ),
                             ),
                            
-                          if (userRole == "admin" || userRole == "superAdmin")
+                          if (listcContractProvider.userRole == "admin" || listcContractProvider.userRole == "superAdmin")
                             Padding(
                               padding: EdgeInsets.only(top: 20),
                               child: Row(
@@ -704,11 +671,19 @@ class _ContractPageState extends State<ContractPage> {
                                     ),
                                   ),
                                 ),
+                                
                               ],
                             );
                           },
                         ),
                       ),
+                      if (listcContractProvider.data.length < listcContractProvider.total)
+                                  TextButton(
+                                    onPressed: () {
+                                      listcContractProvider.loadMoreContracts();
+                                    },
+                                    child: const Text("Carregar mais", style: TextStyle(fontSize: 20),),
+                                  ),
                     ],
                   ));
   }

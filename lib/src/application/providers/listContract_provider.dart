@@ -23,7 +23,12 @@ class ListContractProvider with ChangeNotifier {
   String? userRole;
   bool loading = false;
   String? error;
+  int _page = 1;
+  final int _limit = 2;
+  int total = 0;
 
+
+  
   ListContractProvider({
     required this.getContractsInfoApi,
     required this.getSectorsInfoApi,
@@ -41,12 +46,12 @@ class ListContractProvider with ChangeNotifier {
       final roleJson = prefs.getString('role');
       userRole = roleJson != null ? json.decode(roleJson) : null;
 
-      final value = await getContractsInfoApi.execute();
+      final value = await getContractsInfoApi.execute(page: 1, limit: _limit, useLightRoute: true);
 
       final filteredByRole = userRole == 'admin'
-          ? value
-          : value.where((contract) => contract['active'] == 'yes').toList();
-
+          ? value['data']
+          : value['data'].where((contract) => contract['active'] == 'yes').toList();
+        total = value['total'];
       final sortedContracts = filteredByRole
         ..sort((a, b) {
           final aActive = a['active'] == 'yes' ? 0 : 1;
@@ -64,6 +69,49 @@ class ListContractProvider with ChangeNotifier {
     loading = false;
     notifyListeners();
   }
+
+  Future<void> loadMoreContracts() async {
+   if (data.length >= total) return;
+
+   loading = true;
+   notifyListeners();
+
+   try {
+     _page++;
+
+     final value = await getContractsInfoApi.execute(
+       page: _page,
+       limit: _limit,
+       useLightRoute: true,
+     );
+
+
+      if (value is Map && value.containsKey('total')) {
+       total = value['total'];
+     }
+     List<dynamic> newContracts = value['data'] ?? value;
+
+     final filteredByRole = userRole == 'admin'
+         ? newContracts
+         : newContracts.where((contract) => contract['active'] == 'yes').toList();
+
+     final sortedContracts = filteredByRole
+       ..sort((a, b) {
+         final aActive = a['active'] == 'yes' ? 0 : 1;
+         final bActive = b['active'] == 'yes' ? 0 : 1;
+         return aActive.compareTo(bActive);
+       });
+
+     data.addAll(sortedContracts);
+     filtereData = FilterDataComponent.filterData(data: data);
+   } catch (e) {
+     error = 'Erro ao carregar mais contratos: $e';
+   }
+
+   loading = false;
+   notifyListeners();
+}
+
 
   Future<void> fetchSectors() async {
     try {
