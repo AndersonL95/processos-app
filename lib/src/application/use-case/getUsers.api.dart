@@ -4,13 +4,11 @@ class GetUsersInfoApi {
   final ApiService apiService;
   GetUsersInfoApi(this.apiService);
 
-  Future execute() async {
+  Future<Map<String, dynamic>> execute({int page = 1, int limit = 10,String? search,}) async {
     try {
-      var usersData = await apiService.findAll();
-
-      return usersData;
+      return await apiService.findAllUser(page: page, limit: limit, search: search);
     } catch (e) {
       throw Exception(e);
     }
-  }
+}
 }

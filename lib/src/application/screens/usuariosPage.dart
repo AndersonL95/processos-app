@@ -1,16 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
+
+import 'package:docInHand/src/application/providers/listUsers_provider%20.dart';
+
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/add_user.dart';
 import 'package:docInHand/src/application/screens/usuarios_detalhes.dart';
-import 'package:docInHand/src/application/use-case/getUsers.api.dart';
-import 'package:docInHand/src/application/use-case/getUsersInAdmin.api.dart';
+
 import 'package:docInHand/src/infrastucture/authManager.dart';
-import 'package:docInHand/src/infrastucture/users.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:provider/provider.dart';
+
 
 class UsuariosPage extends StatefulWidget {
   late final int userId;
@@ -21,84 +23,17 @@ class UsuariosPage extends StatefulWidget {
 
 class _UsuariosPageState extends State<UsuariosPage> {
   AuthManager authManager = AuthManager();
-  late GetUsersInfoApi getUsersInfoApi;
-  late GetUsersAdminInfoApi getUsersAdminInfoApi;
-  late ApiService apiService;
-  late String roleJ;
-  bool _loading = true;
-  ImageProvider? userImage;
-
   String? _error;
-  List<dynamic> data = [];
-  List<dynamic> filtereData = [];
   TextEditingController searchController = TextEditingController();
-  List userImageList = [];
+  Timer? _debounce;
+   
   @override
   void initState() {
-    apiService = ApiService(authManager);
-    getUsersInfoApi = GetUsersInfoApi(apiService);
-    getUsersAdminInfoApi = GetUsersAdminInfoApi(apiService);
-    getUsers();
+    final userProvider = Provider.of<ListUserProvider>(context, listen: false);
+
     super.initState();
   }
 
-  Future<void> getUsers() async {
-    final SharedPreferences role = await SharedPreferences.getInstance();
-    String? roleJson = role.getString('role');
-    roleJ = json.decode(roleJson!);
-
-    setState(() {
-      _loading = true;
-    });
-
-    try {
-      final value = roleJ == "superAdmin"
-          ? await getUsersAdminInfoApi.execute()
-          : await getUsersInfoApi.execute();
-
-      if (mounted) {
-        setState(() {
-          data = value;
-          filtereData = value;
-          _loading = false;
-        });
-
-        List<MemoryImage> userImages = [];
-
-        for (var user in data) {
-          if (user.photo.isNotEmpty) {
-            String photoBase64 = user.photo;
-
-            List<int> imageBytes = await _base64StringToBytes(photoBase64);
-
-            if (imageBytes.isNotEmpty) {
-              userImages.add(MemoryImage(Uint8List.fromList(imageBytes)));
-            } else {
-              userImages.add(MemoryImage(Uint8List(0)));
-            }
-          } else {
-            userImages.add(MemoryImage(Uint8List(0)));
-          }
-        }
-
-        setState(() {
-          userImageList = userImages;
-        });
-      }
-    } catch (e) {
-      if(mounted){
-        setState(() {
-          _error = "Erro ao carregar informações: ${e.toString()}";
-          _loading = false;
-      });
-      }
-    
-    }
-  }
-
-  Future<List<int>> _base64StringToBytes(String base64String) async {
-    return base64Decode(base64String);
-  }
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
@@ -124,28 +59,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
     return lines.join('\n');
   }
 
-  void filterData(String query) {
-    List<dynamic> temp = [];
-    for (var item in data) {
-      if (item.name.toString().toLowerCase().contains(query.toLowerCase()) ||
-          item.username.toString().contains(query) ||
-          item.email.toString().contains(query) ||
-          item.cargo.toString().contains(query) ||
-          item.role.toString().contains(query)) {
-        temp.add(item);
-      }
-    }
-    setState(() {
-      filtereData = temp;
-    });
-  }
-
+ 
   void deleteContract(id) async {}
 
   @override
   Widget build(
     BuildContext context,
   ) {
+    final userProvider = Provider.of<ListUserProvider>(context);
+     final dataToShow = userProvider.data.isNotEmpty
+      ? userProvider.filtereData
+      : userProvider.data;
+
     return (Scaffold(
         appBar: AppBar(
           title: const Padding(
@@ -165,7 +90,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
           automaticallyImplyLeading: false,
         ),
         backgroundColor: Colors.grey.shade100,
-        body: _loading
+        body: userProvider.loading
             ? const Center(
                 child: CircularProgressIndicator(
                   color: Color.fromRGBO(1, 76, 45, 1),
@@ -182,8 +107,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
                       child: TextField(
                         controller: searchController,
                         onChanged: (value) {
-                          filterData(value);
-                        },
+                             if (_debounce?.isActive ?? false) _debounce!.cancel();
+                             _debounce = Timer(const Duration(milliseconds: 1000), () {
+                               userProvider.searchData(value);
+                             });
+                            },
                         decoration: InputDecoration(
                             iconColor: customColors['green'],
                             prefixIconColor: customColors['green'],
@@ -216,7 +144,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                       .push(MaterialPageRoute(
                                           builder: (context) => AddUserPage()));
                                   if (result == true) {
-                                    getUsers();
+                                    userProvider.fetchUsers();
                                   }
                                 },
                                 child: Icon(
@@ -229,8 +157,9 @@ class _UsuariosPageState extends State<UsuariosPage> {
                     Expanded(
                         flex: 1,
                         child: ListView.builder(
-                            itemCount: filtereData.length,
+                            itemCount: dataToShow.length,
                             itemBuilder: (context, index) {
+                              final user = dataToShow[index];
                               return Column(
                                 children: [
                                   Padding(
@@ -251,10 +180,9 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                       builder: (context) =>
                                                           UserDetailPage(
                                                               userDetail:
-                                                                  filtereData[
-                                                                      index])));
+                                                                  user)));
                                           if (result == true) {
-                                            getUsers();
+                                            userProvider.fetchUsers();
                                           }
                                         },
                                         child: SizedBox(
@@ -265,9 +193,8 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.end,
                                                   children: [
-                                                    if (filtereData[index]
-                                                            .active ==
-                                                        'yes')
+                                                    if (user['active'] ==
+                                                        "yes")
                                                       Padding(
                                                         padding:
                                                             EdgeInsets.all(20),
@@ -277,8 +204,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                           color: Colors.green,
                                                         ),
                                                       ),
-                                                    if (filtereData[index]
-                                                            .active ==
+                                                    if (user['active'] ==
                                                         'no')
                                                       Padding(
                                                         padding:
@@ -310,15 +236,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                             width: 100,
                                                             decoration:
                                                                 const BoxDecoration(),
-                                                            child: (filtereData[
-                                                                            index]
-                                                                        .photo ==
+                                                            child: (user['photo'] ==
                                                                     "")
                                                                 ? Image.asset(
                                                                     'Assets/images/user.png',
                                                                     scale: 5.0)
                                                                 : Image(
-                                                                    image: userImageList[
+                                                                    image: userProvider.userImageList[
                                                                         index],
                                                                     fit: BoxFit
                                                                         .cover)),
@@ -336,9 +260,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   right: 30),
                                                           child: Text(
                                                             breakLinesEvery10Characters(
-                                                                filtereData[
-                                                                        index]
-                                                                    .name),
+                                                               user['name']),
                                                             style: const TextStyle(
                                                                 fontSize: 18,
                                                                 fontWeight:
@@ -353,7 +275,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   top: 10,
                                                                   right: 30),
                                                           child: Text(
-                                                            "Username: ${filtereData[index].username}",
+                                                            "Username: ${user['userName']}",
                                                             style:
                                                                 const TextStyle(
                                                               fontSize: 16,
@@ -370,9 +292,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                               children: [
                                                                 Text(
                                                                   breakLinesEvery10Characters(
-                                                                      filtereData[
-                                                                              index]
-                                                                          .email),
+                                                                     user['email']),
                                                                   style: const TextStyle(
                                                                       fontSize:
                                                                           16),
@@ -386,7 +306,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   top: 5,
                                                                   right: 30),
                                                           child: Text(
-                                                            "Nível: ${filtereData[index].role}",
+                                                            "Nível: ${user['role']}",
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
@@ -400,7 +320,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   top: 5,
                                                                   right: 30),
                                                           child: Text(
-                                                            "Cargo: ${filtereData[index].cargo}",
+                                                            "Cargo: ${user['cargo']}",
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
