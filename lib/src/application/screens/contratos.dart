@@ -307,15 +307,18 @@ void openModal() async {
                           ),
                         ],
                       ),
+                    
                       Expanded(
                         flex: 1,
                         child: ListView.builder(
-                          itemCount: dataToShow.length,
+                          itemCount: dataToShow.length + 1,
                           itemBuilder: (context, index) {
-                            final contract = dataToShow[index];
+                            if(index < dataToShow.length){
+                              final contract = dataToShow[index];
                            
                             return Column(
                               children: [
+                              
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       top: 30, left: 5, right: 5),
@@ -695,19 +698,50 @@ void openModal() async {
                                 
                               ],
                             );
-                          },
-                        ),
-                      ),
-                      if (listcContractProvider.data.length < listcContractProvider.total)
-                                  TextButton(
+                            }else {
+                                if (listcContractProvider.data.length < listcContractProvider.total) {
+                                  return Padding(padding: EdgeInsets.all(15),
+                                    child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const CircleBorder(),
+                                      elevation: 10,
+                                      backgroundColor: customColors['green'],
+                                      minimumSize: const Size(65, 40),
+                                    ),
                                     onPressed: listcContractProvider.loading
                                         ? null
                                         : () => listcContractProvider.loadMoreContracts(),
-                                    child: listcContractProvider.loading
-                                        ? CircularProgressIndicator()
-                                        : const Text("Carregar mais", style: TextStyle(fontSize: 20)),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: Text(
+                                            "+",
+                                            style: TextStyle(fontSize: 15, color: customColors['white']),
+                                          ),
+                                        ),
+                                        Icon(Icons.assignment, color: customColors['white']),
+                                      ],
+                                    ),
                                   ),
-                    ],
-                  ));
+                                  );
+                                } else {
+                                  return const SizedBox(); 
+                                }
+                              }
+                            },
+                        ),
+                        
+                      ),
+                   
+                    
+                      ],
+                    )
+                      
+                    
+                    
+                  );
   }
 }
+/** */

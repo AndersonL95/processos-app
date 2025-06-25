@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:docInHand/src/application/components/saveButtom_widget.dart';
 import 'package:docInHand/src/application/components/termsModal_Widget.dart';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
+import 'package:docInHand/src/application/screens/menuItem.dart';
 import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/infrastucture/addTerm.dart';
@@ -251,8 +252,9 @@ class AddContractPageState extends State<AddContractPage> {
       setState(() {
         _loading = false;
       });
-
-      Navigator.pushNamed(context, '/menuItem').then((_) =>{
+         Navigator.pushReplacement(context,MaterialPageRoute(
+          builder: (context) => const MenuItem(initialIndex: 1)),
+        ).then((_) =>{
         Provider.of<ListContractProvider>(context, listen: false).fetchContracts()
       });
     
