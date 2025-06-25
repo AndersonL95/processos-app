@@ -59,7 +59,9 @@ class ListUserProvider with ChangeNotifier {
 
       data = result['data'];
       filtereData = result['data'];
+      total = result['total'];
        userImageList = await _generateUserImages(data);
+       
     } catch (e) {
       error = "Erro ao carregar informações: ${e.toString()}";
     }
@@ -72,16 +74,17 @@ class ListUserProvider with ChangeNotifier {
     List<MemoryImage> images = [];
 
     for (var user in userList) {
-      if (user.photo.isNotEmpty) {
-        try {
-          final bytes = base64Decode(user.photo);
-          images.add(MemoryImage(Uint8List.fromList(bytes)));
-        } catch (_) {
-          images.add(MemoryImage(Uint8List(0)));
-        }
+      if ((user['photo'] ?? '').isNotEmpty) {
+         try {
+           final bytes = base64Decode(user['photo']);
+           images.add(MemoryImage(Uint8List.fromList(bytes)));
+         } catch (_) {
+           images.add(MemoryImage(Uint8List(0)));
+         }
       } else {
-        images.add(MemoryImage(Uint8List(0)));
-      }
+      images.add(MemoryImage(Uint8List(0)));
+}
+
     }
 
     return images;
@@ -91,7 +94,7 @@ class ListUserProvider with ChangeNotifier {
 
   Future<void> toggleContractStatus(BuildContext context, int id, String value) async {
     try {
-      Users? userEdit = await getUserInfoApi.execute(id) as Users?;
+      Users? userEdit = await getUserInfoApi.execute(id);
 
       if (userEdit == null) {
         toastification.show(
@@ -184,6 +187,45 @@ class ListUserProvider with ChangeNotifier {
     fetchUsers();
     notifyListeners();
   }
+
+Future<void> loadMoreUsers() async {
+   if (data.length >= total) return;
+
+   loading = true;
+   notifyListeners();
+
+   try {
+     _page++;
+     final value = userRole == "superAdmin"
+          ? await getUsersAdminInfoApi.execute(page: _page, limit: _limit)
+          : await getUsersInfoApi.execute(page: _page, limit: _limit);
+
+      if (value is Map && value.containsKey('total')) {
+       total = value['total'];
+     }
+     List<dynamic> newUsers = value['data'] ?? value;
+
+     final filteredByRole = userRole == 'admin'
+         ? newUsers
+         : newUsers.where((users) => users['active'] == 'yes').toList();
+
+     final sortedUsers = filteredByRole
+       ..sort((a, b) {
+         final aActive = a['active'] == 'yes' ? 0 : 1;
+         final bActive = b['active'] == 'yes' ? 0 : 1;
+         return aActive.compareTo(bActive);
+       });
+
+     data.addAll(sortedUsers);
+   
+   } catch (e) {
+     error = 'Erro ao carregar mais contratos: $e';
+   }
+
+   loading = false;
+   notifyListeners();
+}
+
 
 
   

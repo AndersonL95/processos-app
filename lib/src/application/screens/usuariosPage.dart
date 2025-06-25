@@ -103,32 +103,50 @@ class _UsuariosPageState extends State<UsuariosPage> {
                   )
                 : Column(children: [
                     Padding(
-                      padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (value) {
+                        padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                        child: TextField(
+                          controller: searchController,
+                          onChanged: (value) {
                              if (_debounce?.isActive ?? false) _debounce!.cancel();
                              _debounce = Timer(const Duration(milliseconds: 1000), () {
                                userProvider.searchData(value);
                              });
                             },
-                        decoration: InputDecoration(
-                            iconColor: customColors['green'],
-                            prefixIconColor: customColors['green'],
-                            fillColor: customColors['white'],
-                            hoverColor: customColors['green'],
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
                             filled: true,
-                            focusColor: customColors['green'],
-                            labelText: "Pesquisar",
-                            hintText: "Digite para pesquisar",
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
+                            fillColor: Colors.white,
+                            hintText: 'Buscar...',
+                            hintStyle: TextStyle(color: Colors.grey[500]),
+                            prefixIcon: Icon(Icons.search, color: customColors['green']),
+                            suffixIcon: searchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(Icons.clear, color: Colors.grey[500]),
+                                    onPressed: () {
+                                      userProvider.clearSearch();
+                                      searchController.clear();
+                                   
+                                    },
+                                  )
+                                : null,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide(color: customColors['green'] ?? Colors.green, width: 2),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
-                            )),
+                           ),
                       ),
-                    ),
                     Padding(
                       padding: EdgeInsets.only(top: 20, right: 30),
                       child: Row(
@@ -157,8 +175,9 @@ class _UsuariosPageState extends State<UsuariosPage> {
                     Expanded(
                         flex: 1,
                         child: ListView.builder(
-                            itemCount: dataToShow.length,
+                            itemCount: dataToShow.length + 1,
                             itemBuilder: (context, index) {
+                                if(index < dataToShow.length){
                               final user = dataToShow[index];
                               return Column(
                                 children: [
@@ -338,7 +357,35 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                   ),
                                 ],
                               );
-                            }))
+                            }else {
+                                if (userProvider.data.length < userProvider.total) {
+                                  return Padding(padding: EdgeInsets.all(15),
+                                    child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const CircleBorder(),
+                                      elevation: 10,
+                                      backgroundColor: customColors['green'],
+                                      minimumSize: const Size(65, 40),
+                                    ),
+                                    onPressed: userProvider.loading
+                                        ? null
+                                        : () => userProvider.loadMoreUsers(),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child:  Icon(Icons.person_add_sharp, color: customColors['white']),
+                                        ),
+                                       
+                                      ],
+                                    ),
+                                  ),
+                                  );
+                                } else {
+                                  return const SizedBox(); 
+                                }
+                              }}))
                   ])));
   }
 }
