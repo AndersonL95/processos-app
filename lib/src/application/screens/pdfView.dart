@@ -35,9 +35,9 @@ class _PdfViewPageState extends State<PdfViewPage> {
   Future<File> savePdf() async {
     Completer<File> completer = Completer();
     try {
-      var url = widget.pdfBytes['id'];
+      var url = widget.pdfBytes.id;
       var bytes =
-          base64Decode(widget.pdfBytes['file'].toString().replaceAll('\n', ''));
+          base64Decode(widget.pdfBytes.file.toString().replaceAll('\n', ''));
       final dir = await getDownloadsDirectory();
       File file = File("${dir?.path}/${url.toString()}.pdf");
       await file.writeAsBytes(bytes.buffer.asUint8List());

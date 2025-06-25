@@ -4,13 +4,16 @@ class GetContractsInfoApi {
   final ApiContractService apiContractService;
   GetContractsInfoApi(this.apiContractService);
 
-  Future execute() async {
-    try {
-      var contractData = await apiContractService.findAllContracts();
+  Future<Map<String, dynamic>> execute({int page = 1, int limit = 10, bool useLightRoute = false, String? search,}) async {
 
-      return contractData;
-    } catch (e) {
-      throw Exception(e);
-    }
+    print("GETCONTRACT: $search");
+  try {
+    return await apiContractService.findAllContracts(page: page, limit: limit,useLightRoute: useLightRoute, search: search);
+  } catch (e) {
+    throw Exception(e);
   }
 }
+
+}
+
+ 

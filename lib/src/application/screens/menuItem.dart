@@ -10,6 +10,8 @@ import 'package:docInHand/src/application/screens/usuariosPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuItem extends StatefulWidget {
+  final int initialIndex;
+  const MenuItem({Key? key, this.initialIndex = 0}) : super(key: key);
   @override
   _MenuItemState createState() => _MenuItemState();
 }
@@ -19,11 +21,13 @@ class _MenuItemState extends State<MenuItem> {
   int? userId;
   String? userRole;
   bool isLoading = true;
+  
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    currentIndex = widget.initialIndex;
   }
 
   Future<void> _loadUserData() async {
@@ -55,6 +59,7 @@ class _MenuItemState extends State<MenuItem> {
   void _onTab(int index) {
     setState(() {
       currentIndex = index;
+      
     });
   }
 

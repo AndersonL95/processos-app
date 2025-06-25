@@ -1,5 +1,8 @@
+import 'package:docInHand/src/application/constants/colors.dart';
+import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
+import 'package:provider/provider.dart';
 
 class OpenModalComponent extends StatefulWidget {
   final List<dynamic> data;
@@ -158,7 +161,8 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
             children: [
               IconButton(
                 onPressed: () {
-                  widget.onFilterApplied(widget.data);
+                  final contract =  Provider.of<ListContractProvider>(context, listen: false);
+                 contract.clearSearch();
                   Navigator.pop(context);
                 },
                 icon: Icon(
@@ -181,7 +185,7 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
                   widget.onFilterApplied(filteredData);
                   Navigator.pop(context);
                 },
-                child: Text("Aplicar"),
+                child: Text("Aplicar", style: TextStyle(color: customColors['white']),),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(

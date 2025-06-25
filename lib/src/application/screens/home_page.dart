@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:docInHand/src/application/components/contractStatsOverView.dart';
 import 'package:docInHand/src/application/components/contractStaus.dart';
+import 'package:docInHand/src/application/providers/home_provider.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:docInHand/src/application/use-case/viwed_notification.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:docInHand/src/infrastucture/notifications.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,13 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  AuthManager authManager = AuthManager();
-  late Get3LastContractsInfoApi get3ContractsInfoApi;
-  late GetContractsInfoApi getContractsInfoApi;
-  late GetNotificationInfoApi getNotificationInfoApi;
-  late ApiNotificationService apiNotificationService;
-  late ApiContractService apiContractService;
-  late MarkAsViewdNotificationApi markAsViewdNotificationApi;
+ 
   bool _loading = true;
   String? _error;
   List<dynamic> data = [];
@@ -42,15 +38,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    apiContractService = ApiContractService(authManager);
-    apiNotificationService = ApiNotificationService(authManager);
-    getNotificationInfoApi = GetNotificationInfoApi(apiNotificationService);
-    get3ContractsInfoApi = Get3LastContractsInfoApi(apiContractService);
-    getContractsInfoApi = GetContractsInfoApi(apiContractService);
-    markAsViewdNotificationApi =
-        MarkAsViewdNotificationApi(apiNotificationService);
-    getContracts();
+    
     super.initState();
+    final provider = Provider.of<ContractProvider>(context, listen: false);
+    provider.fetchNotifications();
   }
 
   String breakLinesEvery10Characters(String input) {
@@ -65,92 +56,28 @@ class _HomePageState extends State<HomePage> {
     return lines.join('\n');
   }
 
-  Future<void> getContracts() async {
-    try {
-      await get3ContractsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            data = value;
-            _loading = false;
-          });
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
-        }
-      });
-      getNotification();
-      getContractsStatus();
-    } catch (e) {
-      _loading = false;
-      _error = e.toString();
-    }
-  }
 
-  Future<void> getContractsStatus() async {
-    try {
-      final value = await getContractsInfoApi.execute();
-
-      if (mounted) {
-        setState(() {
-          dataStatus = value;
-          
-          if (dataStatus.isEmpty) {
-           _error = "Nenhum contrato encontrado";
-          } 
-          _loading = false;
-        });
-      } else {
-        setState(() {
-          _error = "Erro ao carregar informações";
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      _loading = false;
-      _error = e.toString();
-    }
-  }
-
-  Future getNotification() async {
-    try {
-      List allNotifications = await getNotificationInfoApi.execute();
-      List unreadNotifications = allNotifications
-          .where((notification) => !notification['read'])
-          .toList();
-      setState(() {
-        notificationCount = unreadNotifications.length;
-        notificationData = allNotifications;
-      });
-    } catch (e) {
-      print("Erro ao obter notificações: $e");
-    }
-  }
-
-  void showNotification(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return NotificationWidget(
-            notifications: notificationData,
-            data: data,
-            notificationCount: notificationCount,
-            onNotificationTap: (id) async {
-              markAsView(id);
-            },
-            onRefreshNotifications: getNotification);
-      },
-    );
-  }
-
-  void markAsView(int id) async {
-    await markAsViewdNotificationApi.execute(id);
-    getNotification();
-  }
+ void showNotification(BuildContext context, ContractProvider provider) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return NotificationWidget(
+        notifications: provider.notifications,
+        data: provider.data,
+        notificationCount: provider.notificationCount,
+        onNotificationTap: (id) async {
+          await provider.markAsViewedNotification(id);
+        },
+        onRefreshNotifications: provider.fetchNotifications,
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
+  final provider = Provider.of<ContractProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Padding(
@@ -176,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   size: 30,
                   color: customColors['white'],
                 ),
-                if (notificationCount > 0) ...[
+                if (provider.notificationCount > 0) ...[
                   Positioned(
                     right: 0,
                     child: Container(
@@ -186,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                         shape: BoxShape.circle,
                       ),
                       child: Text(
-                        '$notificationCount',
+                        '${provider.notificationCount}',
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -194,14 +121,16 @@ class _HomePageState extends State<HomePage> {
                 ],
               ]),
               onPressed: () {
-                showNotification(context);
+                final provider = Provider.of<ContractProvider>(context, listen: false);
+                showNotification(context, provider);
               },
+
             ),
           ),
         ],
       ),
       backgroundColor: Colors.grey.shade100,
-      body: _loading
+      body: provider.isLoading
           ? const Center(
               child: CircularProgressIndicator(
                 color: Color.fromRGBO(1, 76, 45, 1),
@@ -213,16 +142,19 @@ class _HomePageState extends State<HomePage> {
                   child: Text("ERROR: $_error"),
                 )
               // ignore: unnecessary_null_comparison
-              : data != null
-                  ? SingleChildScrollView(
-                      child: Column(
-                      children: [
+              : provider.data != null
+                  ? RefreshIndicator(
+                     onRefresh: provider.fetchAllData,
+                     child: SingleChildScrollView(
+                       physics: const AlwaysScrollableScrollPhysics(),
+                       child: Column(
+                         children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                                child: data.isEmpty
+                                child: provider.data.isEmpty
                                     ? const SizedBox(
                                         height: 400,
                                         child: Column(
@@ -260,10 +192,10 @@ class _HomePageState extends State<HomePage> {
                                           Padding(
                                             padding: EdgeInsets.only(top: 30),
                                             child:
-                                                ContractStatusCard(data: dataStatus),
+                                                ContractStatusCard(data: provider.dataStatus),
                                           ),
                                           Padding(padding: EdgeInsets.only(top: 30),
-                                          child:  ContractStatsOverview(data: dataStatus),
+                                          child:  ContractStatsOverview(data: provider.dataStatus),
                                          ),
                                           Padding(
                                               padding: EdgeInsets.only(
@@ -287,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                                             child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
-                                                itemCount: data.length,
+                                                itemCount: provider.data.length,
                                                 itemBuilder: (context, index) {
                                                   return SizedBox(
                                                     child: Padding(
@@ -314,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                                                                       builder:
                                                                           (_) =>
                                                                               ContractDetailPage(
-                                                                                contractDetail: data[index],
+                                                                                contractDetail: provider.data[index],
                                                                               )))
                                                             },
                                                             child: SizedBox(
@@ -351,7 +283,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 15),
                                                                         child:
                                                                             Text(
-                                                                          breakLinesEvery10Characters(data[index]
+                                                                          breakLinesEvery10Characters(provider.data[index]
                                                                               [
                                                                               'name']),
                                                                           style: const TextStyle(
@@ -368,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 15),
                                                                         child:
                                                                             Text(
-                                                                          "Contrato Nº: ${data[index]['numContract'].toString().substring(0, min(data[index]['numContract'].toString().length, 10))}",
+                                                                          "Contrato Nº: ${provider.data[index]['numContract'].toString().substring(0, min(provider.data[index]['numContract'].toString().length, 10))}",
                                                                           style:
                                                                               const TextStyle(
                                                                             fontSize:
@@ -385,7 +317,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 15),
                                                                         child:
                                                                             Text(
-                                                                          "Processo Nº: ${data[index]['numProcess']}",
+                                                                          "Processo Nº: ${provider.data[index]['numProcess']}",
                                                                           style:
                                                                               const TextStyle(fontSize: 16),
                                                                         ),
@@ -399,12 +331,12 @@ class _HomePageState extends State<HomePage> {
                                                                                 15),
                                                                         child:
                                                                             Text(
-                                                                          "Gestor: ${data[index]['manager'].toString().substring(0, min(data[index]['manager'].toString().length, 10))}",
+                                                                          "Gestor: ${provider.data[index]['manager'].toString().substring(0, min(provider.data[index]['manager'].toString().length, 10))}",
                                                                           style:
                                                                               const TextStyle(fontSize: 16),
                                                                         ),
                                                                       ),
-                                                                      if (data[index]
+                                                                      if (provider.data[index]
                                                                               [
                                                                               'contractStatus'] ==
                                                                           'ok')
@@ -422,7 +354,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 customColors['green'],
                                                                           ),
                                                                         ),
-                                                                      if (data[index]
+                                                                      if (provider.data[index]
                                                                               [
                                                                               'contractStatus'] ==
                                                                           'pendent')
@@ -440,7 +372,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 customColors['crismon'],
                                                                           ),
                                                                         ),
-                                                                      if (data[index]
+                                                                      if (provider.data[index]
                                                                               [
                                                                               'contractStatus'] ==
                                                                           'review')
@@ -476,14 +408,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ))
-                  : const Center(
+                  ): const Center(
                       child: Text("Não foi possivel carregas as informações."),
                     ),
     );
   }
 }
-/**Padding(
-                                                    padding: EdgeInsets.all(5),
-                                                    child: Contractstaus(
-                                                        data: data),
-                                                  ), */

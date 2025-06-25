@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:docInHand/src/application/components/saveButtom_widget.dart';
 import 'package:docInHand/src/application/components/termsModal_Widget.dart';
+import 'package:docInHand/src/application/providers/listContract_provider.dart';
+import 'package:docInHand/src/application/screens/menuItem.dart';
 import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/infrastucture/addTerm.dart';
@@ -20,6 +22,7 @@ import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:docInHand/src/infrastucture/sector.dart';
 import 'package:docInHand/src/infrastucture/users.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -132,6 +135,7 @@ class AddContractPageState extends State<AddContractPage> {
           });
         }
       });
+      _loadUsers();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -144,11 +148,11 @@ class AddContractPageState extends State<AddContractPage> {
       await getContractsInfoApi.execute().then((value) {
         if (mounted) {
           setState(() {
-            data = value;
+            data = value['data'];
 
             _loading = false;
           });
-          _loadUsers();
+          
         } else {
           setState(() {
             _error = "Erro ao carregar informações";
@@ -190,7 +194,6 @@ class AddContractPageState extends State<AddContractPage> {
         supervisor = usersData['fiscais']!;
         manager = usersData['gestores']!;
       });
-      getSectors();
     } catch (e) {
       print('Erro ao carregar usuários: $e');
     }
@@ -249,8 +252,12 @@ class AddContractPageState extends State<AddContractPage> {
       setState(() {
         _loading = false;
       });
-
-      Navigator.pushNamed(context, '/menuItem');
+         Navigator.pushReplacement(context,MaterialPageRoute(
+          builder: (context) => const MenuItem(initialIndex: 1)),
+        ).then((_) =>{
+        Provider.of<ListContractProvider>(context, listen: false).fetchContracts()
+      });
+    
     } catch (e) {
       print("ERROR: $e");
 
@@ -276,6 +283,8 @@ class AddContractPageState extends State<AddContractPage> {
     apiAddTermService = ApiAddTermService(authManager);
     createTerms = CreateTerms(apiAddTermService);
     getContracts();
+    getSectors();
+
 
     super.initState();
   }
