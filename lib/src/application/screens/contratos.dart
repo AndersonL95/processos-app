@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
@@ -25,6 +26,7 @@ class _ContractPageState extends State<ContractPage> {
   String? sectorContractController;
   int? selectedDaysLeft;
   bool _showSearch = false;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -82,34 +84,47 @@ class _ContractPageState extends State<ContractPage> {
     }
   }
 
-  void openModal() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    String? roleJson = pref.getString('role');
-    String userRole = roleJson != null ? json.decode(roleJson) : null;
-    final contract = Provider.of<ListContractProvider>(context, listen: false);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
-      builder: (context) {
-        return OpenModalComponent(
-          isAdmin: userRole == 'admin' ? true : false,
-          data: contract.data,
-          onFilterApplied: (filteredData) {
-            Provider.of<ListContractProvider>(context, listen: false).applyFilter(filteredData);
-          },
-          customColors: customColors,
-          selectedSector: selectedSector,
-          selectSortOption: selectSortOption,
-          selectedDaysLeft: selectedDaysLeft,
-          sectorsData: contract.sectorsData,
-          sortOptions: sortOptions,
-        );
-      },
-    );
-  }
+
+void openModal() async {
+  final SharedPreferences pref = await SharedPreferences.getInstance();
+  String? roleJson = pref.getString('role');
+  String userRole = roleJson != null ? json.decode(roleJson) : null;
+
+  final contract = Provider.of<ListContractProvider>(context, listen: false);
+
+  await contract.fetchFilteredContracts(
+    
+    sector: selectedSector,
+    daysLeft: selectedDaysLeft,
+    sort: selectSortOption,
+  );
+
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+    ),
+    builder: (context) {
+      return OpenModalComponent(
+        isAdmin: userRole == 'admin',
+        data: contract.filtereData,
+        onFilterApplied: (filteredData) {
+          Provider.of<ListContractProvider>(context, listen: false)
+              .applyFilter(filteredData);
+        },
+        customColors: customColors,
+        selectedSector: selectedSector,
+        selectSortOption: selectSortOption,
+        selectedDaysLeft: selectedDaysLeft,
+        sectorsData: contract.sectorsData,
+        sortOptions: sortOptions,
+      );
+    },
+  );
+}
+
   @override
   Widget build(BuildContext context) {
    final listcContractProvider = Provider.of<ListContractProvider>(context);
@@ -167,7 +182,12 @@ class _ContractPageState extends State<ContractPage> {
                         padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                         child: TextField(
                           controller: searchController,
-                          onChanged: (value) => listcContractProvider.searchData(value),
+                          onChanged: (value) {
+                             if (_debounce?.isActive ?? false) _debounce!.cancel();
+                             _debounce = Timer(const Duration(milliseconds: 1000), () {
+                               listcContractProvider.searchData(value);
+                             });
+                            },
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.black87,
@@ -183,7 +203,8 @@ class _ContractPageState extends State<ContractPage> {
                                     icon: Icon(Icons.clear, color: Colors.grey[500]),
                                     onPressed: () {
                                       listcContractProvider.clearSearch();
-                                      listcContractProvider.searchData('');
+                                      searchController.clear();
+                                   
                                     },
                                   )
                                 : null,
@@ -223,8 +244,8 @@ class _ContractPageState extends State<ContractPage> {
                                         setState(() {
                                           _showSearch = !_showSearch;
                                           if (!_showSearch) {
-                                            listcContractProvider.clearSearch();
-                                            listcContractProvider.searchData("");
+                                            //listcContractProvider.clearSearch();
+                                            //listcContractProvider.searchData("");
                                           }
                                         });}
                                                 
@@ -679,10 +700,12 @@ class _ContractPageState extends State<ContractPage> {
                       ),
                       if (listcContractProvider.data.length < listcContractProvider.total)
                                   TextButton(
-                                    onPressed: () {
-                                      listcContractProvider.loadMoreContracts();
-                                    },
-                                    child: const Text("Carregar mais", style: TextStyle(fontSize: 20),),
+                                    onPressed: listcContractProvider.loading
+                                        ? null
+                                        : () => listcContractProvider.loadMoreContracts(),
+                                    child: listcContractProvider.loading
+                                        ? CircularProgressIndicator()
+                                        : const Text("Carregar mais", style: TextStyle(fontSize: 20)),
                                   ),
                     ],
                   ));

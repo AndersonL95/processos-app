@@ -98,6 +98,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   int page = 1,
   int limit = 20,
   bool useLightRoute = false,
+  String? search,
 }) async {
   var bodyList = [];
   final SharedPreferences data = await SharedPreferences.getInstance();
@@ -105,12 +106,14 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   if (tenantJson != null) {
     tenantId = json.decode(tenantJson);
   }
-
+  print("HTTPSEARCH: $search");
   try {
     final route = useLightRoute ? "/contractNotTerm" : "/contract";
+    final query = search != null && search.isNotEmpty ? search: "";
     final response = await authManager.sendAuthenticate(() async {
       return await http.get(
-        HttpService.buildUri("$route?page=$page&limit=$limit"),
+        HttpService.buildUri("$route?page=$page&limit=$limit&search=$query"),
+    
         headers: authManager.token != null
             ? {
                 'Authorization': 'Bearer ${authManager.token}',
@@ -202,6 +205,41 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
     return bodyList;
   }
+
+  Future<dynamic> filterContracts({int page = 1,int limit = 1000,String? sector,int? daysLeft, String? sort}) async {
+  final SharedPreferences data = await SharedPreferences.getInstance();
+  String? tenantJson = data.getString('tenantId');
+
+  if (tenantJson != null) {
+    tenantId = json.decode(tenantJson);
+  }
+
+  try {
+    final queryParameters = {
+      'page': '$page',
+      'limit': '$limit',
+      if (sector != null && sector.isNotEmpty) 'sector': sector,
+      if (daysLeft != null && daysLeft != 0) 'daysLeft': daysLeft,
+      if (sort != null && sort.isNotEmpty) 'sort': sort,
+    };
+
+    final response = await authManager.sendAuthenticate(() async {
+      return await http.get(HttpService.buildUri( '/filterContract$queryParameters'), headers: {
+        'Authorization': 'Bearer ${authManager.token}',
+        'x-tenant-id': tenantId.toString(),
+      });
+    });
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Erro na requisição: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception("Não foi possível buscar os dados: $e");
+  }
+}
+
 
   Future<dynamic> updateContract(Contracts contracts) async {
     try {

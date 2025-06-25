@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
+import 'package:docInHand/src/application/use-case/filterContracts.api.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getSector_api.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
@@ -14,6 +15,7 @@ class ListContractProvider with ChangeNotifier {
   final GetContractsInfoApi getContractsInfoApi;
   final GetSectorsInfoApi getSectorsInfoApi;
   final GetContractIdInfoApi getContractIdInfoApi;
+  final GetFilterContractApi getFilterContractApi;
 
   final UpdateContract updateContract;
 
@@ -34,6 +36,7 @@ class ListContractProvider with ChangeNotifier {
     required this.getSectorsInfoApi,
     required this.getContractIdInfoApi,
     required this.updateContract,
+    required this.getFilterContractApi,
   });
 
   Future<void> fetchContracts() async {
@@ -46,7 +49,7 @@ class ListContractProvider with ChangeNotifier {
       final roleJson = prefs.getString('role');
       userRole = roleJson != null ? json.decode(roleJson) : null;
 
-      final value = await getContractsInfoApi.execute(page: 1, limit: _limit, useLightRoute: true);
+      final value = await getContractsInfoApi.execute(page: _page, limit: _limit, useLightRoute: true) ;
 
       final filteredByRole = userRole == 'admin'
           ? value['data']
@@ -181,22 +184,86 @@ class ListContractProvider with ChangeNotifier {
   notifyListeners();
 }
 
-  void searchData(String query) {
-    final lowerQuery = query.toLowerCase();
+  Future<void> searchData(String query) async {
+  loading = true;
+  notifyListeners();
+  print("QUERY: $query");
+  try {
+    _page = 1; 
+    final result = await getContractsInfoApi.execute(
+      page: _page,
+      limit: _limit,
+      useLightRoute: true,
+      search: query,
+      
+    );
+    
 
-    filtereData = data.where((item) {
-      return item['name'].toString().toLowerCase().contains(lowerQuery) ||
-             item['numContract'].toString().contains(query) ||
-             item['numProcess'].toString().contains(query) ||
-             item['manager'].toString().toLowerCase().contains(lowerQuery) ||
-             item['supervisor'].toString().toLowerCase().contains(lowerQuery);
-    }).toList();
+    final rawData = result['data'];
+    total = result['total'];
 
-    notifyListeners();
+    final filtered = userRole == 'admin'
+        ? rawData
+        : rawData.where((c) => c['active'] == 'yes').toList();
+
+    final sorted = filtered
+      ..sort((a, b) {
+        final aActive = a['active'] == 'yes' ? 0 : 1;
+        final bActive = b['active'] == 'yes' ? 0 : 1;
+        return aActive.compareTo(bActive);
+      });
+
+    data = sorted;
+    filtereData = FilterDataComponent.filterData(data: sorted);
+    error = null;
+  } catch (e) {
+    error = 'Erro ao buscar contratos: $e';
   }
+
+  loading = false;
+  notifyListeners();
+}
 
   void clearSearch() {
-    filtereData = [...data];
+    fetchContracts();
     notifyListeners();
   }
+
+  Future<void> fetchFilteredContracts({
+  String? sector,
+  String? sort,
+  int? daysLeft,
+}) async {
+  loading = true;
+  notifyListeners();
+
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final roleJson = prefs.getString('role');
+    userRole = roleJson != null ? json.decode(roleJson) : null;
+
+   
+    final response = await getFilterContractApi.execute(
+      sector: sector,
+      sort: sort,
+      daysLeft: daysLeft,
+   
+    
+    );
+
+    final filtered = userRole == 'admin'
+        ? response['data']
+        : response['data'].where((c) => c['active'] == 'yes').toList();
+
+    data = filtered;
+    filtereData = FilterDataComponent.filterData(data: filtered);
+  } catch (e) {
+    error = "Erro ao filtrar contratos: $e";
+  }
+
+  loading = false;
+  notifyListeners();
+}
+
+  
 }

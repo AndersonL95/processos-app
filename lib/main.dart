@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:docInHand/src/application/providers/home_provider.dart';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/screens/contratos.dart';
+import 'package:docInHand/src/application/use-case/filterContracts.api.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getLast3.dart';
 import 'package:docInHand/src/application/use-case/getNotification_api.dart';
@@ -48,14 +49,13 @@ void main() async {
   final notificationService = ApiNotificationService(authManager);
   final apiSectorService = ApiSectorService(authManager);
   final getContractIdInfoApi = GetContractIdInfoApi(contractService);
-  
-
   final get3LastContractsInfoApi = Get3LastContractsInfoApi(contractService);
   final getContractsInfoApi = GetContractsInfoApi(contractService);
   final getNotificationInfoApi = GetNotificationInfoApi(notificationService);
   final markAsViewdNotificationApi = MarkAsViewdNotificationApi(notificationService);
   final updateContract = UpdateContract(contractService);
   final getSectorsInfoApi = GetSectorsInfoApi(apiSectorService);
+  final getFilterContractApi = GetFilterContractApi(contractService);
   runApp(
     ToastificationWrapper(
     child: MultiProvider(
@@ -77,7 +77,8 @@ void main() async {
             getContractsInfoApi: getContractsInfoApi,
             getSectorsInfoApi: getSectorsInfoApi,
             updateContract: updateContract,
-            getContractIdInfoApi: getContractIdInfoApi
+            getContractIdInfoApi: getContractIdInfoApi,
+             getFilterContractApi: getFilterContractApi
           )..fetchContracts()..fetchSectors(),
         ),
 
