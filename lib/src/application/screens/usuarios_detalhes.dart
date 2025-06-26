@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:docInHand/src/application/providers/listUsers_provider%20.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
@@ -8,6 +9,7 @@ import 'package:docInHand/src/application/use-case/updateUser_api.dart';
 import 'package:docInHand/src/domain/entities/users.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/users.dart';
+import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
 class UserDetailPage extends StatefulWidget {
@@ -143,6 +145,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<ListUserProvider>(context);
+   
     return Scaffold(
         appBar: AppBar(
           title: const Align(
@@ -171,7 +175,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
                 color: customColors['white'],
               ),
               onPressed: () {
-                Navigator.of(context).pop(true);
+                Navigator.of(context).pop(userProvider.updateUserInList);
+
               },
             ),
           ),

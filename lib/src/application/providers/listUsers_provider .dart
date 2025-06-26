@@ -44,6 +44,7 @@ class ListUserProvider with ChangeNotifier {
   });
 
    Future<void> fetchUsers() async {
+    _page = 1;
     loading = true;
     error = null;
     notifyListeners();
@@ -60,7 +61,7 @@ class ListUserProvider with ChangeNotifier {
       data = result['data'];
       filtereData = result['data'];
       total = result['total'];
-       userImageList = await _generateUserImages(data);
+      userImageList = await _generateUserImages(data);
        
     } catch (e) {
       error = "Erro ao carregar informações: ${e.toString()}";
@@ -190,7 +191,7 @@ class ListUserProvider with ChangeNotifier {
 
 Future<void> loadMoreUsers() async {
    if (data.length >= total) return;
-
+   _page = 1;
    loading = true;
    notifyListeners();
 
@@ -228,5 +229,13 @@ Future<void> loadMoreUsers() async {
 
 
 
-  
+  void updateUserInList(Map<String, dynamic> updatedUser) {
+  final index = data.indexWhere((user) => user['id'] == updatedUser['id']);
+  if (index != -1) {
+    data[index] = updatedUser;
+    filtereData[index] = updatedUser;
+    notifyListeners();
+  }
+}
+
 }

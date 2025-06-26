@@ -165,7 +165,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                             .push(MaterialPageRoute(
                                                 builder: (context) => AddUserPage()));
                                         if (result == true) {
-                                          userProvider.filtereData;
+                                          userProvider.fetchUsers();
                                         }
                                       },
                                       child: Icon(
@@ -196,16 +196,16 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                 shadowColor: Colors.black,
                                                 child: InkWell(
                                                   onTap: () async {
-                                                    bool? result =
-                                                        await Navigator.of(context).push(
-                                                            MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    UserDetailPage(
-                                                                        userDetail:
-                                                                            user)));
-                                                    if (result == true) {
-                                                      userProvider.filtereData;
+                                                    final result = await Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) => UserDetailPage(userDetail: user),
+                                                      ),
+                                                    );
+                                                    
+                                                    if (result != null && result is Map<String, dynamic>) {
+                                                      userProvider.updateUserInList(result);
                                                     }
+
                                                   },
                                                   child: SizedBox(
                                                       height: 120,
@@ -256,17 +256,17 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   child: Container(
                                                                       height: 65,
                                                                       width: 65,
-                                                                      
-                                                                      child: (user['photo'] ==
-                                                                              "")
+                                                                        child: (user['photo'] == null || user['photo'].toString().isEmpty || index >= userProvider.userImageList.length)
                                                                           ? Image.asset(
                                                                               'Assets/images/user.png',
-                                                                              scale: 5.0)
+                                                                              scale: 5.0,
+                                                                            )
                                                                           : Image(
-                                                                              image: userProvider.userImageList[
-                                                                                  index],
-                                                                              fit: BoxFit
-                                                                                  .cover)),
+                                                                              image: userProvider.userImageList[index],
+                                                                              fit: BoxFit.cover,
+                                                                            ),
+
+                                                                          ),                                                                    
                                                                 ),
                                                               ),
                                                               Column(
