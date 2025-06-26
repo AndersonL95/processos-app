@@ -1,17 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:docInHand/src/application/components/FilteredData_Widget.dart';
-import 'package:docInHand/src/application/use-case/filterContracts.api.dart';
-import 'package:docInHand/src/application/use-case/getContract_api.dart';
-import 'package:docInHand/src/application/use-case/getSector_api.dart';
 import 'package:docInHand/src/application/use-case/getUser_api.dart';
 import 'package:docInHand/src/application/use-case/getUsers.api.dart';
 import 'package:docInHand/src/application/use-case/getUsersInAdmin.api.dart';
-import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:docInHand/src/application/use-case/updateUser_api.dart';
-import 'package:docInHand/src/application/use-case/update_contract_api.dart';
-import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:docInHand/src/domain/entities/users.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

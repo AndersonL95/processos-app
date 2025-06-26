@@ -201,7 +201,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                         builder: (context) => UserDetailPage(userDetail: user),
                                                       ),
                                                     );
-                                                    
+
                                                     if (result != null && result is Map<String, dynamic>) {
                                                       userProvider.updateUserInList(result);
                                                     }
@@ -284,13 +284,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                     child: Row(
                                                                     
                                                                       children: [
-                                                                        Text(
-                                                                      "Usuario: ",
-                                                                      style:
-                                                                          const TextStyle(
-                                                                        fontSize: 16,
-                                                                      ),
-                                                                    ),
+                                                                       
                                                                     Text(
                                                                       user['username'],
                                                                       style:

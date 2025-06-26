@@ -27,6 +27,7 @@ class AddUserPageState extends State<AddUserPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController cpfController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController tenantIdController = TextEditingController();
 
   bool isAdmin = false;
@@ -58,6 +59,7 @@ class AddUserPageState extends State<AddUserPage> {
   final formKey = GlobalKey<FormState>();
   DropdownItem? cargoController;
   String? role;
+  bool passwordVisible = false;
 
   List<DropdownItem> statusItem = [
     DropdownItem(displayValue: "Gestor", statusValue: 'Gestor'),
@@ -81,6 +83,16 @@ class AddUserPageState extends State<AddUserPage> {
     tenant = json.decode(tenantIdJson!);
 
     try {
+      if (passwordController.text.trim() != confirmPasswordController.text.trim()) {
+            toastification.show(
+                type: ToastificationType.error,
+                style: ToastificationStyle.fillColored,
+                context: context,
+                title: const Text("Erro ao cadastrar"),
+                autoCloseDuration: const Duration(seconds: 8),
+              );
+      }
+
       Users user = Users(
           tenantId: tenantIdController.text.isNotEmpty
               ? int.parse(tenantIdController.text)
@@ -95,19 +107,31 @@ class AddUserPageState extends State<AddUserPage> {
           active: active == true ? "yes" : "no",
           role: isAdmin == true ? "admin" : "user",
           photo: '');
+      
+      if (passwordController.text.trim() != confirmPasswordController.text.trim()) {
+          toastification.show(
+              type: ToastificationType.error,
+              style: ToastificationStyle.fillColored,
+              context: context,
+              title: const Text("Senhas não batem."),
+              autoCloseDuration: const Duration(seconds: 8),
+            );
+        }else {
+          await createUser.execute(user);
+          toastification.show(
+            type: ToastificationType.success,
+            style: ToastificationStyle.fillColored,
+            context: context,
+            title: const Text("Cadastrado com sucesso."),
+            autoCloseDuration: const Duration(seconds: 8),
+          );
+          setState(() {
+            _loading = false;
+          });
+          Navigator.of(context).pop(true);
+        }
 
-      await createUser.execute(user);
-      toastification.show(
-        type: ToastificationType.success,
-        style: ToastificationStyle.fillColored,
-        context: context,
-        title: const Text("Cadastrado com sucesso."),
-        autoCloseDuration: const Duration(seconds: 8),
-      );
-      setState(() {
-        _loading = false;
-      });
-      Navigator.of(context).pop(true);
+     
     } catch (e) {
       print("ERRO: $e");
       toastification.show(
@@ -323,8 +347,20 @@ class AddUserPageState extends State<AddUserPage> {
                         padding: EdgeInsets.all(10),
                         child: TextField(
                           controller: passwordController,
+                          obscureText: !passwordVisible,
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                passwordVisible ? Icons.visibility : Icons.visibility_off,
+                                color: customColors['green'],
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  passwordVisible = !passwordVisible;
+                                });
+                              },
+                              ),
                               iconColor: customColors['green'],
                               prefixIconColor: customColors['green'],
                               fillColor: customColors['white'],
@@ -342,6 +378,43 @@ class AddUserPageState extends State<AddUserPage> {
                                   Radius.circular(10),
                                 ),
                               )),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: TextField(
+                          controller: confirmPasswordController,
+                          obscureText: !passwordVisible,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                passwordVisible ? Icons.visibility : Icons.visibility_off,
+                                color: customColors['green'],
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  passwordVisible = !passwordVisible;
+                                });
+                              },
+                            ),
+                            iconColor: customColors['green'],
+                            prefixIconColor: customColors['green'],
+                            fillColor: customColors['white'],
+                            hoverColor: customColors['green'],
+                            filled: true,
+                            focusColor: customColors['green'],
+                            labelText: "Confirmação de senha",
+                            hintText: "Confirme a  Senha",
+                            prefixIcon: const Icon(Icons.lock),
+                            enabledBorder: new OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Color.fromRGBO(1, 76, 45, 1),
+                                  width: 2),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            )),
                         ),
                       ),
                       Padding(
