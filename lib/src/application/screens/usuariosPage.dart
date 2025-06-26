@@ -207,46 +207,27 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                     }
 
                                                   },
-                                                  child: SizedBox(
+                                                 child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    SizedBox(
                                                       height: 120,
                                                       child: Column(
                                                         children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment.end,
-                                                            children: [
-                                                              if (user['active'] ==
-                                                                  "yes")
-                                                                Padding(
-                                                                  padding:
-                                                                      EdgeInsets.only(top: 5, right: 10),
-                                                                  child: Icon(
-                                                                    Icons.check_box,
-                                                                    size: 30,
-                                                                    color: Colors.green,
-                                                                  ),
-                                                                ),
-                                                              if (user['active'] ==
-                                                                  'no')
-                                                                Padding(
-                                                                  padding:
-                                                                      EdgeInsets.all(20),
-                                                                  child: Icon(
-                                                                    Icons.check_box,
-                                                                    size: 30,
-                                                                    color: Colors.grey,
-                                                                  ),
-                                                                ),
-                                                            ],
-                                                          ),
+                                                       
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
-                                                                    .start,
+                                                                    .center,
                                                             children: [
-                                                              Padding(
+                                                              Container(
+                                                                width: 120,
+                                                                height: 120,
+                                                                color: customColors['green'],
+                                                                child: Padding(
                                                                 padding:
                                                                     const EdgeInsets.only(
+                                                                        top: 30,
                                                                         left: 15,
                                                                         bottom: 20),
                                                                 child: ClipRRect(
@@ -254,6 +235,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                       BorderRadius
                                                                           .circular(60),
                                                                   child: Container(
+                                                                    
                                                                       height: 65,
                                                                       width: 65,
                                                                         child: (user['photo'] == null || user['photo'].toString().isEmpty || index >= userProvider.userImageList.length)
@@ -269,6 +251,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                           ),                                                                    
                                                                 ),
                                                               ),
+                                                              ),
                                                               Column(
                                                                 crossAxisAlignment:
                                                                     CrossAxisAlignment
@@ -279,7 +262,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                     padding:
                                                                         const EdgeInsets
                                                                             .only(
-                                                                            top: 10,
+                                                                            top: 30,
                                                                             left: 30),
                                                                     child: Row(
                                                                     
@@ -330,6 +313,30 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                           ),
                                                         ],
                                                       )),
+                                                       if (user['active'] ==
+                                                                  "yes")
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets.only(top: 5, right: 10),
+                                                                  child: Icon(
+                                                                    Icons.check_box,
+                                                                    size: 30,
+                                                                    color: Colors.green,
+                                                                  ),
+                                                                ),
+                                                              if (user['active'] ==
+                                                                  'no')
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets.all(20),
+                                                                  child: Icon(
+                                                                    Icons.check_box,
+                                                                    size: 30,
+                                                                    color: Colors.grey,
+                                                                  ),
+                                                                ),
+                                                  ],
+                                                 ),
                                                 ),
                                               ),
                                             ),
