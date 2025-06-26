@@ -165,7 +165,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                             .push(MaterialPageRoute(
                                                 builder: (context) => AddUserPage()));
                                         if (result == true) {
-                                          userProvider.fetchUsers();
+                                          userProvider.filtereData;
                                         }
                                       },
                                       child: Icon(
@@ -181,187 +181,168 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                   itemCount: dataToShow.length + 1,
                                   itemBuilder: (context, index) {
                                       if(index < dataToShow.length){
-                                    final user = dataToShow[index];
-                                    return Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 30, left: 5, right: 5),
-                                          child: Card(
-                                            shape: const RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(20))),
-                                            clipBehavior: Clip.antiAlias,
-                                            elevation: 10,
-                                            shadowColor: Colors.black,
-                                            child: InkWell(
-                                              onTap: () async {
-                                                bool? result =
-                                                    await Navigator.of(context).push(
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                UserDetailPage(
-                                                                    userDetail:
-                                                                        user)));
-                                                if (result == true) {
-                                                  userProvider.fetchUsers();
-                                                }
-                                              },
-                                              child: SizedBox(
-                                                  height: 240,
-                                                  child: Column(
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment.end,
+                                        final user = dataToShow[index];
+                                        return Column(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10, left: 5, right: 5),
+                                              child: Card(
+                                                shape: const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(
+                                                        Radius.circular(20))),
+                                                clipBehavior: Clip.antiAlias,
+                                                elevation: 10,
+                                                shadowColor: Colors.black,
+                                                child: InkWell(
+                                                  onTap: () async {
+                                                    bool? result =
+                                                        await Navigator.of(context).push(
+                                                            MaterialPageRoute(
+                                                                builder: (context) =>
+                                                                    UserDetailPage(
+                                                                        userDetail:
+                                                                            user)));
+                                                    if (result == true) {
+                                                      userProvider.filtereData;
+                                                    }
+                                                  },
+                                                  child: SizedBox(
+                                                      height: 120,
+                                                      child: Column(
                                                         children: [
-                                                          if (user['active'] ==
-                                                              "yes")
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsets.all(20),
-                                                              child: Icon(
-                                                                Icons.check_box,
-                                                                size: 30,
-                                                                color: Colors.green,
-                                                              ),
-                                                            ),
-                                                          if (user['active'] ==
-                                                              'no')
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsets.all(20),
-                                                              child: Icon(
-                                                                Icons.check_box,
-                                                                size: 30,
-                                                                color: Colors.grey,
-                                                              ),
-                                                            ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets.only(
-                                                                    left: 10,
-                                                                    bottom: 20),
-                                                            child: ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(60),
-                                                              child: Container(
-                                                                  height: 100,
-                                                                  width: 100,
-                                                                  decoration:
-                                                                      const BoxDecoration(),
-                                                                  child: (user['photo'] ==
-                                                                          "")
-                                                                      ? Image.asset(
-                                                                          'Assets/images/user.png',
-                                                                          scale: 5.0)
-                                                                      : Image(
-                                                                          image: userProvider.userImageList[
-                                                                              index],
-                                                                          fit: BoxFit
-                                                                              .cover)),
-                                                            ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment.end,
+                                                            children: [
+                                                              if (user['active'] ==
+                                                                  "yes")
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets.only(top: 5, right: 10),
+                                                                  child: Icon(
+                                                                    Icons.check_box,
+                                                                    size: 30,
+                                                                    color: Colors.green,
+                                                                  ),
+                                                                ),
+                                                              if (user['active'] ==
+                                                                  'no')
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets.all(20),
+                                                                  child: Icon(
+                                                                    Icons.check_box,
+                                                                    size: 30,
+                                                                    color: Colors.grey,
+                                                                  ),
+                                                                ),
+                                                            ],
                                                           ),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
                                                                     .start,
                                                             children: [
                                                               Padding(
                                                                 padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        right: 30),
-                                                                child: Text(
-                                                                  breakLinesEvery10Characters(
-                                                                     user['name']),
-                                                                  style: const TextStyle(
-                                                                      fontSize: 18,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
+                                                                    const EdgeInsets.only(
+                                                                        left: 15,
+                                                                        bottom: 20),
+                                                                child: ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(60),
+                                                                  child: Container(
+                                                                      height: 65,
+                                                                      width: 65,
+                                                                      
+                                                                      child: (user['photo'] ==
+                                                                              "")
+                                                                          ? Image.asset(
+                                                                              'Assets/images/user.png',
+                                                                              scale: 5.0)
+                                                                          : Image(
+                                                                              image: userProvider.userImageList[
+                                                                                  index],
+                                                                              fit: BoxFit
+                                                                                  .cover)),
                                                                 ),
                                                               ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        top: 10,
-                                                                        right: 30),
-                                                                child: Text(
-                                                                  "Username: ${user['userName']}",
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    fontSize: 16,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          top: 5,
-                                                                          right: 30),
-                                                                  child: Row(
-                                                                    children: [
-                                                                      Text(
-                                                                        breakLinesEvery10Characters(
-                                                                           user['email']),
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                16),
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                            top: 10,
+                                                                            left: 30),
+                                                                    child: Row(
+                                                                    
+                                                                      children: [
+                                                                        Text(
+                                                                      "Usuario: ",
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        fontSize: 16,
                                                                       ),
-                                                                    ],
-                                                                  )),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        top: 5,
-                                                                        right: 30),
-                                                                child: Text(
-                                                                  "Nível: ${user['role']}",
-                                                                  style:
-                                                                      const TextStyle(
-                                                                          fontSize:
-                                                                              16),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        top: 5,
-                                                                        right: 30),
-                                                                child: Text(
-                                                                  "Cargo: ${user['cargo']}",
-                                                                  style:
-                                                                      const TextStyle(
-                                                                          fontSize:
-                                                                              16),
-                                                                ),
-                                                              ),
+                                                                    ),
+                                                                    Text(
+                                                                      user['username'],
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        fontSize: 16,
+                                                                        fontWeight: FontWeight.bold
+                                                                      ),
+                                                                    ),
+                                                                      ],
+                                                                    )
+                                                                  ),
+                                                                  
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                            top: 5,
+                                                                            left: 30,
+                                                                            bottom: 20),
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Text(
+                                                                      "Cargo: ",
+                                                                      style:
+                                                                          const TextStyle(
+                                                                              fontSize:
+                                                                                  16),
+                                                                    ),
+                                                                    Text(
+                                                                    user['cargo'],
+                                                                      style:
+                                                                          const TextStyle(
+                                                                              fontSize:
+                                                                                  16,
+                                                                                  fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                      ],
+                                                                    )
+                                                                  ),
+                                                                ],
+                                                              )
                                                             ],
-                                                          )
+                                                          ),
                                                         ],
-                                                      ),
-                                                    ],
-                                                  )),
+                                                      )),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }else {
-                                      if (userProvider.data.length < userProvider.total) {
+                                          ],
+                                        );
+                                      }else {
+                                          if (userProvider.data.length < userProvider.total) {
                                         return Padding(padding: EdgeInsets.all(15),
                                           child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(

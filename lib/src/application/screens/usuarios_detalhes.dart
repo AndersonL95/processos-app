@@ -39,15 +39,15 @@ class _UserDetailPageState extends State<UserDetailPage> {
     getUserInfoApi = GetUserInfoApi(apiService);
     updateUser = UpdateUser(apiService);
 
-    id = widget.userDetail.id;
+    id = widget.userDetail['id'];
     convertPhoto();
-    print("ACTIVE ${widget.userDetail.active}");
+    print("ACTIVE ${widget.userDetail['active']}");
     super.initState();
   }
 
   void convertPhoto() {
     try {
-      final photoBase64 = widget.userDetail.photo;
+      final photoBase64 = widget.userDetail['photo'];
       if (photoBase64 != null && photoBase64.isNotEmpty) {
         final decodedBytes = base64Decode(photoBase64);
         setState(() {
@@ -91,7 +91,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
 
   Future<void> inactiveUser(String value) async {
     try {
-      Users? userEdit = await getUserInfoApi.execute(widget.userDetail.id);
+      Users? userEdit = await getUserInfoApi.execute(widget.userDetail['id']);
 
       if (userEdit == null) {
         print("Usuário não encontrado.");
@@ -110,7 +110,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
 
       if (response != 0) {
         setState(() {
-          widget.userDetail.active = value;
+          widget.userDetail['active'] = value;
         });
 
         toastification.show(
@@ -314,8 +314,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                                 child: Text(
                                                                   breakLinesEvery10Characters(
                                                                       widget
-                                                                          .userDetail
-                                                                          .name),
+                                                                          .userDetail['name']),
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           17,
@@ -339,12 +338,12 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                 const Padding(
                                                   padding:
                                                       EdgeInsets.only(top: 5),
-                                                  child: Text("Username: ",
+                                                  child: Text("Usuario: ",
                                                       style: TextStyle(
                                                           fontSize: 17)),
                                                 ),
                                                 Text(
-                                                  widget.userDetail.username,
+                                                  widget.userDetail['username'],
                                                   style: const TextStyle(
                                                       fontSize: 17,
                                                       fontWeight:
@@ -366,7 +365,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                 ),
                                                 Text(
                                                   breakLinesEvery10Characters(
-                                                      widget.userDetail.email),
+                                                      widget.userDetail['email']),
                                                   style: const TextStyle(
                                                       fontSize: 17,
                                                       fontWeight:
@@ -387,7 +386,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                           fontSize: 17)),
                                                 ),
                                                 Text(
-                                                  widget.userDetail.cargo,
+                                                  widget.userDetail['cargo'],
                                                   style: const TextStyle(
                                                       fontSize: 17,
                                                       fontWeight:
@@ -408,7 +407,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                           fontSize: 17)),
                                                 ),
                                                 Text(
-                                                  widget.userDetail.cpf,
+                                                  widget.userDetail['cpf'],
                                                   style: const TextStyle(
                                                       fontSize: 17,
                                                       fontWeight:
@@ -429,7 +428,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                           fontSize: 17)),
                                                 ),
                                                 Text(
-                                                  widget.userDetail.phone,
+                                                  widget.userDetail['phone'],
                                                   style: const TextStyle(
                                                       fontSize: 17,
                                                       fontWeight:
@@ -450,7 +449,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                                           fontSize: 17)),
                                                 ),
                                                 Text(
-                                                  widget.userDetail.role,
+                                                  widget.userDetail['role'],
                                                   style: const TextStyle(
                                                       fontSize: 17,
                                                       fontWeight:
@@ -464,7 +463,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                 )),
                             Column(
                               children: [
-                                if (widget.userDetail.active == "yes")
+                                if (widget.userDetail['active'] == "yes")
                                   Padding(
                                     padding: EdgeInsets.all(20),
                                     child: IconButton(
@@ -476,7 +475,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                                       onPressed: () => inactiveUser('no'),
                                     ),
                                   ),
-                                if (widget.userDetail.active == "no")
+                                if (widget.userDetail['active'] == "no")
                                   Padding(
                                     padding: EdgeInsets.all(20),
                                     child: IconButton(
