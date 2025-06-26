@@ -142,15 +142,14 @@ class ListUserProvider with ChangeNotifier {
   loading = true;
   notifyListeners();
   print("QUERY: $query");
+
   try {
     _page = 1; 
     final result = await getUsersInfoApi.execute(
       page: _page,
       limit: _limit,
       search: query,
-      
     );
-    
 
     final rawData = result['data'];
     total = result['total'];
@@ -168,6 +167,10 @@ class ListUserProvider with ChangeNotifier {
 
     data = sorted;
     filtereData = FilterDataComponent.filterData(data: sorted);
+
+ 
+    userImageList = await _generateUserImages(data);
+
     error = null;
   } catch (e) {
     error = 'Erro ao buscar contratos: $e';
@@ -177,49 +180,56 @@ class ListUserProvider with ChangeNotifier {
   notifyListeners();
 }
 
+
   void clearSearch() {
     fetchUsers();
     notifyListeners();
   }
 
 Future<void> loadMoreUsers() async {
-   if (data.length >= total) return;
-   _page = 1;
-   loading = true;
-   notifyListeners();
+  if (data.length >= total) return;
 
-   try {
-     _page++;
-     final value = userRole == "superAdmin"
-          ? await getUsersAdminInfoApi.execute(page: _page, limit: _limit)
-          : await getUsersInfoApi.execute(page: _page, limit: _limit);
+  loading = true;
+  notifyListeners();
 
-      if (value is Map && value.containsKey('total')) {
-       total = value['total'];
-     }
-     List<dynamic> newUsers = value['data'] ?? value;
+  try {
+    _page++;
 
-     final filteredByRole = userRole == 'admin'
-         ? newUsers
-         : newUsers.where((users) => users['active'] == 'yes').toList();
+    final value = userRole == "superAdmin"
+        ? await getUsersAdminInfoApi.execute(page: _page, limit: _limit)
+        : await getUsersInfoApi.execute(page: _page, limit: _limit);
 
-     final sortedUsers = filteredByRole
-       ..sort((a, b) {
-         final aActive = a['active'] == 'yes' ? 0 : 1;
-         final bActive = b['active'] == 'yes' ? 0 : 1;
-         return aActive.compareTo(bActive);
-       });
+    if (value is Map && value.containsKey('total')) {
+      total = value['total'];
+    }
 
-     data.addAll(sortedUsers);
-   
-   } catch (e) {
-     error = 'Erro ao carregar mais contratos: $e';
-   }
+    List<dynamic> newUsers = value['data'] ?? value;
 
-   loading = false;
-   notifyListeners();
+    final filteredByRole = userRole == 'admin'
+        ? newUsers
+        : newUsers.where((users) => users['active'] == 'yes').toList();
+
+    final sortedUsers = filteredByRole
+      ..sort((a, b) {
+        final aActive = a['active'] == 'yes' ? 0 : 1;
+        final bActive = b['active'] == 'yes' ? 0 : 1;
+        return aActive.compareTo(bActive);
+      });
+
+    data.addAll(sortedUsers);
+
+    List<MemoryImage> newImages = await _generateUserImages(sortedUsers);
+    userImageList.addAll(newImages);
+
+    notifyListeners();
+  } catch (e) {
+    error = 'Erro ao carregar mais usuários: $e';
+    notifyListeners();
+  }
+
+  loading = false;
+  notifyListeners();
 }
-
 
 
   void updateUserInList(Map<String, dynamic> updatedUser) {

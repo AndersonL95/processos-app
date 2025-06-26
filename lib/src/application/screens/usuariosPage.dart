@@ -211,7 +211,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     SizedBox(
-                                                      height: 120,
+                                                      height: 110,
                                                       child: Column(
                                                         children: [
                                                        
@@ -221,37 +221,25 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                     .center,
                                                             children: [
                                                               Container(
-                                                                width: 120,
-                                                                height: 120,
+                                                                width: 110, 
+                                                                height: 110,
                                                                 color: customColors['green'],
-                                                                child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                        top: 30,
-                                                                        left: 15,
-                                                                        bottom: 20),
-                                                                child: ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(60),
-                                                                  child: Container(
-                                                                    
-                                                                      height: 65,
-                                                                      width: 65,
-                                                                        child: (user['photo'] == null || user['photo'].toString().isEmpty || index >= userProvider.userImageList.length)
-                                                                          ? Image.asset(
-                                                                              'Assets/images/user.png',
-                                                                              scale: 5.0,
-                                                                            )
-                                                                          : Image(
-                                                                              image: userProvider.userImageList[index],
-                                                                              fit: BoxFit.cover,
-                                                                            ),
-
-                                                                          ),                                                                    
+                                                                child: Center(
+                                                                  child: SizedBox(
+                                                                    width: 80,
+                                                                    height: 80,
+                                                                    child: CircleAvatar(
+                                                                      backgroundImage: (user['photo'] == null ||
+                                                                              user['photo'].toString().isEmpty ||
+                                                                              index >= userProvider.userImageList.length)
+                                                                          ? AssetImage('Assets/images/user.png') as ImageProvider
+                                                                          : userProvider.userImageList[index],
+                                                                      backgroundColor: Colors.grey[200],
+                                                                    ),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                              ),
+
                                                               Column(
                                                                 crossAxisAlignment:
                                                                     CrossAxisAlignment
@@ -317,7 +305,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
                                                                   "yes")
                                                                 Padding(
                                                                   padding:
-                                                                      EdgeInsets.only(top: 5, right: 10),
+                                                                      EdgeInsets.only( right: 10),
                                                                   child: Icon(
                                                                     Icons.check_box,
                                                                     size: 30,
