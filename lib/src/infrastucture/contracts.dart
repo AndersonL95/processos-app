@@ -94,12 +94,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
   }
 
-  Future<dynamic> findAllContracts({
-  int page = 1,
-  int limit = 20,
-  bool useLightRoute = false,
-  String? search,
-}) async {
+  Future<dynamic> findAllContracts({int page = 1,int limit = 20, bool useLightRoute = false, String? search}) async {
   var bodyList = [];
   final SharedPreferences data = await SharedPreferences.getInstance();
   String? tenantJson = data.getString('tenantId');

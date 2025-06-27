@@ -1,16 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
+
+import 'package:docInHand/src/application/providers/listUsers_provider%20.dart';
+
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/add_user.dart';
 import 'package:docInHand/src/application/screens/usuarios_detalhes.dart';
-import 'package:docInHand/src/application/use-case/getUsers.api.dart';
-import 'package:docInHand/src/application/use-case/getUsersInAdmin.api.dart';
+
 import 'package:docInHand/src/infrastucture/authManager.dart';
-import 'package:docInHand/src/infrastucture/users.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:provider/provider.dart';
+
 
 class UsuariosPage extends StatefulWidget {
   late final int userId;
@@ -21,84 +23,17 @@ class UsuariosPage extends StatefulWidget {
 
 class _UsuariosPageState extends State<UsuariosPage> {
   AuthManager authManager = AuthManager();
-  late GetUsersInfoApi getUsersInfoApi;
-  late GetUsersAdminInfoApi getUsersAdminInfoApi;
-  late ApiService apiService;
-  late String roleJ;
-  bool _loading = true;
-  ImageProvider? userImage;
-
   String? _error;
-  List<dynamic> data = [];
-  List<dynamic> filtereData = [];
   TextEditingController searchController = TextEditingController();
-  List userImageList = [];
+  Timer? _debounce;
+   
   @override
   void initState() {
-    apiService = ApiService(authManager);
-    getUsersInfoApi = GetUsersInfoApi(apiService);
-    getUsersAdminInfoApi = GetUsersAdminInfoApi(apiService);
-    getUsers();
+    final userProvider = Provider.of<ListUserProvider>(context, listen: false);
+
     super.initState();
   }
 
-  Future<void> getUsers() async {
-    final SharedPreferences role = await SharedPreferences.getInstance();
-    String? roleJson = role.getString('role');
-    roleJ = json.decode(roleJson!);
-
-    setState(() {
-      _loading = true;
-    });
-
-    try {
-      final value = roleJ == "superAdmin"
-          ? await getUsersAdminInfoApi.execute()
-          : await getUsersInfoApi.execute();
-
-      if (mounted) {
-        setState(() {
-          data = value;
-          filtereData = value;
-          _loading = false;
-        });
-
-        List<MemoryImage> userImages = [];
-
-        for (var user in data) {
-          if (user.photo.isNotEmpty) {
-            String photoBase64 = user.photo;
-
-            List<int> imageBytes = await _base64StringToBytes(photoBase64);
-
-            if (imageBytes.isNotEmpty) {
-              userImages.add(MemoryImage(Uint8List.fromList(imageBytes)));
-            } else {
-              userImages.add(MemoryImage(Uint8List(0)));
-            }
-          } else {
-            userImages.add(MemoryImage(Uint8List(0)));
-          }
-        }
-
-        setState(() {
-          userImageList = userImages;
-        });
-      }
-    } catch (e) {
-      if(mounted){
-        setState(() {
-          _error = "Erro ao carregar informações: ${e.toString()}";
-          _loading = false;
-      });
-      }
-    
-    }
-  }
-
-  Future<List<int>> _base64StringToBytes(String base64String) async {
-    return base64Decode(base64String);
-  }
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
@@ -124,28 +59,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
     return lines.join('\n');
   }
 
-  void filterData(String query) {
-    List<dynamic> temp = [];
-    for (var item in data) {
-      if (item.name.toString().toLowerCase().contains(query.toLowerCase()) ||
-          item.username.toString().contains(query) ||
-          item.email.toString().contains(query) ||
-          item.cargo.toString().contains(query) ||
-          item.role.toString().contains(query)) {
-        temp.add(item);
-      }
-    }
-    setState(() {
-      filtereData = temp;
-    });
-  }
-
+ 
   void deleteContract(id) async {}
 
   @override
   Widget build(
     BuildContext context,
   ) {
+    final userProvider = Provider.of<ListUserProvider>(context);
+     final dataToShow = userProvider.data.isNotEmpty
+      ? userProvider.filtereData
+      : userProvider.data;
+
     return (Scaffold(
         appBar: AppBar(
           title: const Padding(
@@ -165,7 +90,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
           automaticallyImplyLeading: false,
         ),
         backgroundColor: Colors.grey.shade100,
-        body: _loading
+        body: userProvider.loading
             ? const Center(
                 child: CircularProgressIndicator(
                   color: Color.fromRGBO(1, 76, 45, 1),
@@ -176,249 +101,266 @@ class _UsuariosPageState extends State<UsuariosPage> {
                 ? Center(
                     child: Text("ERROR: $_error"),
                   )
-                : Column(children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (value) {
-                          filterData(value);
-                        },
-                        decoration: InputDecoration(
-                            iconColor: customColors['green'],
-                            prefixIconColor: customColors['green'],
-                            fillColor: customColors['white'],
-                            hoverColor: customColors['green'],
-                            filled: true,
-                            focusColor: customColors['green'],
-                            labelText: "Pesquisar",
-                            hintText: "Digite para pesquisar",
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
-                            )),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20, right: 30),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    shape: CircleBorder(),
-                                    backgroundColor: customColors['green'],
-                                    minimumSize: Size(85, 60)),
-                                onPressed: () async {
-                                  bool? result = await Navigator.of(context)
-                                      .push(MaterialPageRoute(
-                                          builder: (context) => AddUserPage()));
-                                  if (result == true) {
-                                    getUsers();
-                                  }
+                : userProvider.data != null ?
+                 RefreshIndicator(
+                     onRefresh: userProvider.fetchUsers,
+                     child: Column(children: [
+                        Padding(
+                            padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: (value) {
+                                 if (_debounce?.isActive ?? false) _debounce!.cancel();
+                                 _debounce = Timer(const Duration(milliseconds: 1000), () {
+                                   userProvider.searchData(value);
+                                 });
                                 },
-                                child: Icon(
-                                  Icons.add,
-                                  size: 30,
-                                  color: customColors['white'],
-                                ))
-                          ]),
-                    ),
-                    Expanded(
-                        flex: 1,
-                        child: ListView.builder(
-                            itemCount: filtereData.length,
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 30, left: 5, right: 5),
-                                    child: Card(
-                                      shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20))),
-                                      clipBehavior: Clip.antiAlias,
-                                      elevation: 10,
-                                      shadowColor: Colors.black,
-                                      child: InkWell(
-                                        onTap: () async {
-                                          bool? result =
-                                              await Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          UserDetailPage(
-                                                              userDetail:
-                                                                  filtereData[
-                                                                      index])));
-                                          if (result == true) {
-                                            getUsers();
-                                          }
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: 'Buscar...',
+                                hintStyle: TextStyle(color: Colors.grey[500]),
+                                prefixIcon: Icon(Icons.search, color: customColors['green']),
+                                suffixIcon: searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(Icons.clear, color: Colors.grey[500]),
+                                        onPressed: () {
+                                          userProvider.clearSearch();
+                                          searchController.clear();
+                                       
                                         },
-                                        child: SizedBox(
-                                            height: 240,
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    if (filtereData[index]
-                                                            .active ==
-                                                        'yes')
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.all(20),
-                                                        child: Icon(
-                                                          Icons.check_box,
-                                                          size: 30,
-                                                          color: Colors.green,
-                                                        ),
-                                                      ),
-                                                    if (filtereData[index]
-                                                            .active ==
-                                                        'no')
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.all(20),
-                                                        child: Icon(
-                                                          Icons.check_box,
-                                                          size: 30,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10,
-                                                              bottom: 20),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(60),
-                                                        child: Container(
-                                                            height: 100,
-                                                            width: 100,
-                                                            decoration:
-                                                                const BoxDecoration(),
-                                                            child: (filtereData[
-                                                                            index]
-                                                                        .photo ==
-                                                                    "")
-                                                                ? Image.asset(
-                                                                    'Assets/images/user.png',
-                                                                    scale: 5.0)
-                                                                : Image(
-                                                                    image: userImageList[
-                                                                        index],
-                                                                    fit: BoxFit
-                                                                        .cover)),
-                                                      ),
-                                                    ),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  right: 30),
-                                                          child: Text(
-                                                            breakLinesEvery10Characters(
-                                                                filtereData[
-                                                                        index]
-                                                                    .name),
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  top: 10,
-                                                                  right: 30),
-                                                          child: Text(
-                                                            "Username: ${filtereData[index].username}",
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 16,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    top: 5,
-                                                                    right: 30),
-                                                            child: Row(
-                                                              children: [
-                                                                Text(
-                                                                  breakLinesEvery10Characters(
-                                                                      filtereData[
-                                                                              index]
-                                                                          .email),
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          16),
-                                                                ),
-                                                              ],
-                                                            )),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  top: 5,
-                                                                  right: 30),
-                                                          child: Text(
-                                                            "Nível: ${filtereData[index].role}",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        16),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  top: 5,
-                                                                  right: 30),
-                                                          child: Text(
-                                                            "Cargo: ${filtereData[index].cargo}",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        16),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            )),
-                                      ),
+                                      )
+                                    : null,
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide(color: Colors.grey.shade300),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      borderSide: BorderSide(color: customColors['green'] ?? Colors.green, width: 2),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
-                                ],
-                              );
-                            }))
-                  ])));
+                               ),
+                          ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20, right: 30),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          shape: CircleBorder(),
+                                          backgroundColor: customColors['green'],
+                                          minimumSize: Size(85, 60)),
+                                      onPressed: () async {
+                                        bool? result = await Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                                builder: (context) => AddUserPage()));
+                                        if (result == true) {
+                                          userProvider.fetchUsers();
+                                        }
+                                      },
+                                      child: Icon(
+                                        Icons.add,
+                                        size: 30,
+                                        color: customColors['white'],
+                                      ))
+                                ]),
+                          ),
+                          Expanded(
+                              flex: 1,
+                              child: ListView.builder(
+                                  itemCount: dataToShow.length + 1,
+                                  itemBuilder: (context, index) {
+                                      if(index < dataToShow.length){
+                                        final user = dataToShow[index];
+                                        return Column(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10, left: 5, right: 5),
+                                              child: Card(
+                                                shape: const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(
+                                                        Radius.circular(20))),
+                                                clipBehavior: Clip.antiAlias,
+                                                elevation: 10,
+                                                shadowColor: Colors.black,
+                                                child: InkWell(
+                                                  onTap: () async {
+                                                    final result = await Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) => UserDetailPage(userDetail: user),
+                                                      ),
+                                                    );
+
+                                                    if (result != null && result is Map<String, dynamic>) {
+                                                      userProvider.updateUserInList(result);
+                                                    }
+
+                                                  },
+                                                 child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    SizedBox(
+                                                      height: 110,
+                                                      child: Column(
+                                                        children: [
+                                                       
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Container(
+                                                                width: 110, 
+                                                                height: 110,
+                                                                color: customColors['green'],
+                                                                child: Center(
+                                                                  child: SizedBox(
+                                                                    width: 80,
+                                                                    height: 80,
+                                                                    child: CircleAvatar(
+                                                                      backgroundImage: (user['photo'] == null ||
+                                                                              user['photo'].toString().isEmpty ||
+                                                                              index >= userProvider.userImageList.length)
+                                                                          ? AssetImage('Assets/images/user.png') as ImageProvider
+                                                                          : userProvider.userImageList[index],
+                                                                      backgroundColor: Colors.grey[200],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                            top: 30,
+                                                                            left: 30),
+                                                                    child: Row(
+                                                                    
+                                                                      children: [
+                                                                       
+                                                                    Text(
+                                                                      user['username'],
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        fontSize: 16,
+                                                                        fontWeight: FontWeight.bold
+                                                                      ),
+                                                                    ),
+                                                                      ],
+                                                                    )
+                                                                  ),
+                                                                  
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .only(
+                                                                            top: 5,
+                                                                            left: 30,
+                                                                            bottom: 20),
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Text(
+                                                                      "Cargo: ",
+                                                                      style:
+                                                                          const TextStyle(
+                                                                              fontSize:
+                                                                                  16),
+                                                                    ),
+                                                                    Text(
+                                                                    user['cargo'],
+                                                                      style:
+                                                                          const TextStyle(
+                                                                              fontSize:
+                                                                                  16,
+                                                                                  fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                      ],
+                                                                    )
+                                                                  ),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      )),
+                                                       if (user['active'] ==
+                                                                  "yes")
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets.only( right: 10),
+                                                                  child: Icon(
+                                                                    Icons.check_box,
+                                                                    size: 30,
+                                                                    color: Colors.green,
+                                                                  ),
+                                                                ),
+                                                              if (user['active'] ==
+                                                                  'no')
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets.all(20),
+                                                                  child: Icon(
+                                                                    Icons.check_box,
+                                                                    size: 30,
+                                                                    color: Colors.grey,
+                                                                  ),
+                                                                ),
+                                                  ],
+                                                 ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }else {
+                                          if (userProvider.data.length < userProvider.total) {
+                                        return Padding(padding: EdgeInsets.all(15),
+                                          child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            shape: const CircleBorder(),
+                                            elevation: 10,
+                                            backgroundColor: customColors['green'],
+                                            minimumSize: const Size(65, 40),
+                                          ),
+                                          onPressed: userProvider.loading
+                                              ? null
+                                              : () => userProvider.loadMoreUsers(),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.all(2),
+                                                child:  Icon(Icons.person_add_sharp, color: customColors['white']),
+                                              ),
+                                             
+                                            ],
+                                          ),
+                                        ),
+                                        );
+                                      } else {
+                                        return const SizedBox(); 
+                                      }
+                                    }}))
+                        ])):const Center(
+                            child: Text("Não foi possivel carregas as informações."),
+                    ),));
   }
 }

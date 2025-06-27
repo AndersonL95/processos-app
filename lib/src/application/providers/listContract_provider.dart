@@ -42,8 +42,6 @@ class ListContractProvider with ChangeNotifier {
   Future<void> fetchContracts() async {
     loading = true;
     notifyListeners();
-
-
     try {
       final prefs = await SharedPreferences.getInstance();
       final roleJson = prefs.getString('role');

@@ -175,7 +175,10 @@ void openModal() async {
                 ? Center(
                     child: Text("ERROR: $_error"),
                   )
-                : Column(
+                : listcContractProvider.data != null ?
+                RefreshIndicator(
+                     onRefresh: listcContractProvider.fetchContracts,
+                  child:Column(
                     children: [
                       if (_showSearch)
                       Padding(
@@ -741,7 +744,9 @@ void openModal() async {
                       
                     
                     
-                  );
+                  ):const Center(
+                      child: Text("Não foi possivel carregas as informações."),
+                    ),);
   }
 }
 /** */

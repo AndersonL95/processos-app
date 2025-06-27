@@ -146,11 +146,11 @@ class ApiService implements RepositoryInterface<Users> {
     throw UnimplementedError();
   }
 
-  @override
-  Future<List<Users>> findAll() async {
+  Future<dynamic>findAllUser({int page = 1,int limit = 20, bool useLightRoute = false, String? search}) async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
     String? roleJson = data.getString('role');
+    final query = search != null && search.isNotEmpty ? search: "";
 
     if (tenantJson != null) {
       final int tenantId = json.decode(tenantJson);
@@ -159,7 +159,7 @@ class ApiService implements RepositoryInterface<Users> {
       try {
         final response = await authManager.sendAuthenticate(() async {
           return await http.get(
-            HttpService.buildUri("/users"),
+            HttpService.buildUri("/users?page=$page&limit=$limit&search=$query"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -170,10 +170,12 @@ class ApiService implements RepositoryInterface<Users> {
         });
 
         if (response.statusCode == 200) {
-          final List<dynamic> usersJson = json.decode(response.body);
-          return usersJson.map((json) => Users.fromJson(json)).toList();
+         final jsonData = json.decode(response.body);
+            if (jsonData is Map<String, dynamic>) {
+              return jsonData;
+              }
         } else {
-          throw Exception("Erro ao listar usuários: ${response.body}");
+              throw Exception("Erro ao listar usuários: ${response.body}");
         }
       } catch (e) {
         throw Exception("Falha na solicitação: $e");
@@ -183,10 +185,11 @@ class ApiService implements RepositoryInterface<Users> {
     }
   }
 
-  Future<List<Users>> findAllInAdmin() async {
+  Future<dynamic>findAllUserAdmin({int page = 1,int limit = 20, bool useLightRoute = false, String? search}) async {
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
     String? roleJson = data.getString('role');
+    final query = search != null && search.isNotEmpty ? search: "";
 
     if (tenantJson != null) {
       final int tenantId = json.decode(tenantJson);
@@ -195,7 +198,7 @@ class ApiService implements RepositoryInterface<Users> {
       try {
         final response = await authManager.sendAuthenticate(() async {
           return await http.get(
-            HttpService.buildUri("/users_admin"),
+            HttpService.buildUri("/users_admin?page=$page&limit=$limit&search=$query"),
             headers: authManager.token != null
                 ? {
                     'Authorization': 'Bearer ${authManager.token}',
@@ -206,10 +209,12 @@ class ApiService implements RepositoryInterface<Users> {
         });
 
         if (response.statusCode == 200) {
-          final List<dynamic> usersJson = json.decode(response.body);
-          return usersJson.map((json) => Users.fromJson(json)).toList();
+         final jsonData = json.decode(response.body);
+            if (jsonData is Map<String, dynamic>) {
+              return jsonData;
+              }
         } else {
-          throw Exception("Erro ao listar usuários: ${response.body}");
+              throw Exception("Erro ao listar usuários: ${response.body}");
         }
       } catch (e) {
         throw Exception("Falha na solicitação: $e");
@@ -222,6 +227,12 @@ class ApiService implements RepositoryInterface<Users> {
   @override
   Future<List<Users>> findById(int id) {
     // TODO: implement findById
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<List<Users>> findAll() {
+    // TODO: implement findAll
     throw UnimplementedError();
   }
 }
