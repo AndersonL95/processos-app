@@ -223,6 +223,20 @@ class ApiService implements RepositoryInterface<Users> {
       throw Exception("Tenant ID não encontrado.");
     }
   }
+  Future<void> sendForgotPasswordEmail(String email) async {
+  final response = await http.post(
+    HttpService.buildUri('/forgot-password'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'email': email}),
+  );
+
+  if (response.statusCode == 200) {
+    print('Link enviado');
+  } else {
+    print('Erro');
+  }
+}
+
 
   @override
   Future<List<Users>> findById(int id) {

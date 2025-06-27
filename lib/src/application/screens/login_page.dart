@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:docInHand/src/application/screens/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/menuItem.dart';
@@ -161,7 +162,16 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.white),
               ),
             ),
-          )
+          ),
+          Padding(padding: EdgeInsets.all(10),
+            child: TextButton(onPressed: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ResetPasswordPage(),
+                ),
+              );
+            }, child: Text("Esqueceu a senha? ", style: TextStyle(fontSize: 15, color: customColors['green']),)),
+          ),
         ]),
       ),
     );
