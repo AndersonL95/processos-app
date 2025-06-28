@@ -143,28 +143,6 @@ class AddContractPageState extends State<AddContractPage> {
     }
   }
 
-  Future<void> getContracts() async {
-    try {
-      await getContractsInfoApi.execute().then((value) {
-        if (mounted) {
-          setState(() {
-            data = value['data'];
-
-            _loading = false;
-          });
-          
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
-        }
-        print("LIST: ${data[0].addTerms}");
-      });
-    } catch (e) {
-      _loading = false;
-    }
-  }
 
   bool _managerExists(String name) {
     for (var item in data) {
@@ -282,7 +260,7 @@ class AddContractPageState extends State<AddContractPage> {
     createContract = CreateContract(apiContractService);
     apiAddTermService = ApiAddTermService(authManager);
     createTerms = CreateTerms(apiAddTermService);
-    getContracts();
+    
     getSectors();
 
 
@@ -672,6 +650,7 @@ class AddContractPageState extends State<AddContractPage> {
                                   children: [
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -679,7 +658,6 @@ class AddContractPageState extends State<AddContractPage> {
                                           fillColor: customColors['white'],
                                           hoverColor: customColors['green'],
                                           filled: true,
-                                          focusColor: customColors['green'],
                                           labelText: "Gestor",
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
@@ -697,16 +675,18 @@ class AddContractPageState extends State<AddContractPage> {
                                                 (value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
-                                            child: Text(value),
+                                            child: Text(
+                                              value,
+                                              overflow: TextOverflow.ellipsis,
+                                              ),
                                           );
                                         }).toList(),
                                         onChanged: (String? newValue) {
                                           setState(() {
-                                            // Atualiza o controlador de texto se necessário
                                             managerController.text = newValue ??
-                                                ''; // Se null, define como string vazia
+                                                ''; 
                                             showTextField =
-                                                false; // Lógica adicional para exibir/ocultar campos
+                                                false; 
                                           });
                                         },
                                         value: managerController.text.isEmpty
@@ -774,6 +754,7 @@ class AddContractPageState extends State<AddContractPage> {
                                   children: [
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -781,7 +762,6 @@ class AddContractPageState extends State<AddContractPage> {
                                           fillColor: customColors['white'],
                                           hoverColor: customColors['green'],
                                           filled: true,
-                                          focusColor: customColors['green'],
                                           labelText: "Fiscal",
                                           prefixIcon: const Icon(Icons.person),
                                           enabledBorder: OutlineInputBorder(
@@ -799,7 +779,10 @@ class AddContractPageState extends State<AddContractPage> {
                                                 (value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
-                                            child: Text(value),
+                                            child: Text(
+                                              value,
+                                              overflow: TextOverflow.ellipsis,
+                                              ),
                                           );
                                         }).toList(),
                                         onChanged: (String? newValue) {
@@ -814,7 +797,12 @@ class AddContractPageState extends State<AddContractPage> {
                                             : supervisorController.text,
                                       ),
                                     ),
-                                    /*IconButton(
+                                    /**/
+                                  ],
+                                ),
+                              ),
+                              /* 
+                              IconButton(
                                       icon:
                                           Icon(Icons.add, color: Colors.green),
                                       onPressed: () {
@@ -822,11 +810,8 @@ class AddContractPageState extends State<AddContractPage> {
                                           showTextFieldF = !showTextFieldF;
                                         });
                                       },
-                                    )*/
-                                  ],
-                                ),
-                              ),
-                              /*  if (showTextFieldF)
+                                    )
+                               if (showTextFieldF)
                                 Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Column(

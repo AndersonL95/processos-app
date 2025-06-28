@@ -202,32 +202,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                      clipBehavior: Clip.antiAlias,
-                      elevation: 10,
-                      color: Colors.white,
-                      shadowColor: Colors.black,
-                      child: SizedBox(
-                          width: 270,
-                          height: 60,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  "Editar Usuario",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          )),
-                    )
+                    
                   ],
                 )),
             Padding(
@@ -429,32 +404,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                                     )),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10, left: 10, right: 10, bottom: 10),
-                              child: TextField(
-                                controller: cargoController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                    iconColor: customColors['green'],
-                                    prefixIconColor: customColors['green'],
-                                    fillColor: customColors['white'],
-                                    hoverColor: customColors['green'],
-                                    filled: true,
-                                    focusColor: customColors['green'],
-                                    labelText: "",
-                                    hintText: "Editar cargo",
-                                    prefixIcon: const Icon(Icons.work),
-                                    enabledBorder: new OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Color.fromRGBO(1, 76, 45, 1),
-                                          width: 2),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                    )),
-                              ),
-                            ),
+                           
                             Padding(
                               padding: const EdgeInsets.only(
                                   top: 10, left: 10, right: 10, bottom: 10),

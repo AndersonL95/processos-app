@@ -86,16 +86,22 @@ class AuthManager with ChangeNotifier {
     return token;
   }
 
-  Future<http.Response> sendAuthenticate(
-      Future<http.Response> Function() requestFunction) async {
-    var response = await requestFunction();
+ Future<http.Response> sendAuthenticate(
+    Future<http.Response> Function() requestFunction) async {
+  var response = await requestFunction();
 
-    if (response.statusCode == 401) {
-      if (await refreshToken() != null) {
-        _token = await refreshToken();
-        response = await requestFunction();
-      }
+  print("STATUS INICIAL: ${response.statusCode}");
+  print("BODY: ${response.body}");
+
+  if (response.statusCode == 401) {
+    final newToken = await refreshToken();
+    if (newToken != null) {
+      _token = newToken;
+      response = await requestFunction();
     }
-    return response;
   }
+
+  return response;
 }
+}
+

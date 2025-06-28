@@ -5,21 +5,24 @@ class GetUsersCargoApi {
   GetUsersCargoApi(this.apiService);
 
   Future<Map<String, List<String>>> execute() async {
-    try {
-      var usersData = await apiService.findAll();
-      List<String> fiscais = usersData
-          .where((user) => user.cargo == 'Fiscal')
-          .map((user) => user.name)
-          .toList();
+  try {
+    var usersResponse = await apiService.findAllUser();
+    var usersData = usersResponse['data'] as List;
 
-      List<String> gestores = usersData
-          .where((user) => user.cargo == 'Gestor')
-          .map((user) => user.name)
-          .toList();
+    List<String> fiscais = usersData
+        .where((user) => user['cargo'] == 'Fiscal')
+        .map((user) => user['name'].toString())
+        .toList();
 
-      return {'fiscais': fiscais, 'gestores': gestores};
-    } catch (e) {
-      throw Exception(e);
-    }
+    List<String> gestores = usersData
+        .where((user) => user['cargo'] == 'Gestor')
+        .map((user) => user['name'].toString())
+        .toList();
+
+    return {'fiscais': fiscais, 'gestores': gestores};
+  } catch (e) {
+    throw Exception("Erro ao processar usuários: $e");
   }
+}
+
 }
