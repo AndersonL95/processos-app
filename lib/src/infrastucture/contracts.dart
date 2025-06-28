@@ -210,7 +210,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   }
 
   try {
-    final queryParameters = {
+    final queryParameter = {
       'page': '$page',
       'limit': '$limit',
       if (sector != null && sector.isNotEmpty) 'sector': sector,
@@ -219,7 +219,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     };
 
     final response = await authManager.sendAuthenticate(() async {
-      return await http.get(HttpService.buildUri( '/filterContract$queryParameters'), headers: {
+      return await http.get(HttpService.buildUri( '/filterContract',queryParameters: queryParameter), headers: {
         'Authorization': 'Bearer ${authManager.token}',
         'x-tenant-id': tenantId.toString(),
       });

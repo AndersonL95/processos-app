@@ -232,7 +232,7 @@ class ListContractProvider with ChangeNotifier {
   String? sort,
   int? daysLeft,
 }) async {
-  loading = true;
+
   notifyListeners();
 
   try {

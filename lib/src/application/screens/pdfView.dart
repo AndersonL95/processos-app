@@ -66,7 +66,7 @@ class _PdfViewPageState extends State<PdfViewPage> {
 
   Future<void> printPdf() async {
     var bytes =
-        base64Decode(widget.pdfBytes['file'].toString().replaceAll('\n', ''));
+        base64Decode(widget.pdfBytes.file.toString().replaceAll('\n', ''));
 
     try {
       await Printing.layoutPdf(onLayout: (format) async => bytes);
