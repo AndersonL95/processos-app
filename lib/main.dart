@@ -4,6 +4,7 @@ import 'package:docInHand/src/application/providers/home_provider.dart';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/providers/listUsers_provider%20.dart';
 import 'package:docInHand/src/application/screens/contratos.dart';
+import 'package:docInHand/src/application/screens/perfil.dart';
 import 'package:docInHand/src/application/use-case/filterContracts.api.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getLast3.dart';
@@ -129,7 +130,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/login': (context) => LoginPage(),
         '/menuItem': (context) => MenuItem(),
-        '/contratos': (context) => ContractPage()
+        '/contratos': (context) => ContractPage(),
       },
       home: isLoggedIn ? MenuItem() : LoginPage(),
     );

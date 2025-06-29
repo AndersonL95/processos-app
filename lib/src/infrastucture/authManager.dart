@@ -90,9 +90,6 @@ class AuthManager with ChangeNotifier {
     Future<http.Response> Function() requestFunction) async {
   var response = await requestFunction();
 
-  print("STATUS INICIAL: ${response.statusCode}");
-  print("BODY: ${response.body}");
-
   if (response.statusCode == 401) {
     final newToken = await refreshToken();
     if (newToken != null) {

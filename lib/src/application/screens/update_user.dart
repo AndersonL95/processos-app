@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:docInHand/src/application/screens/changePassword.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
@@ -43,6 +44,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
   bool isLoading = false;
   List<dynamic> data = [];
   Uint8List? bytes;
+ 
 
   @override
   void initState() {
@@ -166,13 +168,19 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
             alignment: Alignment.centerRight,
             child: Padding(
               padding: EdgeInsets.only(right: 10),
-              child: Text(
-                "DocInHand",
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
+              child: IconButton(
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => changePasswordPage(
+                             userData: widget.userData,
+                            )))
+                },
+               icon: Icon(Icons.key,
+                size: 35,
+                color: customColors['white'],
+               ))
             )),
         toolbarHeight: 120,
         centerTitle: false,
