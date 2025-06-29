@@ -15,7 +15,7 @@ class OpenModalComponent extends StatefulWidget {
   final int? selectedDaysLeft;
   final List<DropdownMenuItem<String>> sectorsData;
   final List<String> sortOptions;
-  final bool isAdmin; // Identifica se é admin
+  final bool isAdmin; 
 
   OpenModalComponent({
     required this.data,
@@ -55,6 +55,10 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ListContractProvider>(context);
+    if (provider.loading) {
+      return const Center(child: CircularProgressIndicator());
+}
     return Padding(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -161,8 +165,8 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
             children: [
               IconButton(
                 onPressed: () {
-                  final contract =  Provider.of<ListContractProvider>(context, listen: false);
-                 contract.clearSearch();
+                  
+                 provider.clearSearch();
                   Navigator.pop(context);
                 },
                 icon: Icon(
@@ -174,7 +178,7 @@ class _OpenModalComponentState extends State<OpenModalComponent> {
               ElevatedButton(
                 onPressed: () {
                   final filteredData = FilterDataComponent.filterData(
-                    data: widget.data,
+                    data: provider.filtereData,
                     selectedSector: sectorController,
                     selectSortOption: sortOptionController,
                     selectedDaysLeft: daysLeftController,

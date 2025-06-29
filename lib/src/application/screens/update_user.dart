@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:docInHand/src/application/screens/changePassword.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
@@ -43,6 +44,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
   bool isLoading = false;
   List<dynamic> data = [];
   Uint8List? bytes;
+ 
 
   @override
   void initState() {
@@ -166,13 +168,19 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
             alignment: Alignment.centerRight,
             child: Padding(
               padding: EdgeInsets.only(right: 10),
-              child: Text(
-                "DocInHand",
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
+              child: IconButton(
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => changePasswordPage(
+                             userData: widget.userData,
+                            )))
+                },
+               icon: Icon(Icons.key,
+                size: 35,
+                color: customColors['white'],
+               ))
             )),
         toolbarHeight: 120,
         centerTitle: false,
@@ -202,32 +210,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                      clipBehavior: Clip.antiAlias,
-                      elevation: 10,
-                      color: Colors.white,
-                      shadowColor: Colors.black,
-                      child: SizedBox(
-                          width: 270,
-                          height: 60,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  "Editar Usuario",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          )),
-                    )
+                    
                   ],
                 )),
             Padding(
@@ -429,32 +412,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                                     )),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10, left: 10, right: 10, bottom: 10),
-                              child: TextField(
-                                controller: cargoController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                    iconColor: customColors['green'],
-                                    prefixIconColor: customColors['green'],
-                                    fillColor: customColors['white'],
-                                    hoverColor: customColors['green'],
-                                    filled: true,
-                                    focusColor: customColors['green'],
-                                    labelText: "",
-                                    hintText: "Editar cargo",
-                                    prefixIcon: const Icon(Icons.work),
-                                    enabledBorder: new OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Color.fromRGBO(1, 76, 45, 1),
-                                          width: 2),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                    )),
-                              ),
-                            ),
+                           
                             Padding(
                               padding: const EdgeInsets.only(
                                   top: 10, left: 10, right: 10, bottom: 10),

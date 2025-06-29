@@ -697,6 +697,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                   children: [
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:
@@ -798,6 +799,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                   children: [
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
                                         decoration: InputDecoration(
                                           iconColor: customColors['green'],
                                           prefixIconColor:

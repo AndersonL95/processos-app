@@ -92,7 +92,7 @@ void openModal() async {
 
   final contract = Provider.of<ListContractProvider>(context, listen: false);
 
-  await contract.fetchFilteredContracts(
+   contract.fetchFilteredContracts(
     
     sector: selectedSector,
     daysLeft: selectedDaysLeft,

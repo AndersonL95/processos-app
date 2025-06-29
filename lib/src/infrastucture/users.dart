@@ -140,6 +140,41 @@ class ApiService implements RepositoryInterface<Users> {
     }
   }
 
+   Future<Map<String, dynamic>> changePassword({required int id, required String currentPassword, required String newPassword}) async {
+    print("ID: $id, CURRENTPASS: $currentPassword, NEWPASS: $newPassword");
+    final SharedPreferences data = await SharedPreferences.getInstance();
+    String? tenantJson = data.getString('tenantId');
+    if (tenantJson != null) {
+      tenantId = json.decode(tenantJson);
+    }
+    try {
+      final response = await authManager.sendAuthenticate(() async {
+        return await http.post(HttpService.buildUri("/change_pass/$id"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString(),
+                    'Content-Type': 'application/json',
+                  }
+            
+                : {},
+            body: jsonEncode({
+              'currentPassword':currentPassword,
+              'newPassword':newPassword,
+            }),
+              );
+                
+      });
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+      return json.decode(response.body);
+    } catch (e) {
+      throw Exception("$e");
+    }
+  }
+
+
   @override
   Future<void> delete(int id) {
     // TODO: implement delet
@@ -223,6 +258,20 @@ class ApiService implements RepositoryInterface<Users> {
       throw Exception("Tenant ID não encontrado.");
     }
   }
+  Future<void> sendForgotPasswordEmail(String email) async {
+  final response = await http.post(
+    HttpService.buildUri('/forgot-password'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'email': email}),
+  );
+
+  if (response.statusCode == 200) {
+    print('Link enviado');
+  } else {
+    print('Erro');
+  }
+}
+
 
   @override
   Future<List<Users>> findById(int id) {
