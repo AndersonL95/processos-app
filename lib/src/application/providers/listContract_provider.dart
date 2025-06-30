@@ -28,6 +28,7 @@ class ListContractProvider with ChangeNotifier {
   int _page = 1;
   final int _limit = 2;
   int total = 0;
+  String? currentSearchTerm;
 
 
   
@@ -84,6 +85,7 @@ class ListContractProvider with ChangeNotifier {
        page: _page,
        limit: _limit,
        useLightRoute: true,
+       search: currentSearchTerm ?? '',
      );
 
 
@@ -185,7 +187,10 @@ class ListContractProvider with ChangeNotifier {
   Future<void> searchData(String query) async {
   loading = true;
   notifyListeners();
-  print("QUERY: $query");
+  currentSearchTerm = query;
+
+ 
+
   try {
     _page = 1; 
     final result = await getContractsInfoApi.execute(
@@ -223,6 +228,7 @@ class ListContractProvider with ChangeNotifier {
 }
 
   void clearSearch() {
+    currentSearchTerm = null;
     fetchContracts();
     notifyListeners();
   }

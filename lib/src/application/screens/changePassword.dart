@@ -112,17 +112,18 @@ class _changePasswordPageState extends State<changePasswordPage> {
                           child: Column(
                             children: [
                               Padding(padding: EdgeInsets.all(20),
-                                child: Row(
+                                child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("Modificar senha", 
-                                  style: TextStyle(fontSize: 17, color: customColors['green'], fontWeight: FontWeight.bold),),
-                                  Padding(padding: EdgeInsets.only(left: 10),
-                                    child: Icon(Icons.key_sharp,
-                                    size: 35,
+                                    Padding(padding: EdgeInsets.only(bottom: 10),
+                                    child: Icon(Icons.lock_person,
+                                    size: 60,
                                     color: customColors['green'],
                                   ),
                                   ),
+                                    Text("Modificar senha", 
+                                  style: TextStyle(fontSize: 15, color: customColors['green'], fontWeight: FontWeight.bold),),
+                                  
                                   ],
                                 )
                               ),

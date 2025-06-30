@@ -25,7 +25,8 @@ class ListUserProvider with ChangeNotifier {
   int _page = 1;
   final int _limit = 2;
   int total = 0;
- List userImageList = [];
+  List userImageList = [];
+  String? currentSearchTerm;
 
   
   ListUserProvider({
@@ -141,7 +142,7 @@ class ListUserProvider with ChangeNotifier {
   Future<void> searchData(String query) async {
   loading = true;
   notifyListeners();
-  print("QUERY: $query");
+  currentSearchTerm = query;
 
   try {
     _page = 1; 
@@ -182,6 +183,7 @@ class ListUserProvider with ChangeNotifier {
 
 
   void clearSearch() {
+    currentSearchTerm = null;
     fetchUsers();
     notifyListeners();
   }
@@ -196,8 +198,8 @@ Future<void> loadMoreUsers() async {
     _page++;
 
     final value = userRole == "superAdmin"
-        ? await getUsersAdminInfoApi.execute(page: _page, limit: _limit)
-        : await getUsersInfoApi.execute(page: _page, limit: _limit);
+        ? await getUsersAdminInfoApi.execute(page: _page, limit: _limit,search: currentSearchTerm ?? '')
+        : await getUsersInfoApi.execute(page: _page, limit: _limit,search: currentSearchTerm ?? '');
 
     if (value is Map && value.containsKey('total')) {
       total = value['total'];
