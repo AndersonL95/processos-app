@@ -354,40 +354,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              const Padding(
-                  padding: EdgeInsets.only(top: 20, left: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        clipBehavior: Clip.antiAlias,
-                        elevation: 10,
-                        color: Colors.white,
-                        shadowColor: Colors.black,
-                        child: SizedBox(
-                            width: 270,
-                            height: 60,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Text(
-                                    "Adicionar contrato",
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                )
-                              ],
-                            )),
-                      )
-                    ],
-                  )),
+              
               Padding(
                 padding: const EdgeInsets.only(top: 20, bottom: 30),
                 child: Row(
@@ -404,9 +371,36 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                           width: 380,
                           child: Column(
                             children: [
+                              Container(
+                        color: customColors['green'],
+                        width: 400,
+                        height: 100,
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 20, left: 20),
+                            child: Text(
+                              "Modificar contrato",
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  color: customColors['white'],
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                           Padding(
+                            padding: EdgeInsets.only(top: 20, left: 10),
+                            child: Icon(
+                              Icons.assignment,
+                              size: 40,
+                              color: customColors['white'],
+                            )
+                          ),
+                      ],),
+                      ),
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    top: 10, left: 10, right: 10, bottom: 10),
+                                    top: 20, left: 10, right: 10, bottom: 10),
                                 child: TextField(
                                   controller: nameController,
                                   keyboardType: TextInputType.text,

@@ -111,23 +111,27 @@ class _changePasswordPageState extends State<changePasswordPage> {
                           width: 380,
                           child: Column(
                             children: [
-                              Padding(padding: EdgeInsets.all(20),
-                                child: Column(
+                              
+                              Container(
+                        color: customColors['green'],
+                        width: 400,
+                        height: 120,
+                        child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Padding(padding: EdgeInsets.only(bottom: 10),
                                     child: Icon(Icons.lock_person,
                                     size: 60,
-                                    color: customColors['green'],
+                                    color: customColors['white'],
                                   ),
                                   ),
                                     Text("Modificar senha", 
-                                  style: TextStyle(fontSize: 15, color: customColors['green'], fontWeight: FontWeight.bold),),
+                                  style: TextStyle(fontSize: 15, color: customColors['white'], fontWeight: FontWeight.bold),),
                                   
                                   ],
                                 )
-                              ),
-                               Padding(padding: EdgeInsets.all(10),
+                      ),
+                               Padding(padding: EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
                               child:TextField(
                                 controller: currentPasswordController,
                                decoration: InputDecoration(
