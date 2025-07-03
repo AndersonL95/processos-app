@@ -239,13 +239,13 @@ class AddSectorPagePageState extends State<AddSectorPage> {
                                 child: ElevatedButton(
                                   child: Icon(
                                     Icons.save_as_rounded,
-                                    size: 35,
+                                    size: 30,
                                     color: customColors['white'],
                                   ),
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: customColors["green"],
                                       shape: CircleBorder(),
-                                      minimumSize: const Size(140, 65)),
+                                      minimumSize: const Size(120, 55)),
                                   onPressed: () {
                                    
                                     submitForm();
