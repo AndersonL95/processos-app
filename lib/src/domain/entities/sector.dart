@@ -18,10 +18,9 @@ class Sector {
   }
 
   factory Sector.fromJson(Map<String, dynamic> json) {
-    return Sector(
-      id: json['id'] ?? 0,
-      tenantId: json['tenantId'] ?? 0,
-      name: json['name'] ?? "",
+ return Sector(
+      name: json['name'].toString(),
+      id: json['id']
     );
-  }
+}
 }

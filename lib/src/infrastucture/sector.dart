@@ -83,7 +83,29 @@ class ApiSectorService implements RepositoryInterface<Sector> {
       throw Exception("Tenant ID não encontrado.");
     }
   }
+ Future<void> deleteSector(int sectorId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken') ?? '';
+    final tenantId = int.tryParse(prefs.getString('tenantId') ?? '');
 
+
+   final response = await authManager.sendAuthenticate(() async {
+          return await http.delete(
+            HttpService.buildUri("/sector/$sectorId"),
+            headers: authManager.token != null
+                ? {
+                    'Authorization': 'Bearer ${authManager.token}',
+                    'x-tenant-id': tenantId.toString(),
+                  }
+                : {},
+          );
+        });
+
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao excluir o setor: ${response.body}');
+    }
+  }
   @override
   @override
   Future<List<Sector>> findAll() {
