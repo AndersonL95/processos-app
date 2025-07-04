@@ -5,6 +5,7 @@ import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EditTermModal extends StatefulWidget {
   final List<AddTerm> existingTerms;
@@ -22,8 +23,10 @@ class EditTermModal extends StatefulWidget {
 
 class _EditTermModalState extends State<EditTermModal> {
   final TextEditingController _nameController = TextEditingController();
+  TextEditingController dataController = TextEditingController();
   String? selectedFilePath;
   late List<AddTerm> localTerms;
+
 
   @override
   void initState() {
@@ -45,7 +48,32 @@ class _EditTermModalState extends State<EditTermModal> {
   }
 
 
+ Future<DateTime?> selectNewTermDate(BuildContext context) async {
+  final DateTime? selectTemrDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(), 
+    firstDate: DateTime(2000),   
+    lastDate: DateTime(2100),    
+    locale: const Locale('pt', 'BR'),
+  );
 
+  return selectTemrDate;
+}
+String dateFormatt(String value) {
+
+  if (value.isEmpty) return '';
+  if (value.contains('T') && value.contains('Z')) {
+    try {
+      final date = DateTime.parse(value);
+      return DateFormat('dd-MM-yyyy').format(date);
+    } catch (e) {
+      return value;
+    }
+  }
+
+ 
+  return value;
+}
 void _addTerm() async {
   if (_nameController.text.isNotEmpty && selectedFilePath != null) {
     final fileBytes = await File(selectedFilePath!).readAsBytes();
@@ -53,12 +81,14 @@ void _addTerm() async {
 
     final newTerm = AddTerm(
       nameTerm: _nameController.text,
-      file: base64File, // Agora o arquivo é base64
+      file: base64File,
+      newTermDate: dataController.text
     );
 
     setState(() {
       localTerms.add(newTerm);
       _nameController.clear();
+      dataController.clear();
       selectedFilePath = null;
     });
   }
@@ -139,17 +169,18 @@ void _addTerm() async {
                        ),
                        minimumSize:
                            const Size(
-                               100, 40)),
+                               80, 40)),
                     onPressed: _pickFile,
                 ),
                   ],
                 ),),
-               ElevatedButton(
-                style: ElevatedButton
+                Padding(padding: EdgeInsets.all(10),
+              child: ElevatedButton(
+                 style: ElevatedButton
                   .styleFrom(
                       backgroundColor:
                           customColors[
-                              "green"],
+                              "blue"],
                       shape:
                           RoundedRectangleBorder(
                         borderRadius:
@@ -159,15 +190,43 @@ void _addTerm() async {
                       ),
                       minimumSize:
                           const Size(
+                              80, 40)),
+                onPressed: () async {
+                  final data = await selectNewTermDate(context);
+                  if (data != null) {
+                    final dataFormatada = "${data.day.toString().padLeft(2, '0')}/"
+                                          "${data.month.toString().padLeft(2, '0')}/"
+                                          "${data.year}";
+                    dataController.text = dataFormatada;
+                  }
+                },
+                child:  Padding(padding: EdgeInsets.only(left: 0),
+                    child: Icon(Icons.date_range, color: customColors['white'], size: 25,),
+                    )
+                 
+                ),
+            ),
+               Padding(padding: EdgeInsets.only(left: 20),
+                child: ElevatedButton(
+                style: ElevatedButton
+                  .styleFrom(
+                      backgroundColor:
+                          customColors[
+                              "green"],
+                      shape:
+                          CircleBorder(),
+                      minimumSize:
+                          const Size(
                               100, 40)),
                 onPressed: _addTerm,
                 child: Icon(
                     Icons.playlist_add,
-                    size: 25,
+                    size: 20,
                     color:
                         customColors['white'],
                   ),
                 ),
+               )
             ],
            ),
             Padding(padding: EdgeInsets.only(top: 20),
@@ -185,7 +244,13 @@ void _addTerm() async {
                     children: [
                        ...localTerms.map((term) {
                           return ListTile(
-                            title: Text(breakLines(term.nameTerm) ?? 'Sem nome'),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                 Text(breakLines(term.nameTerm) ?? 'Sem nome', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
+                                Text("Novo prazo: ${dateFormatt(term.newTermDate)}" , style: TextStyle(fontSize: 12, color: customColors['green'])),
+                              ],
+                            ),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete_sweep, color: Colors.red),
                               onPressed: () => _removeTerm(term),

@@ -6,6 +6,7 @@ import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/application/use-case/getSector_api.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:docInHand/src/application/use-case/update_contract_api.dart';
+import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,9 @@ class ListContractProvider with ChangeNotifier {
   final int _limit = 2;
   int total = 0;
   String? currentSearchTerm;
-
+  Contracts? dataId;
+  String status = "";
+  List<AddTerm> dataTerm = [];
 
   
   ListContractProvider({
@@ -71,6 +74,45 @@ class ListContractProvider with ChangeNotifier {
     loading = false;
     notifyListeners();
   }
+
+  Future<void> getContractId(int id) async {
+  try {
+    final result = await getContractIdInfoApi.execute(id);
+
+    if (result is Contracts) {
+      dataId = result;
+      dataTerm = result.addTerm ?? []; // proteção se for null
+    } else {
+      dataId = null;
+      dataTerm = [];
+    }
+
+    statusResul();
+    loading = false;
+  } catch (e) {
+    loading = false;
+    error = e.toString();
+    throw Exception(e);
+  }
+}
+
+
+ void statusResul() {
+  final statusValue = dataId?.contractStatus;
+  switch (statusValue) {
+    case 'ok':
+      status = "Aprovado";
+      break;
+    case 'review':
+      status = "Revisando";
+      break;
+    case 'pendent':
+      status = "Reprovado";
+      break;
+    default:
+      status = "Nenhum";
+  }
+}
 
   Future<void> loadMoreContracts() async {
    if (data.length >= total) return;

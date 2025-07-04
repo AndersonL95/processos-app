@@ -31,7 +31,6 @@ class ApiSectorService implements RepositoryInterface<Sector> {
                 : {'Content-type': 'application/json'},
             body: body);
       });
-      print("RESPONSE: ${response.statusCode}");
 
       if (response.statusCode == 201) {
         var responseBody = jsonDecode(response.body);

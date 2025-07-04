@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:docInHand/src/application/components/AddTermModal.dart';
+import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:docInHand/src/application/utils/pdfRead.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
@@ -15,6 +16,7 @@ import 'package:docInHand/src/application/screens/pdfView.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
+import 'package:provider/provider.dart';
 
 class ContractDetailPage extends StatefulWidget {
   final contractDetail;
@@ -35,9 +37,9 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   
   Contracts? dataId;
   String pathPDF = "";
-  String status = "";
+  
   final dateFormat = DateFormat('yyyy-MM-dd');
-  List<AddTerm> dataTerm = [];
+
 
   
 
@@ -66,7 +68,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   }
 
 
-  Future<void> getContractId() async {
+ /* Future<void> getContractId() async {
     try {
       await getContractIdInfoApi.execute(widget.contractDetail['id']).then((value) {
         if (mounted) {
@@ -74,8 +76,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
             dataId = value as Contracts?;
             _loading = false;
           });
-            statusResul();
-          dataTerm = dataId!.addTerm!;
+            
+          
          print("CONTRACTID: ${dataTerm.map((e)=> e.nameTerm)}");
         } else {
           setState(() {
@@ -91,15 +93,17 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     }
   }
   
-
+*/
 
   void initState() {
     super.initState();
     apiContractService = ApiContractService(authManager);
     getContractsInfoApi = GetContractsInfoApi(apiContractService);
     getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
-    getContractId();
-
+    final provider = Provider.of<ListContractProvider>(context, listen: false);
+    provider.getContractId(widget.contractDetail['id']);
+    
+   
     pathFile(
       fileBase64: widget.contractDetail['file'],
       fileName: widget.contractDetail['id'].toString(),
@@ -111,26 +115,12 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   }
 
 
-  void statusResul() {
-    switch (dataId!.contractStatus) {
-      case 'ok':
-        status = "Aprovado";
-        break;
-      case 'review':
-        status = "Revisando";
-        break;
-      case 'pendent':
-        status = "Reprovado";
-        break;
-      default:
-        status = "Nenhum";
-    }
-  }
+ 
 
 
   @override
   Widget build(BuildContext context) {
-   
+   final provider = Provider.of<ListContractProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: Align(
@@ -165,18 +155,18 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
           ),
         ),
         backgroundColor: Colors.grey.shade100,
-        body: _loading
+        body: provider.loading
             ? const Center(
                 child: CircularProgressIndicator(
                   color: Color.fromRGBO(1, 76, 45, 1),
                   strokeWidth: 7.0,
                 ),
               )
-            : _error != null
+            : provider.error != null
                 ? Center(
-                    child: Text("ERROR: $_error"),
+                    child: Text("ERROR: $provider.error"),
                   )
-                : dataId != null
+                : provider.dataId != null
                     ? SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Padding(
@@ -234,7 +224,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             10),
                                                                 child: Text(
                                                                   breakLinesEvery10Characters(
-                                                                      dataId!.name),
+                                                                      provider.dataId!.name),
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           20,
@@ -291,7 +281,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                           MaterialPageRoute(
                                                                               builder: (context) => PdfViewPage(
                                                                                     pdfPath: pathPDF,
-                                                                                    pdfBytes: dataId,
+                                                                                    pdfBytes: provider.dataId,
                                                                                   )))
                                                                     }
                                                                 },
@@ -327,7 +317,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                               MainAxisAlignment
                                                                   .center,
                                                           children: [
-                                                            AddTermModalButton(dataTerm: dataTerm)
+                                                            AddTermModalButton(dataTerm: provider.dataTerm)
                                                           ],
                                                         )),
                                                   )),
@@ -380,7 +370,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       ),
                                                                       Text(
                                                                         DateFormat('dd-MM-yyyy')
-                                                                            .format(DateFormat("yyyy-MM-dd").parse(dataId!.initDate)),
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(provider.dataId!.initDate)),
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -402,7 +392,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       ),
                                                                       Text(
                                                                         DateFormat('dd-MM-yyyy')
-                                                                            .format(DateFormat("yyyy-MM-dd").parse(dataId!.finalDate)),
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(provider.dataId!.finalDate)),
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -423,7 +413,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             "Saldo: "),
                                                                       ),
                                                                       Text(
-                                                                        "${dataId!.balance} R\$",
+                                                                        "${provider.dataId!.balance} R\$",
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -444,7 +434,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             "Add. de Quantitativo: "),
                                                                       ),
                                                                       Text(
-                                                                        dataId!.addQuant,
+                                                                        provider.dataId!.addQuant,
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,
@@ -499,7 +489,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                 ),
                                                               ),
                                                               Text(
-                                                               dataId!.numContract
+                                                               provider.dataId!.numContract
                                                                     ,
                                                                 style: TextStyle(
                                                                     fontSize:
@@ -526,7 +516,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                               dataId!.numProcess,
+                                                               provider.dataId!.numProcess,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -552,7 +542,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                               dataId!.contractLaw,
+                                                               provider.dataId!.contractLaw,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -578,7 +568,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                               dataId!.supervisor,
+                                                               provider.dataId!.supervisor,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         13,
@@ -604,7 +594,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                               dataId!.manager,
+                                                               provider.dataId!.manager,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         13,
@@ -630,7 +620,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                                status,
+                                                                provider.status,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -658,7 +648,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                             17)),
                                                               ),
                                                               Text(
-                                                               dataId!.companySituation,
+                                                               provider.dataId!.companySituation,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17,
@@ -699,7 +689,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                 child: Row(
                                                                   children: [
                                                                     Text(
-                                                               dataId!.todo,
+                                                               provider.dataId!.todo,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         15,

@@ -45,7 +45,6 @@ class AddSectorPagePageState extends State<AddSectorPage> {
           });
         }
       });
-      print("SECTOR: ${sectorsData[0].id}");
     } catch (e) {
       setState(() {
         _error = e.toString();

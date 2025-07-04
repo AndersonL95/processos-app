@@ -117,7 +117,7 @@ class AddContractPageState extends State<AddContractPage> {
     }
   }
 
-  Future getSectors() async {
+  Future<void>getSectors() async {
     try {
       await getSectorsInfoApi.execute().then((value) {
         if (mounted) {
@@ -188,7 +188,7 @@ class AddContractPageState extends State<AddContractPage> {
         if (term.file != null && File(term.file!).existsSync()) {
           final termBytes = File(term.file!).readAsBytesSync();
           final base64Term = base64Encode(termBytes);
-          encodedTerms.add(AddTerm(nameTerm: term.nameTerm, file: base64Term));
+          encodedTerms.add(AddTerm(nameTerm: term.nameTerm, file: base64Term, newTermDate: term.newTermDate));
         } else {
           throw Exception("Termo inválido ou não encontrado: ${term.file}");
         }
@@ -260,7 +260,6 @@ class AddContractPageState extends State<AddContractPage> {
     createContract = CreateContract(apiContractService);
     apiAddTermService = ApiAddTermService(authManager);
     createTerms = CreateTerms(apiAddTermService);
-    
     getSectors();
 
 

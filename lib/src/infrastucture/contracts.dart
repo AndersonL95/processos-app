@@ -101,7 +101,6 @@ class ApiContractService implements RepositoryInterface<Contracts> {
   if (tenantJson != null) {
     tenantId = json.decode(tenantJson);
   }
-  print("HTTPSEARCH: $search");
   try {
     final route = useLightRoute ? "/contractNotTerm" : "/contract";
     final query = search != null && search.isNotEmpty ? search: "";
@@ -141,7 +140,6 @@ class ApiContractService implements RepositoryInterface<Contracts> {
 
 
   Future<Object> findContractId(int id) async {
-    print("IDD: $id");
 
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
@@ -163,7 +161,6 @@ class ApiContractService implements RepositoryInterface<Contracts> {
      if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
          final contract = Contracts.fromJson(data);
-      print('Contrato carregado: ${contract.name}');
       return contract;
       } else {
         print("Erro ao buscar contrato: ${response.statusCode}");

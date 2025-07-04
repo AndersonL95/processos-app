@@ -14,8 +14,10 @@ class AddTermModal extends StatefulWidget {
 
 class _AddTermModalState extends State<AddTermModal> {
   final TextEditingController _nameController = TextEditingController();
+  TextEditingController dataController = TextEditingController();
   String? selectedFilePath;
   List<AddTerm> localTerms = [];
+ 
 
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -30,11 +32,25 @@ class _AddTermModalState extends State<AddTermModal> {
     }
   }
 
+  Future<DateTime?> selectNewTermDate(BuildContext context) async {
+  final DateTime? selectTemrDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(), 
+    firstDate: DateTime(2000),   
+    lastDate: DateTime(2100),    
+    locale: const Locale('pt', 'BR'),
+  );
+
+  return selectTemrDate;
+}
+
+
   void _addTerm() {
     if (_nameController.text.isNotEmpty && selectedFilePath != null) {
       final newTerm = AddTerm(
         nameTerm: _nameController.text,
         file: selectedFilePath!,
+        newTermDate: dataController.text
       );
 
       widget.onAddTerm(newTerm);
@@ -97,7 +113,7 @@ class _AddTermModalState extends State<AddTermModal> {
             ),
             const SizedBox(height: 12),
            Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
                ElevatedButton(
               onPressed: _pickFile,
@@ -121,16 +137,16 @@ class _AddTermModalState extends State<AddTermModal> {
                        ),
                        minimumSize:
                            const Size(
-                               100, 40)),
+                               80, 40)),
              
             ),
-            ElevatedButton(
-              onPressed: _addTerm,
-            style: ElevatedButton
+            Padding(padding: EdgeInsets.all(10),
+              child: ElevatedButton(
+                 style: ElevatedButton
                   .styleFrom(
                       backgroundColor:
                           customColors[
-                              "green"],
+                              "blue"],
                       shape:
                           RoundedRectangleBorder(
                         borderRadius:
@@ -140,16 +156,45 @@ class _AddTermModalState extends State<AddTermModal> {
                       ),
                       minimumSize:
                           const Size(
-                              100, 40)),
-                child: Icon(
-                    Icons.playlist_add,
-                    size: 25,
-                    color:
-                        customColors['white'],
-                  ),
+                              80, 40)),
+                onPressed: () async {
+                  final data = await selectNewTermDate(context);
+                  if (data != null) {
+                    final dataFormatada = "${data.day.toString().padLeft(2, '0')}/"
+                                          "${data.month.toString().padLeft(2, '0')}/"
+                                          "${data.year}";
+                    dataController.text = dataFormatada;
+                  }
+                },
+                child:  Padding(padding: EdgeInsets.only(left: 0),
+                    child: Icon(Icons.date_range, color: customColors['white'], size: 25,),
+                    )
+                 
+                ),
             ),
+             Padding(padding: EdgeInsets.only(left: 20),
+            child: ElevatedButton(
+              onPressed: _addTerm,
+            style: ElevatedButton
+                  .styleFrom(
+                      backgroundColor:
+                          customColors[
+                              "green"],
+                      shape:
+                          CircleBorder(),
+                      minimumSize:
+                          const Size(
+                              100, 40)),
+                child: Icon(Icons.add, color: customColors['white'], size: 25,),
+            ),
+          ),
+            
             ],
            ),
+            
+         
+            if(localTerms.isNotEmpty)
+
             Padding(padding: EdgeInsets.only(top: 20),
               child: Card(
               shape: RoundedRectangleBorder(
@@ -166,7 +211,13 @@ class _AddTermModalState extends State<AddTermModal> {
                         const Text('Aditivos adicionados:'),
                        ...localTerms.map((term) {
                           return ListTile(
-                            title: Text(breakLines(term.nameTerm) ?? 'Sem nome'),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(breakLines(term.nameTerm) ?? 'Sem nome', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
+                                Text("Novo prazo: ${breakLines(term.newTermDate)}" ?? '', style: TextStyle(fontSize: 12, color: customColors['green'])),
+                              ],
+                            ),
                              trailing: IconButton(
                               icon: const Icon(Icons.delete_sweep, color: Colors.red),
                               onPressed: () => _removeTerm(term),

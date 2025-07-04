@@ -123,10 +123,9 @@ class ApiNotificationService implements RepositoryInterface<Notification> {
                   : {},
               body: jsonEncode({'userId': userId}));
         });
-        print("RESPONSE ${response.statusCode}");
+
 
         if (response.statusCode == 200) {
-          print("OK: ${response.body}");
         } else {
           print("ERRO ao abrir.");
         }

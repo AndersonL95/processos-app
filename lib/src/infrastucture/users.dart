@@ -30,7 +30,6 @@ class ApiService implements RepositoryInterface<Users> {
                 : {});
       });
       if (response.statusCode == 200) {
-        print("DADOS: ${response.statusCode}");
         return json.decode(response.body);
       }
       return json.decode(response.body);
@@ -141,7 +140,6 @@ class ApiService implements RepositoryInterface<Users> {
   }
 
    Future<Map<String, dynamic>> changePassword({required int id, required String currentPassword, required String newPassword}) async {
-    print("ID: $id, CURRENTPASS: $currentPassword, NEWPASS: $newPassword");
     final SharedPreferences data = await SharedPreferences.getInstance();
     String? tenantJson = data.getString('tenantId');
     if (tenantJson != null) {
@@ -266,7 +264,6 @@ class ApiService implements RepositoryInterface<Users> {
   );
 
   if (response.statusCode == 200) {
-    print('Link enviado');
   } else {
     print('Erro');
   }
