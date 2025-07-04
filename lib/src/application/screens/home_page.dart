@@ -26,8 +26,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
  
-  bool _loading = true;
-  String? _error;
+ 
+
   List<dynamic> data = [];
   List<dynamic> dataStatus = [];
   List<dynamic> dataTerm = [];
@@ -137,9 +137,9 @@ class _HomePageState extends State<HomePage> {
                 strokeWidth: 7.0,
               ),
             )
-          : _error != null
+          : provider.error.isNotEmpty
               ? Center(
-                  child: Text("ERROR: $_error"),
+                  child: Text("ERROR: ${provider.error}"),
                 )
               // ignore: unnecessary_null_comparison
               : provider.data != null
