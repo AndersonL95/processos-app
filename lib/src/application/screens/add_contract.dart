@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:docInHand/src/application/components/saveButtom_widget.dart';
 import 'package:docInHand/src/application/components/termsModal_Widget.dart';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
@@ -11,7 +11,6 @@ import 'package:docInHand/src/infrastucture/addTerm.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/use-case/createContract_api.dart';
 import 'package:docInHand/src/application/use-case/getContract_api.dart';
@@ -62,12 +61,7 @@ class AddContractPageState extends State<AddContractPage> {
   List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
   DropdownItem? statusContractController;
   String? sectorContractController;
-
   TextEditingController supervisorController = TextEditingController();
-  var maskFormatter = MaskTextInputFormatter(
-      mask: 'R\$ ###.###.###,##',
-      filter: {"#": RegExp(r'[0-9]')},
-      type: MaskAutoCompletionType.lazy);
   DateTime? initDate;
   DateTime? finalDate;
   final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
@@ -230,11 +224,15 @@ class AddContractPageState extends State<AddContractPage> {
       setState(() {
         _loading = false;
       });
-         Navigator.pushReplacement(context,MaterialPageRoute(
-          builder: (context) => const MenuItem(initialIndex: 1)),
-        ).then((_) =>{
-        Provider.of<ListContractProvider>(context, listen: false).fetchContracts()
-      });
+        Navigator.push(
+         context,
+         MaterialPageRoute(
+           builder: (context) => const MenuItem(initialIndex: 1),
+         ),
+        ).then((_) {
+          Provider.of<ListContractProvider>(context, listen: false).fetchContracts();
+        });
+
     
     } catch (e) {
       print("ERROR: $e");
@@ -512,7 +510,13 @@ class AddContractPageState extends State<AddContractPage> {
                                     flex: 1,
                                     child: TextField(
                                       controller: balanceController,
-                                      inputFormatters: [maskFormatter],
+                                      inputFormatters: [
+                                        CurrencyTextInputFormatter.currency(
+                                          locale: 'pt_BR',
+                                          decimalDigits: 2,
+                                          symbol: 'R\$'
+                                        )
+                                        ],
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
                                           iconColor: customColors['green'],
@@ -998,9 +1002,10 @@ class AddContractPageState extends State<AddContractPage> {
                              
                                  SaveButton(
                                   onPressed: () async {
-                                    await submitForm();
+                                    await submitForm(); 
                                   },
                                 )
+
 
                               
                             ],

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:docInHand/src/application/components/saveButtom_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
@@ -575,23 +576,11 @@ class AddUserPageState extends State<AddUserPage> {
                               )
                             ],
                           )),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20, bottom: 30),
-                        child: ElevatedButton(
-                          child: Icon(
-                            Icons.save_as_rounded,
-                            size: 35,
-                            color: customColors['white'],
-                          ),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: customColors["green"],
-                              shape: CircleBorder(),
-                              minimumSize: const Size(140, 65)),
-                          onPressed: () {
-                            submitForm();
-                          },
-                        ),
-                      ),
+                      SaveButton(
+                                  onPressed: () async {
+                                    await submitForm(); 
+                                  },
+                                )
                     ]),
                   ),
                 )

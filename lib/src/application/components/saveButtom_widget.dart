@@ -2,7 +2,7 @@ import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class SaveButton extends StatefulWidget {
-  final VoidCallback onPressed;
+  final Future<void> Function() onPressed;
   const SaveButton({required this.onPressed, super.key});
 
   @override
@@ -12,17 +12,20 @@ class SaveButton extends StatefulWidget {
 class _SaveButtonState extends State<SaveButton> {
   bool _isLoading = false;
 
-  void _handlePressed() async {
-    setState(() {
-      _isLoading = true;
-    });
+ void _handlePressed() async {
+  setState(() {
+    _isLoading = true;
+  });
 
-     widget.onPressed();
-
+  try {
+    await widget.onPressed(); 
+  } finally {
     setState(() {
       _isLoading = false;
     });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,7 @@ class _SaveButtonState extends State<SaveButton> {
                 width: 35,
                 height: 35,
                 child: CircularProgressIndicator(
+                  backgroundColor: customColors['green'],
                   color: customColors['white'],
                   strokeWidth: 3,
                 ),

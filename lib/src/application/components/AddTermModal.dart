@@ -1,7 +1,9 @@
+import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/pdfView.dart';
 import 'package:docInHand/src/application/utils/pdfRead.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddTermModalButton extends StatelessWidget {
   final List<AddTerm> dataTerm;
@@ -13,6 +15,21 @@ class AddTermModalButton extends StatelessWidget {
   });
 
   void _openModal(BuildContext context) {
+    String dateFormatt(String value) {
+
+  if (value.isEmpty) return '';
+  if (value.contains('T') && value.contains('Z')) {
+    try {
+      final date = DateTime.parse(value);
+      return DateFormat('dd-MM-yyyy').format(date);
+    } catch (e) {
+      return value;
+    }
+  }
+
+ 
+  return value;
+}
      String pathPDF = "";
     showModalBottomSheet(
       context: context,
@@ -45,7 +62,13 @@ class AddTermModalButton extends StatelessWidget {
                           Padding(padding: EdgeInsets.all(10),
                             child: Image.asset('Assets/images/pdf.png',scale: 10.0,)
                           ),
-                          Text(term.nameTerm ?? "Sem nome"),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(term.nameTerm ?? "Sem nome", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                              Text( "Prazo final: ${dateFormatt(term.newTermDate)}" ?? "Sem nome", style:TextStyle(fontSize: 14, color: customColors['green']) ,),
+                            ],
+                          )
                         
                         ],
                       ),

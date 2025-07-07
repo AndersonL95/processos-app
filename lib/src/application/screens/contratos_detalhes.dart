@@ -1,19 +1,13 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+
 
 import 'package:docInHand/src/application/components/AddTermModal.dart';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
-import 'package:docInHand/src/application/use-case/get_contractId.dart';
 import 'package:docInHand/src/application/utils/pdfRead.dart';
-import 'package:docInHand/src/domain/entities/addTerms.dart';
 import 'package:docInHand/src/domain/entities/contract.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/pdfView.dart';
-import 'package:docInHand/src/application/use-case/getContract_api.dart';
 import 'package:docInHand/src/infrastucture/authManager.dart';
 import 'package:docInHand/src/infrastucture/contracts.dart';
 import 'package:provider/provider.dart';
@@ -28,25 +22,15 @@ class ContractDetailPage extends StatefulWidget {
 
 class _ContractDetailPageState extends State<ContractDetailPage> {
   AuthManager authManager = AuthManager();
-  late GetContractsInfoApi getContractsInfoApi;
-  late GetContractIdInfoApi getContractIdInfoApi;
   late ApiContractService apiContractService;
-
-  bool _loading = true;
-  String? _error;
-  
   Contracts? dataId;
   String pathPDF = "";
-  
   final dateFormat = DateFormat('yyyy-MM-dd');
-
-
-  
 
   String breakLinesEvery10Characters(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 35) {
-      int endIndex = i + 35;
+    for (int i = 0; i < input.length; i += 30) {
+      int endIndex = i + 30;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
@@ -66,57 +50,37 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
     }
     return lines.join('\n');
   }
-
-
- /* Future<void> getContractId() async {
-    try {
-      await getContractIdInfoApi.execute(widget.contractDetail['id']).then((value) {
-        if (mounted) {
-          setState(() {
-            dataId = value as Contracts?;
-            _loading = false;
-          });
-            
-          
-         print("CONTRACTID: ${dataTerm.map((e)=> e.nameTerm)}");
-        } else {
-          setState(() {
-            _error = "Erro ao carregar informações";
-            _loading = false;
-          });
-        }
-      });
-    } catch (e) {
-      _loading = false;
-      _error = e.toString();
-      throw Exception(e);
-    }
-  }
-  
-*/
-
-  void initState() {
-    super.initState();
-    apiContractService = ApiContractService(authManager);
-    getContractsInfoApi = GetContractsInfoApi(apiContractService);
-    getContractIdInfoApi = GetContractIdInfoApi(apiContractService);
+  Future<void> _initialize() async {
     final provider = Provider.of<ListContractProvider>(context, listen: false);
-    provider.getContractId(widget.contractDetail['id']);
-    
-   
-    pathFile(
-      fileBase64: widget.contractDetail['file'],
-      fileName: widget.contractDetail['id'].toString(),
-    ).then((v) {
+    setState(() {
+      provider.loading = true;
+      dataId = null;
+      pathPDF = "";
+    });
+    await provider.getContractId(widget.contractDetail['id']);
+    setState(() {
+      dataId = provider.dataId;
+    });
+    if (dataId != null && dataId!.file.isNotEmpty) {
+      final file = await pathFile(
+        fileBase64: dataId!.file,
+        fileName: dataId!.id.toString(),
+      );
       setState(() {
-        pathPDF = v.path;
+        pathPDF = file.path;
       });
+    }
+    setState(() {
+       provider.loading = false;
     });
   }
 
-
- 
-
+  @override
+  void initState() {
+    super.initState();
+    apiContractService = ApiContractService(authManager);
+    _initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -414,27 +378,6 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       ),
                                                                       Text(
                                                                         "${provider.dataId!.balance} R\$",
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                15,
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      )
-                                                                    ],
-                                                                  ),
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: [
-                                                                      Padding(
-                                                                        padding:
-                                                                            EdgeInsets.only(top: 5),
-                                                                        child: Text(
-                                                                            "Add. de Quantitativo: "),
-                                                                      ),
-                                                                      Text(
-                                                                        provider.dataId!.addQuant,
                                                                         style: TextStyle(
                                                                             fontSize:
                                                                                 15,

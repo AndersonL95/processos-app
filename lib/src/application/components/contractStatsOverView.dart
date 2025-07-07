@@ -12,7 +12,7 @@ class ContractStatsOverview extends StatelessWidget {
     final totalEmpresasOk = data.where((c) => c['companySituation'] == "Ok").length;
     final totalEmpresasAlerta = data.where((c) => c['companySituation'] == "Alerta").length;
     final totalEmpresasPendente = data.where((c) => c['companySituation'] == "Pendente").length;
-
+  print("ADDITIVOS: $totalAditivos");
     return Column(
       children: [
         Row(

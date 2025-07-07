@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:docInHand/src/application/screens/changePassword.dart';
 import 'package:flutter/material.dart';
 import 'package:docInHand/src/application/constants/colors.dart';
 import 'package:docInHand/src/application/screens/update_user.dart';
@@ -134,6 +135,7 @@ class _PerfilPageState extends State<PerfilPage> {
                           children: [
                             Icon(
                               Icons.logout,
+                              size: 24,
                               color: customColors['green'],
                             ),
                             const Text(
@@ -152,11 +154,11 @@ class _PerfilPageState extends State<PerfilPage> {
                           children: [
                             Icon(
                               Icons.person,
-                              size: 30,
+                              size: 24,
                               color: customColors['green'],
                             ),
                             const Text(
-                              "Usuario",
+                              "Editar usuario",
                               style: TextStyle(
                                   fontSize: 17, fontWeight: FontWeight.bold),
                             ),
@@ -167,6 +169,32 @@ class _PerfilPageState extends State<PerfilPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => UpdateUserPage(
+                                        userData: dataUser,
+                                      )))
+                        },
+                      )),
+                       PopupMenuItem(
+                          child: InkWell(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(
+                              Icons.lock_person,
+                              size: 24,
+                              color: customColors['green'],
+                            ),
+                            const Text(
+                              "Alterar senha",
+                              style: TextStyle(
+                                  fontSize: 17, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        onTap: () => {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => changePasswordPage(
                                         userData: dataUser,
                                       )))
                         },

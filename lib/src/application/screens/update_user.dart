@@ -164,24 +164,17 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: IconButton(
-                onPressed: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => changePasswordPage(
-                             userData: widget.userData,
-                            )))
-                },
-               icon: Icon(Icons.key,
-                size: 35,
-                color: customColors['white'],
-               ))
-            )),
+        actions: [Padding(
+            padding: EdgeInsets.only(top: 10, right: 20),
+            child: Text(
+              "DocInHand",
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+          ),
+        ],
         toolbarHeight: 120,
         centerTitle: false,
         backgroundColor: customColors['green'],

@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:docInHand/src/application/components/EditTermModal.dart';
+import 'package:docInHand/src/application/components/saveButtom_widget.dart';
 import 'package:docInHand/src/application/providers/listContract_provider.dart';
 import 'package:docInHand/src/application/use-case/createTerms_api.dart';
 import 'package:docInHand/src/domain/entities/addTerms.dart';
@@ -61,10 +63,6 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   TextEditingController addTermDescontroller = TextEditingController();
   List<String> situationCompanyList = <String>['Ok', 'Alerta', 'Pendente'];
   DropdownItem? statusContractController;
-  var maskFormatter = MaskTextInputFormatter(
-      mask: 'R\$ ###.###.###,##',
-      filter: {"#": RegExp(r'[0-9]')},
-      type: MaskAutoCompletionType.lazy);
   DateTime? initDate;
   DateTime? finalDate;
   final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
@@ -93,11 +91,12 @@ class UpdateContractPageState extends State<UpdateContractPage> {
 
   Future<void> _initializeData() async {
   final provider = Provider.of<ListContractProvider>(context, listen: false);
+  provider.loading = true;
   await provider.getContractId(widget.contractData['id']);
 
   final data = provider.dataId;
-  final dataTerm = provider.dataTerm;
-  if (data != null && dataTerm != []) {
+
+  if (data != null) {
     setState(() {
       nameController = TextEditingController(text: data.name);
       numContractController = TextEditingController(text: data.numContract);
@@ -119,7 +118,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
         orElse: () => statusItem[0],
       );
 
-      _terms = dataTerm;
+      _terms = data.addTerm!;
     });
   }
   apiContractService = ApiContractService(authManager);
@@ -133,7 +132,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
   getSectors();
   _loadUsers();
   contractEdit = provider.dataId;
-
+  provider.loading = false;
 }
   @override
   void initState() {
@@ -560,7 +559,13 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                     flex: 1,
                                     child: TextField(
                                       controller: balanceController,
-                                      inputFormatters: [maskFormatter],
+                                      inputFormatters: [
+                                         CurrencyTextInputFormatter.currency(
+                                          locale: 'pt_BR',
+                                          decimalDigits: 2,
+                                          symbol: 'R\$'
+                                        )
+                                      ],
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
                                           iconColor: customColors['green'],
@@ -1097,24 +1102,11 @@ class UpdateContractPageState extends State<UpdateContractPage> {
                                     ],
                                   )),
                              
-                                  
-                              Padding(
-                                padding: EdgeInsets.only(top: 20, bottom: 30),
-                                child: ElevatedButton(
-                                  child: Icon(
-                                    Icons.save_as_rounded,
-                                    size: 35,
-                                    color: customColors['white'],
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: customColors["green"],
-                                      shape: CircleBorder(),
-                                      minimumSize: const Size(140, 65)),
-                                  onPressed: () {
-                                    submitForm();
+                            SaveButton(
+                                  onPressed: () async {
+                                    await submitForm(); 
                                   },
-                                ),
-                              )
+                                )
                             ],
                           )),
                     )
