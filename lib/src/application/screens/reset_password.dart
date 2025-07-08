@@ -107,6 +107,33 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           width: 380,
                           child: Column(
                             children: [
+                              Container(
+                        color: customColors['green'],
+                        width: 400,
+                        height: 100,
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 20, left: 20),
+                            child: Text(
+                              "Resetar senhar",
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  color: customColors['white'],
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                           Padding(
+                            padding: EdgeInsets.only(top: 20, left: 10),
+                            child: Icon(
+                              Icons.lock,
+                              size: 40,
+                              color: customColors['white'],
+                            )
+                          ),
+                      ],),
+                      ),
                               Padding(padding: EdgeInsets.all(20),
                                 child: Text("Adicione o e-mail para verificação.", style: TextStyle(fontSize: 16, color: customColors['green'], fontWeight: FontWeight.bold),),
                               ),

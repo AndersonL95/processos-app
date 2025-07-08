@@ -41,8 +41,8 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
 
   String breakLines(String input) {
     List<String> lines = [];
-    for (int i = 0; i < input.length; i += 10) {
-      int endIndex = i + 10;
+    for (int i = 0; i < input.length; i += 44) {
+      int endIndex = i + 44;
       if (endIndex > input.length) {
         endIndex = input.length;
       }
@@ -275,7 +275,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                     elevation: 10,
                                                     shadowColor: Colors.black,
                                                     child: SizedBox(
-                                                        width: 100,
+                                                        width: 110,
                                                         child: Row(
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
@@ -344,17 +344,15 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                     ],
                                                                   ),
                                                                   Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
+                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                     children: [
-                                                                      Padding(
+                                                                       Padding(
                                                                         padding:
                                                                             EdgeInsets.only(top: 5),
                                                                         child: Text(
                                                                             "Data final: "),
                                                                       ),
-                                                                      Text(
+                                                                        Text(
                                                                         DateFormat('dd-MM-yyyy')
                                                                             .format(DateFormat("yyyy-MM-dd").parse(provider.dataId!.finalDate)),
                                                                         style: TextStyle(
@@ -365,6 +363,31 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                       )
                                                                     ],
                                                                   ),
+                                                                  if(dataId!.addTerm!.isNotEmpty)
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: 5),
+                                                                        child: Text(
+                                                                            "Aditivo de prazo: "),
+                                                                      ),
+                                                                    Text(
+                                                                        DateFormat('dd-MM-yyyy')
+                                                                            .format(DateFormat("yyyy-MM-dd").parse(provider.dataId!.addTerm!.last.newTermDate)),
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                                color: customColors['crismon']),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+
                                                                   Row(
                                                                     mainAxisAlignment:
                                                                         MainAxisAlignment
@@ -632,7 +655,7 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
                                                                 child: Row(
                                                                   children: [
                                                                     Text(
-                                                               provider.dataId!.todo,
+                                                              breakLines( provider.dataId!.todo),
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         15,

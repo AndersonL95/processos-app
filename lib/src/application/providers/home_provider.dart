@@ -36,7 +36,7 @@ class ContractProvider with ChangeNotifier {
       notifyListeners();
 
       final lastContracts = await get3LastContractsInfoApi.execute();
-      final allContracts = await getContractsInfoApi.execute();
+      final allContracts = await getContractsInfoApi.execute(all: true);
       final allNotifications = await getNotificationInfoApi.execute();
       
       data = lastContracts;

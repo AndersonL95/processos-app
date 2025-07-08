@@ -109,7 +109,7 @@ class UpdateContractPageState extends State<UpdateContractPage> {
       supervisorController = TextEditingController(text: data.supervisor);
       companySituationController = TextEditingController(text: data.companySituation);
       initDate = DateTime.tryParse(data.initDate);
-      finalDate = DateTime.tryParse(data.finalDate);
+      finalDate = data.addTerm!.isNotEmpty ? DateTime.tryParse(data.addTerm!.last.newTermDate) : DateTime.tryParse(data.finalDate);
       sectorContractController = data.sector;
       sector = data.sector;
       active = data.active == 'yes';

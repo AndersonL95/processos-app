@@ -27,7 +27,7 @@ class ListContractProvider with ChangeNotifier {
   bool loading = false;
   String? error;
   int _page = 1;
-  final int _limit = 2;
+  final int _limit = 5;
   int total = 0;
   String? currentSearchTerm;
   Contracts? dataId;
@@ -47,11 +47,16 @@ class ListContractProvider with ChangeNotifier {
     loading = true;
     notifyListeners();
     try {
+       _page = 1;
+      data.clear();
+      filtereData = [];
+      total = 0;
+      error = '';
       final prefs = await SharedPreferences.getInstance();
       final roleJson = prefs.getString('role');
       userRole = roleJson != null ? json.decode(roleJson) : null;
 
-      final value = await getContractsInfoApi.execute(page: _page, limit: _limit, useLightRoute: true) ;
+      final value = await getContractsInfoApi.execute(page: _page, limit: _limit) ;
 
       final filteredByRole = userRole == 'admin'
           ? value['data']
@@ -81,7 +86,7 @@ class ListContractProvider with ChangeNotifier {
 
     if (result is Contracts) {
       dataId = result;
-      dataTerm = result.addTerm ?? []; // proteção se for null
+      dataTerm = result.addTerm ?? []; 
     } else {
       dataId = null;
       dataTerm = [];

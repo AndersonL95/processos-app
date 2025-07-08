@@ -94,7 +94,8 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     }
   }
 
-  Future<dynamic> findAllContracts({int page = 1,int limit = 20, bool useLightRoute = false, String? search}) async {
+  Future<dynamic> findAllContracts({int page = 1,int limit = 10, bool useLightRoute = false, String? search, bool all = false}) async {
+    print("ALL: $all");
   var bodyList = [];
   final SharedPreferences data = await SharedPreferences.getInstance();
   String? tenantJson = data.getString('tenantId');
@@ -106,7 +107,7 @@ class ApiContractService implements RepositoryInterface<Contracts> {
     final query = search != null && search.isNotEmpty ? search: "";
     final response = await authManager.sendAuthenticate(() async {
       return await http.get(
-        HttpService.buildUri("$route?page=$page&limit=$limit&search=$query"),
+        HttpService.buildUri("$route?page=$page&limit=$limit&search=$query&all=$all"),
     
         headers: authManager.token != null
             ? {

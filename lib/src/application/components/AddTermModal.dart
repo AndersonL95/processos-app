@@ -13,6 +13,17 @@ class AddTermModalButton extends StatelessWidget {
     required this.dataTerm,
     
   });
+   String breakLines(String input) {
+    List<String> lines = [];
+    for (int i = 0; i < input.length; i += 32) {
+      int endIndex = i + 32;
+      if (endIndex > input.length) {
+        endIndex = input.length;
+      }
+      lines.add(input.substring(i, endIndex));
+    }
+    return lines.join('\n');
+  }
 
   void _openModal(BuildContext context) {
     String dateFormatt(String value) {
@@ -26,11 +37,9 @@ class AddTermModalButton extends StatelessWidget {
       return value;
     }
   }
-
- 
   return value;
 }
-     String pathPDF = "";
+  
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -65,7 +74,7 @@ class AddTermModalButton extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(term.nameTerm ?? "Sem nome", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                              Text(breakLines(term.nameTerm) ?? "Sem nome", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
                               Text( "Prazo final: ${dateFormatt(term.newTermDate)}" ?? "Sem nome", style:TextStyle(fontSize: 14, color: customColors['green']) ,),
                             ],
                           )
@@ -115,7 +124,7 @@ class AddTermModalButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(10),
       child: Column(
         children: [
           if(dataTerm.isNotEmpty)
@@ -128,10 +137,14 @@ class AddTermModalButton extends StatelessWidget {
             ),
       ),),
       if(dataTerm.isEmpty)
-        Image.asset(
-              'Assets/images/empty.png',
-              scale: 9.0,
-            ),
+       
+          Column(
+            children: [
+              Icon(Icons.indeterminate_check_box, color: customColors['crismon'],size: 35,),
+              Text("Sem aditivos.", style: TextStyle(),)
+            ],
+          ),
+        
         ],
       )
     );

@@ -318,7 +318,7 @@ void openModal() async {
                           itemBuilder: (context, index) {
                             if(index < dataToShow.length){
                               final contract = dataToShow[index];
-                           
+                            
                             return Column(
                               children: [
                               
@@ -617,7 +617,7 @@ void openModal() async {
                                                                 top: 5,
                                                                 right: 15),
                                                         child: Text(
-                                                          "Secretaria: ${contract['sector'].toString().substring(0, min(contract['sector'].toString().length, 10))}",
+                                                          "${contract['sector'].toString().substring(0, min(contract['sector'].toString().length, 25))}",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14),
@@ -631,9 +631,10 @@ void openModal() async {
                                                                 right: 15),
                                                         child: Text(
                                                           calculateDays(
-                                                             contract
-                                                                  [
-                                                                  'finalDate']),
+                                                             (contract['add_term'] != null && contract['add_term'].isNotEmpty)
+                                                              ? contract['add_term'].last['newTermDate']
+                                                              : contract['finalDate']
+                                                          ),
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14,
